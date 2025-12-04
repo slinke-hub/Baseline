@@ -56,7 +56,7 @@ export function SignupForm() {
         displayName: values.displayName,
       });
 
-      const userRole: AppUser['role'] = values.email === 'admin@test.com' ? 'admin' : 'client';
+      const userRole: AppUser['role'] = values.email.endsWith('@hoopscoach.dev') ? 'admin' : 'client';
 
       await setDoc(doc(firestore, 'users', user.uid), {
         uid: user.uid,
