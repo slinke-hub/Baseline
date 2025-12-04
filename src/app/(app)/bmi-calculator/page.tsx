@@ -41,6 +41,10 @@ export default function BmiCalculatorPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+        height: undefined,
+        weight: undefined,
+    }
   });
 
   function getBmiCategory(bmi: number): Omit<BmiResult, 'value'> {
@@ -88,7 +92,7 @@ export default function BmiCalculatorPage() {
                     <FormItem>
                       <FormLabel>Height (cm)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="188" {...field} />
+                        <Input type="number" placeholder="188" {...field} value={field.value ?? ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -101,7 +105,7 @@ export default function BmiCalculatorPage() {
                     <FormItem>
                       <FormLabel>Weight (kg)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="85" {...field} />
+                        <Input type="number" placeholder="85" {...field} value={field.value ?? ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
