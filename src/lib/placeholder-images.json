@@ -1,3 +1,106 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "onboarding-1",
+      "description": "A person training for basketball.",
+      "imageUrl": "https://images.unsplash.com/photo-1763893305634-1086983fcb90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxiYXNrZXRiYWxsJTIwdHJhaW5pbmd8ZW58MHx8fHwxNzY0ODg2MDU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball training"
+    },
+    {
+      "id": "onboarding-2",
+      "description": "A chart showing progress.",
+      "imageUrl": "https://images.unsplash.com/photo-1577563682708-4f022ec774fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwcm9ncmVzcyUyMGNoYXJ0fGVufDB8fHx8MTc2NDg2NjUyMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "progress chart"
+    },
+    {
+      "id": "onboarding-3",
+      "description": "Healthy athletic food.",
+      "imageUrl": "https://images.unsplash.com/photo-1547592180-85f173990554?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxoZWFsdGh5JTIwZm9vZHxlbnwwfHx8fDE3NjQ4MjY2OTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "healthy food"
+    },
+    {
+      "id": "todays-workout",
+      "description": "A basketball court with a dramatic light.",
+      "imageUrl": "https://images.unsplash.com/photo-1572454181157-0b40dd7667fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiYXNrZXRiYWxsJTIwY291cnR8ZW58MHx8fHwxNzY0ODU1Mzg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball court"
+    },
+    {
+      "id": "cat-shooting",
+      "description": "A basketball going through a hoop.",
+      "imageUrl": "https://images.unsplash.com/photo-1576438307992-e580fc658883?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYXNrZXRiYWxsJTIwaG9vcHxlbnwwfHx8fDE3NjQ4ODYwNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball hoop"
+    },
+    {
+      "id": "cat-strength",
+      "description": "Weights in a gym.",
+      "imageUrl": "https://images.unsplash.com/photo-1672344048213-76b6e77304bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxneW0lMjB3ZWlnaHRzfGVufDB8fHx8MTc2NDgxNDk4Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gym weights"
+    },
+    {
+      "id": "cat-dribbling",
+      "description": "A person dribbling a basketball.",
+      "imageUrl": "https://images.unsplash.com/photo-1686420223282-4dc78f28918b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxiYXNrZXRiYWxsJTIwZHJpYmJsZXxlbnwwfHx8fDE3NjQ4MTMzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball dribble"
+    },
+    {
+      "id": "profile-pic-1",
+      "description": "Default user profile picture.",
+      "imageUrl": "https://images.unsplash.com/photo-1489514427794-bb4f67f45c7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwcm9maWxlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzY0ODMyMzY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "profile portrait"
+    },
+    {
+      "id": "workout-shooting-1",
+      "description": "Form shooting drill.",
+      "imageUrl": "https://images.unsplash.com/photo-1758798460141-c25c68b6afd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmFza2V0YmFsbCUyMHNob290aW5nfGVufDB8fHx8MTc2NDg4NjA1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball shooting"
+    },
+    {
+      "id": "workout-handling-1",
+      "description": "Ball handling drill.",
+      "imageUrl": "https://images.unsplash.com/photo-1764349721422-e69e54f3e15d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxiYXNrZXRiYWxsJTIwZHJpYmJsaW5nfGVufDB8fHx8MTc2NDg4NjA1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball dribbling"
+    },
+    {
+      "id": "workout-defense-1",
+      "description": "Defensive stance drill.",
+      "imageUrl": "https://images.unsplash.com/photo-1691112153062-892eb33e0063?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiYXNrZXRiYWxsJTIwZGVmZW5zZXxlbnwwfHx8fDE3NjQ4MTM0MDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball defense"
+    },
+    {
+      "id": "workout-conditioning-1",
+      "description": "Athlete doing sprints.",
+      "imageUrl": "https://images.unsplash.com/photo-1526676317768-d9b14f15615a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhdGhsZXRlJTIwcnVubmluZ3xlbnwwfHx8fDE3NjQ4Njk0NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "athlete running"
+    },
+    {
+      "id": "workout-jump-1",
+      "description": "Athlete doing box jumps.",
+      "imageUrl": "https://images.unsplash.com/photo-1578762838985-8dccd64b6ebf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxib3glMjBqdW1wfGVufDB8fHx8MTc2NDg4NjA1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "box jump"
+    },
+    {
+      "id": "meal-breakfast-1",
+      "description": "Oatmeal with berries.",
+      "imageUrl": "https://images.unsplash.com/photo-1602682822546-09bc5623461e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxvYXRtZWFsJTIwYmVycmllc3xlbnwwfHx8fDE3NjQ4NjUyMjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "oatmeal berries"
+    },
+    {
+      "id": "meal-lunch-1",
+      "description": "Grilled chicken salad.",
+      "imageUrl": "https://images.unsplash.com/photo-1604909052743-94e838986d24?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjaGlja2VuJTIwc2FsYWR8ZW58MHx8fHwxNzY0ODQ3OTQ1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chicken salad"
+    },
+    {
+      "id": "meal-dinner-1",
+      "description": "Salmon with asparagus.",
+      "imageUrl": "https://images.unsplash.com/photo-1560717845-968823efbee1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzYWxtb24lMjBhc3BhcmFndXN8ZW58MHx8fHwxNzY0ODY0Mjg2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "salmon asparagus"
+    },
+    {
+      "id": "meal-snack-1",
+      "description": "Greek yogurt with nuts.",
+      "imageUrl": "https://images.unsplash.com/photo-1593198232414-72431a1cc506?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxncmVlayUyMHlvZ3VydHxlbnwwfHx8fDE3NjQ4NjQyODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "greek yogurt"
+    }
+  ]
 }
