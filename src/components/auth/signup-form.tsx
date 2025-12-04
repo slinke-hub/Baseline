@@ -20,10 +20,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { AppUser } from '@/lib/types';
+import { useFirebase } from '@/firebase';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -33,6 +33,7 @@ const formSchema = z.object({
 
 export function SignupForm() {
   const router = useRouter();
+  const { auth, firestore } = useFirebase();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -57,7 +58,7 @@ export function SignupForm() {
 
       const userRole: AppUser['role'] = values.email === 'admin@test.com' ? 'admin' : 'client';
 
-      await setDoc(doc(db, 'users', user.uid), {
+      await setDoc(doc(firestore, 'users', user.uid), {
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,

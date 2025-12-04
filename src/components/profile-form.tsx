@@ -19,11 +19,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, updateDoc } from 'firebase/firestore';
-import { db, storage } from '@/lib/firebase/config';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useFirebase } from '@/firebase';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Name is too short.'),
@@ -36,6 +36,7 @@ const profileSchema = z.object({
 
 export function ProfileForm() {
   const { appUser, user } = useAuth();
+  const { firestore } = useFirebase();
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -69,12 +70,13 @@ export function ProfileForm() {
     try {
       let photoURL = appUser?.photoURL || '';
       if (photoFile) {
+        const storage = getStorage(useFirebase().firebaseApp);
         const storageRef = ref(storage, `profile-photos/${user.uid}`);
         const snapshot = await uploadBytes(storageRef, photoFile);
         photoURL = await getDownloadURL(snapshot.ref);
       }
 
-      const userDocRef = doc(db, 'users', user.uid);
+      const userDocRef = doc(firestore, 'users', user.uid);
       await updateDoc(userDocRef, { ...values, photoURL });
 
       toast({

@@ -1,12 +1,11 @@
 'use client';
 
 import type { User as FirebaseUser } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase/config';
-import { onAuthStateChanged } from 'firebase/auth';
 import type { ReactNode } from 'react';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, useMemo } from 'react';
 import type { AppUser } from '@/lib/types';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { useFirebase, useUser } from '@/firebase';
 
 interface AuthContextType {
   user: FirebaseUser | null;
@@ -21,38 +20,32 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const { firestore } = useFirebase();
+  const { user, isUserLoading } = useUser();
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        
-        // Use onSnapshot to listen for real-time updates to user data
-        const unsubscribeSnapshot = onSnapshot(userDocRef, (doc) => {
-          if (doc.exists()) {
-            setAppUser({ uid: firebaseUser.uid, ...doc.data() } as AppUser);
-          } else {
-            setAppUser(null);
-          }
-          setLoading(false);
-        });
+    setLoading(isUserLoading);
+    if (isUserLoading || !user) {
+      setAppUser(null);
+      return;
+    }
 
-        return () => unsubscribeSnapshot();
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const unsubscribe = onSnapshot(userDocRef, (doc) => {
+      if (doc.exists()) {
+        setAppUser({ uid: user.uid, ...doc.data() } as AppUser);
       } else {
-        setUser(null);
         setAppUser(null);
-        setLoading(false);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [user, isUserLoading, firestore]);
 
-  const value = { user, appUser, loading };
+  const value = useMemo(() => ({ user, appUser, loading }), [user, appUser, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

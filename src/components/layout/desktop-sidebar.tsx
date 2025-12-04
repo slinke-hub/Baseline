@@ -6,9 +6,8 @@ import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calc
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth as useAppAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
 import {
   Avatar,
   AvatarFallback,
@@ -20,6 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useFirebase } from '@/firebase';
 
 const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home' },
@@ -31,7 +31,8 @@ const mainNavItems = [
 
 export function DesktopSidebar() {
   const pathname = usePathname();
-  const { appUser } = useAuth();
+  const { appUser } = useAppAuth();
+  const { auth } = useFirebase();
   const router = useRouter();
 
   const handleLogout = async () => {
