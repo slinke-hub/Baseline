@@ -11,8 +11,8 @@ export default function EntryPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // For demonstration, redirect directly to the client portal
-    router.replace('/home');
+    // For demonstration, redirect directly to the admin portal
+    router.replace('/admin');
     
     // Original logic is commented out below.
     // if (!loading) {
@@ -32,7 +32,7 @@ export default function EntryPage() {
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
       <Logo className="h-16 w-16 text-primary" />
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p>Redirecting to client portal...</p>
+      <p>Redirecting to admin portal...</p>
     </div>
   );
 }
