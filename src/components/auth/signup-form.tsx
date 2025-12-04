@@ -23,6 +23,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import type { AppUser } from '@/lib/types';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -54,12 +55,15 @@ export function SignupForm() {
         displayName: values.displayName,
       });
 
+      const userRole: AppUser['role'] = values.email === 'admin@test.com' ? 'admin' : 'client';
+
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
+        role: userRole,
       });
       
       router.push('/');

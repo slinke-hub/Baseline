@@ -7,18 +7,22 @@ import { Loader2 } from 'lucide-react';
 import { Logo } from '@/components/icons/logo';
 
 export default function EntryPage() {
-  const { user, loading } = useAuth();
+  const { user, appUser, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        router.replace('/home');
+      if (user && appUser) {
+        if (appUser.role === 'admin') {
+          router.replace('/admin');
+        } else {
+          router.replace('/home');
+        }
       } else {
         router.replace('/onboarding');
       }
     }
-  }, [user, loading, router]);
+  }, [user, appUser, loading, router]);
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
