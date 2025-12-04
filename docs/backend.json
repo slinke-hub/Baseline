@@ -1,0 +1,311 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile within the HoopsCoach application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "age": {
+          "type": "number",
+          "description": "User's age in years."
+        },
+        "height": {
+          "type": "number",
+          "description": "User's height in centimeters."
+        },
+        "weight": {
+          "type": "number",
+          "description": "User's weight in kilograms."
+        },
+        "position": {
+          "type": "string",
+          "description": "User's basketball playing position (PG, SG, SF, PF, C)."
+        },
+        "experienceLevel": {
+          "type": "string",
+          "description": "User's experience level in basketball (e.g., beginner, intermediate, advanced)."
+        },
+        "profilePhotoUrl": {
+          "type": "string",
+          "description": "URL of the user's profile photo stored in Firebase Storage.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "Workout": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Workout",
+      "type": "object",
+      "description": "Represents a basketball workout with instructions and details.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workout."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the workout."
+        },
+        "difficulty": {
+          "type": "string",
+          "description": "Difficulty level of the workout (e.g., beginner, intermediate, advanced)."
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration of the workout in minutes."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the workout (shooting, ball handling, defense, conditioning, vertical jump)."
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Step-by-step instructions for the workout."
+        },
+        "videoUrl": {
+          "type": "string",
+          "description": "URL of the embedded video demonstrating the workout.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "WorkoutProgress": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WorkoutProgress",
+      "type": "object",
+      "description": "Represents a user's progress for a specific workout.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workout progress entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N WorkoutProgress)"
+        },
+        "workoutId": {
+          "type": "string",
+          "description": "Reference to Workout. (Relationship: Workout 1:N WorkoutProgress)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date when the workout was performed.",
+          "format": "date-time"
+        },
+        "timeSpent": {
+          "type": "number",
+          "description": "Time spent on the workout in minutes."
+        },
+        "shotsTaken": {
+          "type": "number",
+          "description": "Number of shots taken during the workout."
+        },
+        "isCompleted": {
+          "type": "boolean",
+          "description": "Indicates whether the workout was completed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "workoutId"
+      ]
+    },
+    "Meal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Meal",
+      "type": "object",
+      "description": "Represents a meal with ingredients, instructions, and nutritional information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the meal."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the meal."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the meal (Breakfast, Lunch, Dinner, Snacks, Pre-game meals, Post-game meals)."
+        },
+        "ingredients": {
+          "type": "string",
+          "description": "List of ingredients for the meal."
+        },
+        "steps": {
+          "type": "string",
+          "description": "Step-by-step instructions for preparing the meal."
+        },
+        "calories": {
+          "type": "number",
+          "description": "Total calories in the meal."
+        },
+        "protein": {
+          "type": "number",
+          "description": "Amount of protein in the meal (in grams)."
+        },
+        "carbs": {
+          "type": "number",
+          "description": "Amount of carbohydrates in the meal (in grams)."
+        },
+        "fat": {
+          "type": "number",
+          "description": "Amount of fat in the meal (in grams)."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL of the meal photo.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "UserMealPlan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserMealPlan",
+      "type": "object",
+      "description": "Represents a user's saved meal plan with editable daily schedules.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user meal plan."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N UserMealPlan)"
+        },
+        "mealId": {
+          "type": "string",
+          "description": "Reference to Meal. (Relationship: Meal 1:N UserMealPlan)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date for which the meal is scheduled.",
+          "format": "date-time"
+        },
+        "mealTime": {
+          "type": "string",
+          "description": "Time of day for the meal (e.g., Breakfast, Lunch, Dinner)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mealId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information.  Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutProgress/{workoutProgressId}",
+        "definition": {
+          "entityName": "WorkoutProgress",
+          "schema": {
+            "$ref": "#/backend/entities/WorkoutProgress"
+          },
+          "description": "Stores the workout progress of a user. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "workoutProgressId",
+              "description": "The unique identifier of the workout progress entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/mealPlans/{mealPlanId}",
+        "definition": {
+          "entityName": "UserMealPlan",
+          "schema": {
+            "$ref": "#/backend/entities/UserMealPlan"
+          },
+          "description": "Stores the meal plans of a user. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "mealPlanId",
+              "description": "The unique identifier of the meal plan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/workouts/{workoutId}",
+        "definition": {
+          "entityName": "Workout",
+          "schema": {
+            "$ref": "#/backend/entities/Workout"
+          },
+          "description": "Stores workout information.  This collection is publicly readable; write access should be restricted to admin roles (if any).",
+          "params": [
+            {
+              "name": "workoutId",
+              "description": "The unique identifier of the workout."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/meals/{mealId}",
+        "definition": {
+          "entityName": "Meal",
+          "schema": {
+            "$ref": "#/backend/entities/Meal"
+          },
+          "description": "Stores meal information. This collection is publicly readable; write access should be restricted to admin roles (if any).",
+          "params": [
+            {
+              "name": "mealId",
+              "description": "The unique identifier of the meal."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the HoopsCoach application. User-owned data is stored under the `/users/{userId}` path to easily control data access. The `WorkoutProgress` and `UserMealPlan` collections are also stored under the user's path to maintain the 1:N relationship between `User` and respective collections. Public workout and meal data are segregated into dedicated collections (`/workouts` and `/meals`) to simplify security rules and enable easy listing without complex filtering. No custom claims are used, relying solely on the `request.auth.uid` and path-based ownership. This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability. By segregating data with different access requirements (e.g., public workouts vs. user-specific progress), the structure ensures a homogeneous security posture for each collection, making rules more straightforward. The denormalization strategy involves storing authorization-related data directly within the documents needing protection, avoiding hierarchical dependencies."
+  }
+}

@@ -1,0 +1,141 @@
+/**
+ * # Core Philosophy
+ * This ruleset enforces a strict user-ownership model for all personal data,
+ * ensuring that users can only access their own information. Public content,
+ * such as general workouts and meals, is segregated into separate top-level
+ * collections that are readable by anyone but cannot be modified by clients.
+ *
+ * # Data Structure
+ * - /users/{userId}: Stores private user profiles and serves as the root for all user-owned subcollections.
+ *   - /users/{userId}/workoutProgress/{workoutProgressId}: Contains a user's private workout history.
+ *   - /users/{userId}/mealPlans/{mealPlanId}: Contains a user's private meal plans.
+ * - /workouts/{workoutId}: A public, read-only collection of available workouts.
+ * - /meals/{mealId}: A public, read-only collection of available meals.
+ *
+ * # Key Security Decisions
+ * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security, ensuring only the authenticated owner can access it.
+ * - **No User Listing**: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy.
+ * - **Public Read-Only Content**: The `/workouts` and `/meals` collections are publicly readable to allow anonymous browsing of content. All write operations are disabled pending the implementation of a secure admin or content creator role.
+ * - **Default Deny**: Any operation not explicitly granted is denied.
+ *
+ * # Denormalization for Authorization
+ * The data model is structured to make authorization simple and performant. By nesting user-specific data like `workoutProgress` under the user's document path `/users/{userId}`, we can write fast and simple ownership checks (`isOwner(userId)`) without needing any costly `get()` calls to other documents.
+ *
+ * # Structural Segregation
+ * This ruleset uses separate top-level collections for private user data (`/users`) and public content (`/workouts`, `/meals`). This is a highly secure and performant pattern that prevents accidental data leakage and simplifies rules for list queries, as the security posture is uniform across all documents in a collection.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for readable and reusable logic
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Checks if the requesting user's UID matches the document's owner ID.
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Ensures a document exists before an update or delete, and confirms ownership.
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // Validates that a user is creating their own user profile document.
+    // Enforces relational integrity by ensuring the document ID matches the auth UID.
+    function isCreatingSelf(userId) {
+      return isOwner(userId) && request.resource.data.id == userId;
+    }
+
+    // Validates creation of a subcollection document, ensuring the internal userId field
+    // matches the user path, establishing a clear ownership link.
+    function isCreatingOwnedDocument(userId) {
+      return isOwner(userId) && request.resource.data.userId == userId;
+    }
+
+    // Validates updates to a user's subcollection document.
+    // Enforces immutability of the critical userId ownership link.
+    function isUpdatingOwnedDocument(userId) {
+      return isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * @description Controls access to user profile documents.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creating their own profile document for the first time.
+     * @deny (get) An authenticated user trying to read another user's profile.
+     * @principle Restricts access to a user's own data tree and allows self-creation of the root document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isCreatingSelf(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Controls access to a user's workout progress history.
+       * @path /users/{userId}/workoutProgress/{workoutProgressId}
+       * @allow (create) An authenticated user adding a new workout progress entry for themselves.
+       * @deny (list) An authenticated user trying to list another user's workout progress.
+       * @principle Enforces document ownership for all operations within a user's private subcollection.
+       */
+      match /workoutProgress/{workoutProgressId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isCreatingOwnedDocument(userId);
+        allow update: if isUpdatingOwnedDocument(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's personalized meal plans.
+       * @path /users/{userId}/mealPlans/{mealPlanId}
+       * @allow (update) An authenticated user modifying one of their existing meal plans.
+       * @deny (get) An anonymous user trying to read a specific user's meal plan.
+       * @principle Enforces document ownership for all operations within a user's private subcollection.
+       */
+      match /mealPlans/{mealPlanId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isCreatingOwnedDocument(userId);
+        allow update: if isUpdatingOwnedDocument(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Controls access to the public collection of workouts.
+     * @path /workouts/{workoutId}
+     * @allow (get) Any user, including anonymous users, fetching a specific workout.
+     * @deny (create) Any user trying to add a new workout.
+     * @principle Provides public read access for general content while restricting writes to prevent unauthorized modifications.
+     */
+    match /workouts/{workoutId} {
+      allow get: if true;
+      allow list: if true;
+      // CRITICAL: Cannot implement owner-only writes. The 'Workout' entity is missing an 'ownerId' or 'authorId' field.
+      allow create: if false; // TODO: Add admin/creator role validation once the schema is updated with an ownership field.
+      allow update: if false; // TODO: Add admin/creator role validation once the schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add admin/creator role validation once the schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Controls access to the public collection of meals.
+     * @path /meals/{mealId}
+     * @allow (list) Any user, including anonymous users, listing all available meals.
+     * @deny (update) Any user trying to modify an existing meal.
+     * @principle Provides public read access for general content while restricting writes to prevent unauthorized modifications.
+     */
+    match /meals/{mealId} {
+      allow get: if true;
+      allow list: if true;
+      // CRITICAL: Cannot implement owner-only writes. The 'Meal' entity is missing an 'ownerId' or 'authorId' field.
+      allow create: if false; // TODO: Add admin/creator role validation once the schema is updated with an ownership field.
+      allow update: if false; // TODO: Add admin/creator role validation once the schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add admin/creator role validation once the schema is updated with an ownership field.
+    }
+  }
+}
