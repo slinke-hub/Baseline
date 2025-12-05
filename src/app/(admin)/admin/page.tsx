@@ -2,14 +2,14 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Activity, Dumbbell, UtensilsCrossed, PlusCircle, Trash2, Edit } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { mockWorkouts, mockMeals } from '@/lib/mock-data';
-import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
-import Link from 'next/link';
+import { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { format } from 'date-fns';
 
 // Mock user data for demonstration
 const mockUsers = [
@@ -19,7 +19,31 @@ const mockUsers = [
     { id: 'user-4', name: 'Admin User', email: 'admin@hoopscoach.dev', role: 'admin', plan: 'N/A', joined: '2023-10-20' },
 ];
 
+const initialAnnouncements = [
+    { id: 1, author: 'Admin', text: 'Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.', date: new Date() },
+    { id: 2, author: 'Admin', text: 'New "Vertical Jump" workouts have been added! Check them out in the workouts section.', date: new Date(new Date().setDate(new Date().getDate() - 1)) },
+];
+
 export default function AdminDashboardPage() {
+    const { toast } = useToast();
+    const [newAnnouncement, setNewAnnouncement] = useState('');
+    const [announcements, setAnnouncements] = useState(initialAnnouncements);
+
+    const handlePostAnnouncement = () => {
+        if (!newAnnouncement.trim()) return;
+
+        const announcement = {
+            id: Date.now(),
+            author: 'Admin',
+            text: newAnnouncement,
+            date: new Date(),
+        };
+
+        setAnnouncements([announcement, ...announcements]);
+        setNewAnnouncement('');
+        toast({ title: "Announcement Posted", description: "Your announcement is now visible to all clients." });
+    }
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8">
@@ -28,7 +52,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center aspect-square text-center p-4">
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-2 aspect-square text-center">
               <CardHeader className="p-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Users className="h-4 w-4 text-muted-foreground" /> Total Users</CardTitle>
               </CardHeader>
@@ -37,7 +61,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">+2 since last week</p>
               </CardContent>
           </Card>
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center aspect-square text-center p-4">
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-2 aspect-square text-center">
               <CardHeader className="p-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Dumbbell className="h-4 w-4 text-muted-foreground" /> Total Workouts</CardTitle>
               </CardHeader>
@@ -46,7 +70,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">Manage workout content</p>
               </CardContent>
           </Card>
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center aspect-square text-center p-4">
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-2 aspect-square text-center">
               <CardHeader className="p-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Total Meals</CardTitle>
               </CardHeader>
@@ -56,18 +80,45 @@ export default function AdminDashboardPage() {
               </CardContent>
           </Card>
       </div>
-        <Card className="mt-6">
-        <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>A log of recent user activities will be shown here.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg p-12">
-                <Activity className="h-12 w-12 mb-4" />
-                <p>Real-time activity feed coming soon.</p>
-            </div>
-        </CardContent>
-      </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> Post an Announcement</CardTitle>
+                    <CardDescription>This message will be broadcast to all client dashboards.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Textarea
+                        placeholder="Type your announcement here..."
+                        value={newAnnouncement}
+                        onChange={(e) => setNewAnnouncement(e.target.value)}
+                        rows={4}
+                    />
+                    <Button onClick={handlePostAnnouncement} disabled={!newAnnouncement.trim()}>Post Announcement</Button>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Recent Announcements</CardTitle>
+                    <CardDescription>A log of your most recent posts.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
+                        {announcements.map(ann => (
+                             <div key={ann.id} className="flex items-start gap-4">
+                                <Avatar className="h-9 w-9 border">
+                                    <AvatarFallback>A</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="text-sm font-medium">{ann.author}</p>
+                                    <p className="text-sm text-muted-foreground">{ann.text}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{format(ann.date, "PPP p")}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     </div>
   );
 }

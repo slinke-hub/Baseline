@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Dumbbell, Droplet, Rocket, BarChart } from 'lucide-react';
+import { Dumbbell, Droplet, Rocket, BarChart, Megaphone } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Progress } from "@/components/ui/progress";
@@ -24,6 +25,7 @@ const progressStats = [
 
 const TodaysWorkoutImage = placeholderData.placeholderImages.find(p => p.id === 'todays-workout');
 const todaysWorkout = mockWorkouts.find(w => w.category === 'Ball Handling') || mockWorkouts[0];
+const latestAnnouncement = "Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.";
 
 export default function HomePage() {
   const { appUser } = useAuth();
@@ -34,6 +36,16 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold tracking-tight">Welcome back, {appUser?.displayName?.split(' ')[0] || 'Player'}!</h1>
         <p className="text-muted-foreground">Ready to crush another session? Let's get it.</p>
       </div>
+
+       <Card className="bg-primary/10 border-primary/20">
+        <CardHeader className="flex-row items-center gap-4 space-y-0">
+            <Megaphone className="h-6 w-6 text-primary"/>
+            <CardTitle>Coach's Announcement</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <p className="text-muted-foreground">{latestAnnouncement}</p>
+        </CardContent>
+      </Card>
 
       <Card className="overflow-hidden">
         <div className="grid md:grid-cols-2">
