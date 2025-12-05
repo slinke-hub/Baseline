@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { AdminSidebar } from '@/components/layout/admin-sidebar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { appUser, loading } = useAuth();
@@ -41,9 +42,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // }
 
   return (
-    <div className="flex">
-        {/* A simple admin sidebar can be added here in the future */}
-        <main className="flex-1">{children}</main>
+    <div className="flex min-h-screen">
+      <AdminSidebar />
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 pl-72">{children}</main>
     </div>
   );
 }
