@@ -20,14 +20,14 @@ const mockUsers = [
 
 export default function AdminDashboardPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">Welcome to the HoopsCoach control center.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">+2 since last week</p>
               </CardContent>
           </Card>
-          <Card>
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Workouts</CardTitle>
                   <Dumbbell className="h-4 w-4 text-muted-foreground" />
@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">Manage workout content</p>
               </CardContent>
           </Card>
-          <Card>
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Meals</CardTitle>
                   <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
