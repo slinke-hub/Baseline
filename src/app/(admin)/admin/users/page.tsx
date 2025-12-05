@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlusCircle, Trash2, Edit, MoreVertical, Eye } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -13,6 +14,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from 'next/link';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 
 // Mock user data for demonstration
 const mockUsers = [
@@ -24,9 +48,19 @@ const mockUsers = [
 
 export default function AdminUsersPage() {
     const { toast } = useToast();
+    const [isAddUserOpen, setAddUserOpen] = useState(false);
 
     const showToast = (title: string, description: string) => {
         toast({ title, description });
+    }
+
+    const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const name = formData.get('name') as string;
+        const email = formData.get('email') as string;
+        showToast('User Added (Simulation)', `Added new user: ${name} (${email})`);
+        setAddUserOpen(false);
     }
 
     return (
@@ -36,7 +70,38 @@ export default function AdminUsersPage() {
                     <CardTitle>User Management</CardTitle>
                     <CardDescription>View, edit, or delete user profiles.</CardDescription>
                 </div>
-                <Button onClick={() => showToast('Add User', 'Add user functionality coming soon!')}><PlusCircle className="mr-2 h-4 w-4" /> Add User</Button>
+                <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
+                  <DialogTrigger asChild>
+                    <Button><PlusCircle className="mr-2 h-4 w-4" /> Add User</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <form onSubmit={handleAddUser}>
+                      <DialogHeader>
+                        <DialogTitle>Add New User</DialogTitle>
+                        <DialogDescription>
+                          Fill in the details for the new user. An invitation will be sent to their email.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="name" className="text-right">
+                            Name
+                          </Label>
+                          <Input id="name" name="name" defaultValue="Ja Morant" className="col-span-3" />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="email" className="text-right">
+                            Email
+                          </Label>
+                          <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button type="submit">Create User</Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -65,8 +130,28 @@ export default function AdminUsersPage() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild><Link href="/admin/schedule"><Eye className="mr-2 h-4 w-4" />View Schedule</Link></DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => showToast('Edit User', `Editing ${user.name}`)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => showToast('Delete User', `Deleting ${user.name}`)} className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => showToast('Edit User', `This would open an edit form for ${user.name}`)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <div className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
+                                                        <Trash2 className="mr-2 h-4 w-4" />Delete
+                                                    </div>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure you want to delete {user.name}?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete the user's account and remove their data from our servers.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => showToast('User Deleted', `(Simulated) ${user.name} has been deleted.`)}>
+                                                            Continue
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
