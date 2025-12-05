@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mockWorkouts, mockMeals } from '@/lib/mock-data';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,15 +19,26 @@ const mockUsers = [
     { id: 'user-4', name: 'Admin User', email: 'admin@hoopscoach.dev', role: 'admin', plan: 'N/A', joined: '2023-10-20' },
 ];
 
-const initialAnnouncements = [
-    { id: 1, author: 'Admin', text: 'Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.', date: new Date() },
-    { id: 2, author: 'Admin', text: 'New "Vertical Jump" workouts have been added! Check them out in the workouts section.', date: new Date(new Date().setDate(new Date().getDate() - 1)) },
-];
+type Announcement = {
+    id: number;
+    author: string;
+    text: string;
+    date: Date;
+}
 
 export default function AdminDashboardPage() {
     const { toast } = useToast();
     const [newAnnouncement, setNewAnnouncement] = useState('');
-    const [announcements, setAnnouncements] = useState(initialAnnouncements);
+    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+    useEffect(() => {
+      // Initialize announcements on the client to avoid hydration errors
+      const initialAnnouncements = [
+          { id: 1, author: 'Admin', text: 'Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.', date: new Date() },
+          { id: 2, author: 'Admin', text: 'New "Vertical Jump" workouts have been added! Check them out in the workouts section.', date: new Date(new Date().setDate(new Date().getDate() - 1)) },
+      ];
+      setAnnouncements(initialAnnouncements);
+    }, []);
 
     const handlePostAnnouncement = () => {
         if (!newAnnouncement.trim()) return;
