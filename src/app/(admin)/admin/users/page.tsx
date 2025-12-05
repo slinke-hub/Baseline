@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -39,7 +40,7 @@ import { Label } from "@/components/ui/label"
 
 
 // Mock user data for demonstration
-const mockUsers = [
+const initialUsers = [
     { id: 'user-1', name: 'LeBron James', email: 'lebron@example.com', role: 'client', plan: 'Pro', joined: '2023-10-26' },
     { id: 'user-2', name: 'Stephen Curry', email: 'steph@example.com', role: 'client', plan: 'Pro', joined: '2023-10-25' },
     { id: 'user-3', name: 'Kevin Durant', email: 'kd@example.com', role: 'client', plan: 'Free', joined: '2023-10-24' },
@@ -49,6 +50,7 @@ const mockUsers = [
 export default function AdminUsersPage() {
     const { toast } = useToast();
     const [isAddUserOpen, setAddUserOpen] = useState(false);
+    const [users, setUsers] = useState(initialUsers);
 
     const showToast = (title: string, description: string) => {
         toast({ title, description });
@@ -59,8 +61,29 @@ export default function AdminUsersPage() {
         const formData = new FormData(event.currentTarget);
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
-        showToast('User Added (Simulation)', `Added new user: ${name} (${email})`);
+        
+        const newUser = {
+            id: `user-${Date.now()}`,
+            name,
+            email,
+            role: 'client' as 'client' | 'admin',
+            plan: 'Free',
+            joined: new Date().toISOString().split('T')[0],
+        };
+
+        setUsers(currentUsers => [newUser, ...currentUsers]);
+
+        showToast('User Added', `Added new user: ${name} (${email})`);
         setAddUserOpen(false);
+    }
+    
+    const handleDeleteUser = (userId: string) => {
+        setUsers(currentUsers => currentUsers.filter(user => user.id !== userId));
+        toast({
+            title: "User Deleted",
+            description: "The user has been removed from the list.",
+            variant: "destructive",
+        })
     }
 
     return (
@@ -115,7 +138,7 @@ export default function AdminUsersPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {mockUsers.map(user => (
+                        {users.map(user => (
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell>{user.email}</TableCell>
@@ -146,7 +169,7 @@ export default function AdminUsersPage() {
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
                                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => showToast('User Deleted', `(Simulated) ${user.name} has been deleted.`)}>
+                                                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>
                                                             Continue
                                                         </AlertDialogAction>
                                                     </AlertDialogFooter>
