@@ -31,7 +31,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card md:flex">
+    <aside className="fixed left-0 top-0 hidden h-screen w-56 flex-col border-r bg-card md:flex">
       <div className="flex h-20 items-center justify-center px-6">
         <Link href="/admin" className="flex items-center gap-2">
           <Logo className="h-8 w-8 text-primary" />
