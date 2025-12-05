@@ -1,3 +1,4 @@
+
 'use client';
 
 import { mockMeals } from "@/lib/mock-data";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
 import Image from "next/image";
 import placeholderData from '@/lib/placeholder-images.json';
-import { ArrowLeft, Flame, Beef, Wheat, Leaf } from "lucide-react";
+import { ArrowLeft, Flame, Beef, Wheat, Leaf, PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 
@@ -29,9 +30,10 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
   const mealImage = placeholderData.placeholderImages.find(p => p.id === meal.imageId);
 
   const handleSave = () => {
+    // In a real app, this would update user's data in Firestore
     toast({
-      title: "Feature Coming Soon",
-      description: "Saving meals to your personalized plan is under construction.",
+      title: "Meal Saved!",
+      description: `${meal.title} has been added to your meal plan.`,
     });
   };
 
@@ -103,6 +105,7 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
                 <Separator className="mt-2" />
 
                 <Button size="lg" className="w-full" onClick={handleSave}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
                     Save to My Meal Plan
                 </Button>
             </CardContent>
@@ -111,3 +114,5 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+    

@@ -24,7 +24,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   Dialog,
@@ -41,20 +40,20 @@ import { Label } from "@/components/ui/label"
 
 // Mock user data for demonstration
 const initialUsers = [
-    { id: 'user-1', name: 'LeBron James', email: 'lebron@example.com', role: 'client', plan: 'Pro', joined: '2023-10-26' },
-    { id: 'user-2', name: 'Stephen Curry', email: 'steph@example.com', role: 'client', plan: 'Pro', joined: '2023-10-25' },
-    { id: 'user-3', name: 'Kevin Durant', email: 'kd@example.com', role: 'client', plan: 'Free', joined: '2023-10-24' },
-    { id: 'user-4', name: 'Admin User', email: 'admin@hoopscoach.dev', role: 'admin', plan: 'N/A', joined: '2023-10-20' },
+    { id: 'user-1', name: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-10-26' },
+    { id: 'user-2', name: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-10-25' },
+    { id: 'user-3', name: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, plan: 'Free', joined: '2023-10-24' },
+    { id: 'user-4', name: 'Admin User', email: 'admin@hoopscoach.dev', role: 'admin' as const, plan: 'N/A', joined: '2023-10-20' },
 ];
+
+type User = typeof initialUsers[0];
 
 export default function AdminUsersPage() {
     const { toast } = useToast();
-    const [isAddUserOpen, setAddUserOpen] = useState(false);
     const [users, setUsers] = useState(initialUsers);
-
-    const showToast = (title: string, description: string) => {
-        toast({ title, description });
-    }
+    const [isAddUserOpen, setAddUserOpen] = useState(false);
+    const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -62,18 +61,18 @@ export default function AdminUsersPage() {
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         
-        const newUser = {
+        const newUser: User = {
             id: `user-${Date.now()}`,
             name,
             email,
-            role: 'client' as 'client' | 'admin',
+            role: 'client',
             plan: 'Free',
             joined: new Date().toISOString().split('T')[0],
         };
 
         setUsers(currentUsers => [newUser, ...currentUsers]);
 
-        showToast('User Added', `Added new user: ${name} (${email})`);
+        toast({ title: 'User Added', description: `Added new user: ${name} (${email})` });
         setAddUserOpen(false);
     }
     
@@ -84,6 +83,27 @@ export default function AdminUsersPage() {
             description: "The user has been removed from the list.",
             variant: "destructive",
         })
+    }
+
+    const handleEditUser = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!selectedUser) return;
+        const formData = new FormData(event.currentTarget);
+        const name = formData.get('name') as string;
+        const email = formData.get('email') as string;
+        
+        setUsers(currentUsers => currentUsers.map(user => 
+            user.id === selectedUser.id ? { ...user, name, email } : user
+        ));
+
+        toast({ title: 'User Updated', description: `Updated details for ${name}.` });
+        setIsEditUserOpen(false);
+        setSelectedUser(null);
+    }
+
+    const openEditDialog = (user: User) => {
+      setSelectedUser(user);
+      setIsEditUserOpen(true);
     }
 
     return (
@@ -110,13 +130,13 @@ export default function AdminUsersPage() {
                           <Label htmlFor="name" className="text-right">
                             Name
                           </Label>
-                          <Input id="name" name="name" defaultValue="Ja Morant" className="col-span-3" />
+                          <Input id="name" name="name" defaultValue="Ja Morant" className="col-span-3" required/>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="email" className="text-right">
                             Email
                           </Label>
-                          <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" />
+                          <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" required/>
                         </div>
                       </div>
                       <DialogFooter>
@@ -153,10 +173,10 @@ export default function AdminUsersPage() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild><Link href="/admin/schedule"><Eye className="mr-2 h-4 w-4" />View Schedule</Link></DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => showToast('Edit User', `This would open an edit form for ${user.name}`)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => openEditDialog(user)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
-                                                    <div className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
+                                                    <div className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
                                                         <Trash2 className="mr-2 h-4 w-4" />Delete
                                                     </div>
                                                 </AlertDialogTrigger>
@@ -169,7 +189,7 @@ export default function AdminUsersPage() {
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
                                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>
+                                                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
                                                             Continue
                                                         </AlertDialogAction>
                                                     </AlertDialogFooter>
@@ -183,6 +203,38 @@ export default function AdminUsersPage() {
                     </TableBody>
                 </Table>
             </CardContent>
+            <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleEditUser}>
+                  <DialogHeader>
+                    <DialogTitle>Edit User</DialogTitle>
+                    <DialogDescription>
+                      Update the details for {selectedUser?.name}.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-name" className="text-right">
+                        Name
+                      </Label>
+                      <Input id="edit-name" name="name" defaultValue={selectedUser?.name} className="col-span-3" required/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-email" className="text-right">
+                        Email
+                      </Label>
+                      <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
+                    <Button type="submit">Save Changes</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
         </Card>
     )
 }
+
+    

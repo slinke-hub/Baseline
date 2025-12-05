@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,11 +24,18 @@ export default function SettingsPage() {
   const handleDeleteAccount = () => {
     // In a real app, this would call a Firebase function to delete user data
     toast({
-        title: 'Account Deletion',
-        description: 'Account deletion functionality is not implemented in this demo.',
+        title: 'Account Deletion Actioned',
+        description: 'If this were a real app, your account would now be deleted.',
         variant: 'destructive',
     });
   };
+
+  const handleToggle = (feature: string, enabled: boolean) => {
+    toast({
+        title: `${feature} ${enabled ? 'Enabled' : 'Disabled'}`,
+        description: `This setting would be saved to your profile.`,
+    });
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -49,16 +57,16 @@ export default function SettingsPage() {
                     Enable workout reminders and progress updates.
                 </span>
             </Label>
-            <Switch id="notifications" disabled />
+            <Switch id="notifications" onCheckedChange={(checked) => handleToggle('Push Notifications', checked)} />
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">
             <Label htmlFor="dark-mode" className="flex flex-col space-y-1">
                 <span>Dark Mode</span>
                 <span className="font-normal leading-snug text-muted-foreground">
-                    Toggle between light and dark themes.
+                    Toggle between light and dark themes. (UI does not change in demo)
                 </span>
             </Label>
-            <Switch id="dark-mode" defaultChecked disabled />
+            <Switch id="dark-mode" defaultChecked onCheckedChange={(checked) => handleToggle('Dark Mode', checked)}/>
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">
             <Label htmlFor="units" className="flex flex-col space-y-1">
@@ -67,7 +75,7 @@ export default function SettingsPage() {
                     Switch between metric (kg, cm) and imperial (lbs, ft).
                 </span>
             </Label>
-            <Switch id="units" disabled />
+            <Switch id="units" onCheckedChange={(checked) => handleToggle('Imperial Units', checked)} />
           </div>
         </CardContent>
       </Card>
@@ -92,7 +100,7 @@ export default function SettingsPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90">Continue</AlertDialogAction>
+                  <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Continue</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -102,3 +110,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
