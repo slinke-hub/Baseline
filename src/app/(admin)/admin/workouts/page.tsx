@@ -6,8 +6,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { mockWorkouts } from '@/lib/mock-data';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminWorkoutsPage() {
+    const { toast } = useToast();
+
+    const showToast = (title: string, description: string) => {
+        toast({ title, description });
+    }
+
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -15,7 +22,7 @@ export default function AdminWorkoutsPage() {
                     <CardTitle>Workout Management</CardTitle>
                     <CardDescription>Add, edit, or delete workout programs.</CardDescription>
                 </div>
-                <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Workout</Button>
+                <Button onClick={() => showToast('Add Workout', 'Add workout functionality coming soon!')}><PlusCircle className="mr-2 h-4 w-4" /> Add Workout</Button>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -36,8 +43,8 @@ export default function AdminWorkoutsPage() {
                                 <TableCell>{workout.difficulty}</TableCell>
                                 <TableCell>{workout.duration} min</TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                    <Button onClick={() => showToast('Edit Workout', `Editing ${workout.title}`)} variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                    <Button onClick={() => showToast('Delete Workout', `Deleting ${workout.title}`)} variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
                                 </TableCell>
                             </TableRow>
                         ))}

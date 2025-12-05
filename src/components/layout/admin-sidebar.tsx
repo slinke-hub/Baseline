@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,9 @@ const adminNavItems = [
   { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals' },
+  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
+  { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
+  { href: '/admin/locations', icon: MapPin, label: 'Locations' },
 ];
 
 export function AdminSidebar() {
@@ -25,13 +28,12 @@ export function AdminSidebar() {
 
 
   const handleLogout = async () => {
-    // Re-enable auth guard logic when logging out
     await signOut(auth);
     router.push('/login');
   };
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card md:flex">
+    <aside className="fixed left-0 top-0 hidden h-screen w-56 flex-col border-r bg-card md:flex">
       <div className="flex h-20 items-center justify-center px-6">
         <Link href="/admin" className="flex items-center gap-2">
           <Logo className="h-8 w-8 text-primary" />

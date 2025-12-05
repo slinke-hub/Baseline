@@ -8,8 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { mockMeals } from '@/lib/mock-data';
 import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminMealsPage() {
+    const { toast } = useToast();
+
+    const showToast = (title: string, description: string) => {
+        toast({ title, description });
+    }
+
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -17,7 +24,7 @@ export default function AdminMealsPage() {
                     <CardTitle>Meal Plan Management</CardTitle>
                     <CardDescription>Add, edit, or delete meal plans.</CardDescription>
                 </div>
-                <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Meal</Button>
+                <Button onClick={() => showToast('Add Meal', 'Add meal functionality coming soon!')}><PlusCircle className="mr-2 h-4 w-4" /> Add Meal</Button>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -42,8 +49,8 @@ export default function AdminMealsPage() {
                                     <TableCell><Badge variant="outline">{meal.category}</Badge></TableCell>
                                     <TableCell>{meal.calories} kcal</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                        <Button onClick={() => showToast('Edit Meal', `Editing ${meal.title}`)} variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                        <Button onClick={() => showToast('Delete Meal', `Deleting ${meal.title}`)} variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
                                     </TableCell>
                                 </TableRow>
                             )
