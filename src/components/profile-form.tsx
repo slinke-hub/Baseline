@@ -74,37 +74,40 @@ export function ProfileForm() {
     }
   }, [appUser, form]);
 
-  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0] && user) {
       const file = e.target.files[0];
+      const previousPhoto = photoPreview;
       setPhotoPreview(URL.createObjectURL(file));
       setIsUploading(true);
-      
-      try {
-        const storage = getStorage(firebaseApp);
-        const storageRef = ref(storage, `profile-photos/${user.uid}`);
-        const snapshot = await uploadBytes(storageRef, file);
-        const photoURL = await getDownloadURL(snapshot.ref);
 
-        const userDocRef = doc(firestore, 'users', user.uid);
-        await updateDoc(userDocRef, { photoURL });
-        
-        setPhotoPreview(photoURL);
-        toast({
-          title: 'Photo Updated',
-          description: 'Your new profile photo has been saved.',
+      const storage = getStorage(firebaseApp);
+      const storageRef = ref(storage, `profile-photos/${user.uid}`);
+      
+      uploadBytes(storageRef, file)
+        .then(snapshot => getDownloadURL(snapshot.ref))
+        .then(photoURL => {
+          const userDocRef = doc(firestore, 'users', user.uid);
+          return updateDoc(userDocRef, { photoURL });
+        })
+        .then(() => {
+          toast({
+            title: 'Photo Updated',
+            description: 'Your new profile photo has been saved.',
+          });
+        })
+        .catch(error => {
+          console.error("Photo upload failed:", error);
+          toast({
+            title: 'Upload Failed',
+            description: 'Could not upload your new photo. Please try again.',
+            variant: 'destructive',
+          });
+          setPhotoPreview(previousPhoto); // Revert on failure
+        })
+        .finally(() => {
+          setIsUploading(false);
         });
-      } catch (error) {
-        console.error("Photo upload failed:", error);
-        toast({
-          title: 'Upload Failed',
-          description: 'Could not upload your new photo. Please try again.',
-          variant: 'destructive',
-        });
-        setPhotoPreview(appUser?.photoURL || null);
-      } finally {
-        setIsUploading(false);
-      }
     }
   };
 
