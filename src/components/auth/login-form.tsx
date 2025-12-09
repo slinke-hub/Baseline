@@ -66,8 +66,7 @@ export function LoginForm() {
     <Card className="w-full">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo className="h-10 w-10 text-primary" />
-            <span className="text-2xl font-bold">Baseline</span>
+            <Logo className="h-20 w-40 text-primary" />
         </div>
         <CardTitle>Welcome Back</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>

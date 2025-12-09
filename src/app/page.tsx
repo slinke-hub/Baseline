@@ -30,7 +30,7 @@ export default function EntryPage() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
-      <Logo className="h-16 w-16 text-primary" />
+      <Logo className="h-24 w-48 text-primary" />
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
       <p>Redirecting to admin portal...</p>
     </div>

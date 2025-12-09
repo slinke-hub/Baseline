@@ -2,16 +2,31 @@ export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     {...props}
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
+    viewBox="0 0 120 40"
     fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
   >
     <title>Baseline Logo</title>
-    <path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22z" />
-    <path d="M6.34 6.34a8 8 0 1 0 11.32 11.32" />
-    <path d="M6.34 17.66a8 8 0 1 0 11.32-11.32" />
+    <text
+      x="60"
+      y="18"
+      fontFamily="Verdana, sans-serif"
+      fontSize="14"
+      fontWeight="bold"
+      fill="#0d3a85"
+      textAnchor="middle"
+      letterSpacing="0.5"
+      transform="rotate(-5 60 18)"
+    >
+      BASELINE
+    </text>
+    <g transform="translate(45 20)">
+      <path d="M15 30 C 6.71 30 0 23.28 0 15 C 0 6.71 6.71 0 15 0 C 23.28 0 30 6.71 30 15 C 30 23.28 23.28 30 15 30 Z" fill="#f97316"/>
+      <path d="M15,0 A15,15 0 0,1 15,30" stroke="#0d3a85" strokeWidth="1" fill="none"/>
+      <path d="M0,15 A15,15 0 0,1 30,15" stroke="#0d3a85" strokeWidth="1" fill="none"/>
+      <path d="M3.75,7.5 A15,15 0 0,1 26.25,22.5" stroke="#0d3a85" strokeWidth="1" fill="none"/>
+      <path d="M3.75,22.5 A15,15 0 0,0 26.25,7.5" stroke="#0d3a85" strokeWidth="1" fill="none"/>
+      <path d="M-5 15 A 20 5 0 0 0 35 15" stroke="#0d3a85" strokeWidth="2" fill="none" />
+      <path d="M-5 15 A 20 5 0 0 1 35 15" stroke="#f9a825" strokeWidth="1.5" strokeDasharray="2 2" fill="none" />
+    </g>
   </svg>
 );
