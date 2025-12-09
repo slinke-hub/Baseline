@@ -18,9 +18,9 @@ const workoutCategories = [
 ];
 
 const progressStats = [
-  { label: 'Minutes Trained', value: 78, goal: 120 },
-  { label: 'Shots Taken', value: 250, goal: 500 },
-  { label: 'Workouts', value: 3, goal: 5 },
+  { label: 'Minutes Trained', value: 78, dailyValue: 25, goal: 120 },
+  { label: 'Shots Taken', value: 250, dailyValue: 150, goal: 500 },
+  { label: 'Workouts', value: 3, dailyValue: 1, goal: 5 },
 ];
 
 const TodaysWorkoutImage = placeholderData.placeholderImages.find(p => p.id === 'todays-workout');
@@ -117,7 +117,7 @@ export default function HomePage() {
                 <span>{stat.label}</span>
                 <span className="text-muted-foreground">{stat.value} / {stat.goal}</span>
               </div>
-              <Progress value={(stat.value / stat.goal) * 100} className="h-2"/>
+              <Progress value={(stat.value / stat.goal) * 100} valueBuffer={(stat.dailyValue / stat.goal) * 100} className="h-2"/>
             </div>
           ))}
           <Button asChild variant="outline" className="mt-4 w-full">

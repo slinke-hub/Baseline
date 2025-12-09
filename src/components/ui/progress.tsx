@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,8 +8,8 @@ import { cn } from "@/lib/utils"
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
->(({ className, value, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & { valueBuffer?: number }
+>(({ className, value, valueBuffer, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
     className={cn(
@@ -18,9 +19,15 @@ const Progress = React.forwardRef<
     {...props}
   >
     <ProgressPrimitive.Indicator
-      className="h-full w-full flex-1 bg-primary transition-all"
+      className="h-full w-full flex-1 bg-primary/50 transition-all"
       style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
     />
+    {valueBuffer !== undefined && (
+        <ProgressPrimitive.Indicator
+            className="absolute h-full w-full flex-1 bg-primary transition-all"
+            style={{ transform: `translateX(-${100 - (valueBuffer || 0)}%)` }}
+        />
+    )}
   </ProgressPrimitive.Root>
 ))
 Progress.displayName = ProgressPrimitive.Root.displayName
