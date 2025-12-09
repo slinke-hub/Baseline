@@ -39,7 +39,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Desktop layout
         <div className="flex">
           <DesktopSidebar />
-          <main className="flex-1 pl-64">{children}</main>
+          <main className="flex-1 md:pl-64">{children}</main>
         </div>
       )}
     </>

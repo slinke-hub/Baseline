@@ -48,7 +48,7 @@ export function DesktopSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card md:flex">
+    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-white/5 backdrop-blur-lg md:flex">
       <div className="flex h-20 items-center justify-center px-6">
         <Link href="/home" className="flex items-center gap-2">
           <Logo className="h-12 w-24 text-primary" />
@@ -65,7 +65,7 @@ export function DesktopSidebar() {
                   href={item.href}
                   className={cn(
                       'flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-base',
-                      isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                      isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                   )}
                   >
                   <item.icon className="h-5 w-5" />
@@ -80,7 +80,7 @@ export function DesktopSidebar() {
             <div className="space-y-1">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link href="/profile" className="flex w-full items-center gap-3 rounded-lg px-3 py-3 transition-all hover:bg-accent">
+                  <Link href="/profile" className="flex w-full items-center gap-3 rounded-lg px-3 py-3 transition-all hover:bg-accent/50">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={appUser?.photoURL} alt={appUser?.displayName || 'User'} />
                         <AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback>
@@ -96,7 +96,7 @@ export function DesktopSidebar() {
 
               <Tooltip>
                   <TooltipTrigger asChild>
-                      <Link href="/settings" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:bg-accent hover:text-foreground', pathname.startsWith('/settings') && 'bg-accent text-foreground')}>
+                      <Link href="/settings" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:bg-accent/50 hover:text-foreground', pathname.startsWith('/settings') && 'bg-accent/50 text-foreground')}>
                           <Settings className="h-5 w-5" />
                           <span>Settings</span>
                       </Link>
