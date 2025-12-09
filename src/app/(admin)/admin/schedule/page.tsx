@@ -117,9 +117,9 @@ export default function AdminSchedulePage() {
     const getEventBadge = (type: ScheduleEvent['type']) => {
         switch(type) {
             case 'workout': return <Badge variant="default">{type}</Badge>;
-            case 'meal': return <Badge variant="secondary" className="bg-yellow-500 text-black">{type}</Badge>;
+            case 'meal': return <Badge className="bg-amber-500 text-black hover:bg-amber-500/80">{type}</Badge>;
             case 'game': return <Badge variant="destructive">{type}</Badge>;
-            case 'rest': return <Badge variant="secondary" className="bg-green-500">{type}</Badge>;
+            case 'rest': return <Badge className="bg-green-500 hover:bg-green-500/80 text-white">{type}</Badge>;
             default: return <Badge>{type}</Badge>;
         }
     }
@@ -172,7 +172,7 @@ export default function AdminSchedulePage() {
                                                         if (event.type === 'workout') color = 'bg-primary';
                                                         else if (event.type === 'game') color = 'bg-destructive';
                                                         else if (event.type === 'rest') color = 'bg-green-500';
-                                                        else if (event.type === 'meal') color = 'bg-yellow-500';
+                                                        else if (event.type === 'meal') color = 'bg-amber-500';
                                                         return <div key={i} className={`h-1.5 w-1.5 rounded-full ${color}`}></div>
                                                     })}
                                                 </div>
@@ -191,6 +191,7 @@ export default function AdminSchedulePage() {
                            {date && getEventsForDate(date).length > 0 ? getEventsForDate(date).map((event) => (
                                 <div key={event.id} className="flex items-center justify-between gap-4 rounded-lg border p-4">
                                     <div className="flex items-center gap-4">
+                                        {event.type === 'meal' && <UtensilsCrossed className="h-4 w-4 text-amber-500" />}
                                         {getEventBadge(event.type)}
                                         <p className="font-medium">{event.title}</p>
                                     </div>
@@ -289,3 +290,5 @@ function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: Sc
         </div>
     )
 }
+
+    
