@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState } from 'react';
 import { addDays, format, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, UtensilsCrossed } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { mockWorkouts } from '@/lib/mock-data';
+import { mockWorkouts, mockMeals } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 
 const mockUsers = [
@@ -23,9 +24,10 @@ type ScheduleEvent = {
     id: string;
     userId: string;
     date: Date;
-    type: 'workout' | 'rest' | 'game';
+    type: 'workout' | 'rest' | 'game' | 'meal';
     title: string;
     workoutId?: string;
+    mealId?: string;
 }
 
 const initialSchedule: ScheduleEvent[] = [
@@ -35,6 +37,9 @@ const initialSchedule: ScheduleEvent[] = [
     { id: 'event-4', userId: 'user-2', date: new Date(), type: 'workout', title: 'Stationary Dribbling Series', workoutId: '2' },
     { id: 'event-5', userId: 'user-2', date: addDays(new Date(), 1), type: 'workout', title: 'Defensive Slides', workoutId: '3' },
     { id: 'event-6', userId: 'user-2', date: addDays(new Date(), 3), type: 'game', title: 'Game Day' },
+    { id: 'event-10', userId: 'user-2', date: new Date(), type: 'meal', title: 'Power Oatmeal', mealId: '1'},
+    { id: 'event-11', userId: 'user-2', date: new Date(), type: 'meal', title: 'Grilled Chicken Salad', mealId: '2'},
+    { id: 'event-12', userId: 'user-2', date: addDays(new Date(),1), type: 'meal', title: 'Recovery Salmon', mealId: '3'},
     { id: 'event-7', userId: 'user-3', date: new Date(), type: 'workout', title: 'Hill Sprints', workoutId: '4' },
     { id: 'event-8', userId: 'user-3', date: addDays(new Date(), 1), type: 'rest', title: 'Rest Day' },
     { id: 'event-9', userId: 'user-3', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
@@ -73,13 +78,24 @@ export default function AdminSchedulePage() {
         const formData = new FormData(e.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
         const selectedWorkout = mockWorkouts.find(w => w.id === values.workoutId);
+        const selectedMeal = mockMeals.find(m => m.id === values.mealId);
+
+        let title = '';
+        if (values.type === 'workout' && selectedWorkout) {
+            title = selectedWorkout.title;
+        } else if (values.type === 'meal' && selectedMeal) {
+            title = selectedMeal.title;
+        } else {
+            title = values.title;
+        }
         
         const eventData = {
             userId: values.userId,
             date: date!,
             type: values.type,
-            title: values.type === 'workout' ? (selectedWorkout?.title || 'Workout') : values.title,
-            workoutId: values.workoutId
+            title: title,
+            workoutId: values.workoutId,
+            mealId: values.mealId,
         };
         
         if (isEditing) {
@@ -98,6 +114,15 @@ export default function AdminSchedulePage() {
         toast({ title: "Event Deleted", description: "The event has been removed from the schedule.", variant: 'destructive'});
     }
 
+    const getEventBadge = (type: ScheduleEvent['type']) => {
+        switch(type) {
+            case 'workout': return <Badge variant="default">{type}</Badge>;
+            case 'meal': return <Badge variant="secondary" className="bg-yellow-500 text-black">{type}</Badge>;
+            case 'game': return <Badge variant="destructive">{type}</Badge>;
+            case 'rest': return <Badge variant="secondary" className="bg-green-500">{type}</Badge>;
+            default: return <Badge>{type}</Badge>;
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -142,9 +167,14 @@ export default function AdminSchedulePage() {
                                             {format(date, 'd')}
                                             {events.length > 0 && (
                                                 <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
-                                                    {events.map((event, i) => (
-                                                        <div key={i} className={`h-1.5 w-1.5 rounded-full ${event.type === 'workout' ? 'bg-primary' : event.type === 'game' ? 'bg-destructive' : 'bg-green-500'}`}></div>
-                                                    ))}
+                                                    {events.map((event, i) => {
+                                                        let color = 'bg-gray-400';
+                                                        if (event.type === 'workout') color = 'bg-primary';
+                                                        else if (event.type === 'game') color = 'bg-destructive';
+                                                        else if (event.type === 'rest') color = 'bg-green-500';
+                                                        else if (event.type === 'meal') color = 'bg-yellow-500';
+                                                        return <div key={i} className={`h-1.5 w-1.5 rounded-full ${color}`}></div>
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
@@ -161,7 +191,7 @@ export default function AdminSchedulePage() {
                            {date && getEventsForDate(date).length > 0 ? getEventsForDate(date).map((event) => (
                                 <div key={event.id} className="flex items-center justify-between gap-4 rounded-lg border p-4">
                                     <div className="flex items-center gap-4">
-                                        <Badge variant={event.type === 'workout' ? 'default' : event.type === 'game' ? 'destructive' : 'secondary'}>{event.type}</Badge>
+                                        {getEventBadge(event.type)}
                                         <p className="font-medium">{event.title}</p>
                                     </div>
                                     <div className="flex items-center gap-1">
@@ -214,17 +244,18 @@ function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: Sc
             </div>
             <div className="space-y-2">
                 <Label htmlFor="type">Event Type</Label>
-                <Select name="type" value={eventType} onValueChange={(v) => setEventType(v as 'workout' | 'rest' | 'game')} required>
+                <Select name="type" value={eventType} onValueChange={(v) => setEventType(v as ScheduleEvent['type'])} required>
                     <SelectTrigger id="type"><SelectValue /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="workout">Workout</SelectItem>
+                        <SelectItem value="meal">Meal</SelectItem>
                         <SelectItem value="rest">Rest Day</SelectItem>
                         <SelectItem value="game">Game Day</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
 
-            {eventType === 'workout' ? (
+            {eventType === 'workout' && (
                 <div className="space-y-2">
                     <Label htmlFor="workoutId">Workout</Label>
                     <Select name="workoutId" defaultValue={selectedEvent?.workoutId} required>
@@ -234,9 +265,25 @@ function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: Sc
                         </SelectContent>
                     </Select>
                 </div>
-            ) : eventType === 'rest' ? (
+            )}
+            
+            {eventType === 'meal' && (
+                 <div className="space-y-2">
+                    <Label htmlFor="mealId">Meal</Label>
+                    <Select name="mealId" defaultValue={selectedEvent?.mealId} required>
+                        <SelectTrigger id="mealId"><SelectValue placeholder="Select a meal" /></SelectTrigger>
+                        <SelectContent>
+                            {mockMeals.map(m => <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
+            {eventType === 'rest' && (
                  <input type="hidden" name="title" value="Rest Day" />
-            ) : (
+            )}
+
+            {eventType === 'game' && (
                 <input type="hidden" name="title" value="Game Day" />
             )}
         </div>
