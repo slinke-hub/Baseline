@@ -1,67 +1,60 @@
 export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       {...props}
-      viewBox="0 0 160 120"
+      viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <title>Baseline Logo</title>
+      <title>Predators Basketball Club Logo</title>
       <defs>
-        <linearGradient id="baseline-text-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="white" />
-          <stop offset="70%" stopColor="white" />
-          <stop offset="100%" stopColor="#C41E3A" />
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        <path id="arcTop" d="M 15 50 A 35 35 0 1 1 85 50" />
+        <path id="arcBottom" d="M 15 50 A 35 35 0 0 0 85 50" />
       </defs>
       
-      <g transform="translate(10, 0)">
-        {/* Main B Shape */}
-        <g>
-          {/* Red shadow swoosh */}
-          <path d="M 20 60 C 40 40, 80 50, 110 40 C 95 65, 70 80, 45 95 C 60 90, 75 80, 85 70 C 65 65, 40 70, 20 60 Z" fill="#C41E3A" transform="translate(3,3)" opacity="0.7"/>
+      {/* Background and Borders */}
+      <circle cx="50" cy="50" r="48" fill="#1a1a1a" stroke="white" strokeWidth="0.5" />
+      <circle cx="50" cy="50" r="45" fill="#1a1a1a" stroke="#E67E22" strokeWidth="2" />
+      <circle cx="50" cy="50" r="38" fill="#E67E22" />
 
-          {/* Top part of B */}
-          <path d="M 20,10 L 60,10 C 85,10 85,35 60,40 L 20,40 V 10 Z" fill="#C41E3A" stroke="white" strokeWidth="3"/>
-          
-          {/* Bottom part of B */}
-          <path d="M 20,45 L 60,45 C 90,45 90,70 60,75 L 20,75 V 45 Z" fill="#C41E3A" stroke="white" strokeWidth="3"/>
+      {/* Basketball Lines */}
+      <path d="M 50 12 V 88 M 12 50 H 88" stroke="#1a1a1a" strokeWidth="1.5" fill="none" />
+      <path d="M 25,25 a 25 25 0 0 1 50,50 M 25,75 a 25 25 0 0 0 50,-50" stroke="#1a1a1a" strokeWidth="1.5" fill="none"/>
 
-          {/* White swoosh */}
-          <path d="M 20 60 C 40 40, 80 50, 110 40 C 95 65, 70 80, 45 95 C 60 90, 75 80, 85 70 C 65 65, 40 70, 20 60 Z" fill="white"/>
-
-          {/* Court inside B */}
-          <path d="M 25,15 L 55,15 L 55,35 L 25,35 Z" fill="#1E2A5D" opacity="0.5" />
-          <path d="M 35,15 A 10 10 0 0 0 35 35" fill="none" stroke="white" strokeWidth="1" />
-          <path d="M 25,49 L 55,49 L 55,70 L 25,70 Z" fill="#1E2A5D" opacity="0.5" />
-          <path d="M 35,49 A 10 10 0 0 1 35 70" fill="none" stroke="white" strokeWidth="1" />
-
-          {/* Hoop and Net */}
-          <g transform="translate(32, 38)">
-            <path d="M 0,0 C 4,5 12,5 16,0" fill="none" stroke="#C41E3A" strokeWidth="1.2" />
-            <path d="M 1,1 L 2,8 L 3,1 M 4,1 L 5,8 L 6,1 M 7,1 L 8,8 L 9,1 M 10,1 L 11,8 L 12,1 M 13,1 L 14,8 L 15,1" stroke="white" strokeWidth="0.5" fill="none" />
-            <path d="M 1,3 C 8,4 12,4 15,3 M 1.5,6 C 8,7 12,7 14.5,6" stroke="white" strokeWidth="0.5" fill="none" />
-          </g>
-        </g>
+      {/* Wings and Claws */}
+      <g fill="#555" stroke="#1a1a1a" strokeWidth="0.5" strokeLinejoin="round">
+        {/* Left Wing */}
+        <path d="M40 35 C 30 25, 10 30, 5 50 C 15 55, 25 50, 40 35 Z" />
+        <path d="M35 38 C 28 32, 15 35, 12 52 C 20 56, 30 52, 35 38 Z" fill="#666" />
+        <path d="M30 42 C 25 38, 18 40, 16 54 C 25 57, 32 54, 30 42 Z" fill="#777" />
         
-        {/* Basketball */}
-        <g transform="translate(75, 60)">
-          <circle cx="0" cy="0" r="14" fill="#D95E0C" />
-          <path d="M0,-14 A14,14 0 0,1 0,14" fill="none" stroke="#1E2A5D" strokeWidth="1"/>
-          <path d="M-14,0 A14,14 0 0,0 14,0" fill="none" stroke="#1E2A5D" strokeWidth="1"/>
-          <path d="M-10.5,-9.5 A12,12 0 0,1 10.5,9.5" fill="none" stroke="#1E2A5D" strokeWidth="1"/>
-          <path d="M-10.5,9.5 A12,12 0 0,0 10.5,-9.5" fill="none" stroke="#1E2A5D" strokeWidth="1"/>
-        </g>
+        {/* Right Wing */}
+        <path d="M60 35 C 70 25, 90 30, 95 50 C 85 55, 75 50, 60 35 Z" />
+        <path d="M65 38 C 72 32, 85 35, 88 52 C 80 56, 70 52, 65 38 Z" fill="#666" />
+        <path d="M70 42 C 75 38, 82 40, 84 54 C 75 57, 68 54, 70 42 Z" fill="#777" />
+        
+        {/* Left Claw */}
+        <path d="M40 65 C 35 75, 30 85, 25 80 C 30 75, 35 70, 40 65 Z" />
+        <path d="M42 68 L 30 85 L 33 87 L 45 70 Z" fill="#444" />
+        <path d="M44 72 L 35 88 L 38 90 L 47 74 Z" fill="#444" />
+        <path d="M30 85 l-3 3 l2-5z M35 88 l-3 3 l2-5z" fill="white" stroke="none" />
+
+        {/* Right Claw */}
+        <path d="M60 65 C 65 75, 70 85, 75 80 C 70 75, 65 70, 60 65 Z" />
+        <path d="M58 68 L 70 85 L 67 87 L 55 70 Z" fill="#444" />
+        <path d="M56 72 L 65 88 L 62 90 L 53 74 Z" fill="#444" />
+        <path d="M70 85 l3 3 l-2-5z M65 88 l3 3 l-2-5z" fill="white" stroke="none" />
       </g>
-      
-      <text x="30" y="105" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="bold" fontStyle="italic" fill="url(#baseline-text-gradient)" filter="url(#glow)">
-        BASEL<tspan dy="-3" fontSize="14">'</tspan><tspan dy="3">INE</tspan>
+
+      {/* Text */}
+      <text fill="#F5F5F5" fontSize="10" fontWeight="bold" letterSpacing="0.5">
+        <textPath href="#arcTop" startOffset="50%" textAnchor="middle">
+          PREDATORS
+        </textPath>
+      </text>
+      <text fill="#F5F5F5" fontSize="7" fontWeight="bold" letterSpacing="0.5">
+        <textPath href="#arcBottom" startOffset="50%" textAnchor="middle">
+          BASKETBALL CLUB
+        </textPath>
       </text>
     </svg>
   );
+  
