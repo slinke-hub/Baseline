@@ -1,3 +1,4 @@
+
 import type { Workout, Meal } from '@/lib/types';
 
 export const mockWorkouts: Workout[] = [
@@ -6,7 +7,7 @@ export const mockWorkouts: Workout[] = [
     title: 'Form Shooting',
     category: 'Shooting',
     difficulty: 'Easy',
-    duration: 30,
+    duration: 5,
     description: 'Master the fundamentals of your shooting form to build a consistent, reliable jump shot.',
     steps: ['Stand 5 feet from the hoop.', 'Shoot 20 shots with one hand, focusing on follow-through.', 'Take a step back.', 'Shoot 20 more shots with guide hand.', 'Repeat until at the free-throw line.'],
     videoUrl: 'https://www.youtube.com/embed/07qj8v3ZfS8',
@@ -17,7 +18,7 @@ export const mockWorkouts: Workout[] = [
     title: 'Stationary Dribbling Series',
     category: 'Ball Handling',
     difficulty: 'Easy',
-    duration: 25,
+    duration: 5,
     description: 'Improve your feel for the ball with this series of stationary dribbling drills.',
     steps: ['Pound dribbles, 30 seconds each hand.', 'High-to-low dribbles, 30 seconds each hand.', 'Crossovers, 60 seconds.', 'Between the legs, 60 seconds.'],
     videoUrl: 'https://www.youtube.com/embed/y2s-3p6yI-4',
@@ -28,7 +29,7 @@ export const mockWorkouts: Workout[] = [
     title: 'Defensive Slides',
     category: 'Defense',
     difficulty: 'Medium',
-    duration: 20,
+    duration: 5,
     description: 'Enhance your lateral quickness and defensive stamina.',
     steps: ['Start on the baseline.', 'Slide to the elbow, touch the floor.', 'Slide back to the start.', 'Repeat 10 times.'],
     videoUrl: 'https://www.youtube.com/embed/Jv1J0C4G0-A',
@@ -39,7 +40,7 @@ export const mockWorkouts: Workout[] = [
     title: 'Hill Sprints',
     category: 'Conditioning',
     difficulty: 'Hard',
-    duration: 35,
+    duration: 5,
     description: 'Build explosive power and endurance with high-intensity hill sprints.',
     steps: ['Find a steep hill.', 'Sprint up for 15 seconds.', 'Walk down to recover.', 'Repeat 12 times.'],
     videoUrl: 'https://www.youtube.com/embed/5-3p9YnS_xA',
@@ -50,7 +51,7 @@ export const mockWorkouts: Workout[] = [
     title: 'Plyometric Power',
     category: 'Vertical Jump',
     difficulty: 'Hard',
-    duration: 45,
+    duration: 5,
     description: 'Increase your vertical leap with explosive plyometric exercises.',
     steps: ['Box jumps, 3 sets of 8.', 'Depth jumps, 3 sets of 5.', 'Tuck jumps, 3 sets of 10.'],
     videoUrl: 'https://www.youtube.com/embed/h2S_n0iS4oY',
