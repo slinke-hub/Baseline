@@ -32,7 +32,7 @@ export default function WorkoutTrackerPage({ params }: { params: { id: string } 
       title: "Workout Completed!",
       description: `Great job finishing ${workout?.title}.`,
     });
-    router.push('/workouts');
+    router.push('/home');
   }, [workout, toast, router]);
 
   useEffect(() => {
