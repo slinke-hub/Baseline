@@ -8,7 +8,8 @@ import Image from "next/image";
 import placeholderData from '@/lib/placeholder-images.json';
 import { ArrowLeft, CheckCircle } from "lucide-react";
 
-export default function WorkoutDetailPage({ params: { id } }: { params: { id: string } }) {
+export default function WorkoutDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const workout = mockWorkouts.find(w => w.id === id);
 
   if (!workout) {

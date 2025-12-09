@@ -10,7 +10,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Play, Pause, RotateCcw, Check, Plus } from "lucide-react";
 import Link from 'next/link';
 
-export default function WorkoutTrackerPage({ params: { id } }: { params: { id: string } }) {
+export default function WorkoutTrackerPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const router = useRouter();
   const { toast } = useToast();
   const workout = mockWorkouts.find(w => w.id === id);
