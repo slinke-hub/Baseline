@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { mockWorkouts } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,6 +19,15 @@ export default function WorkoutTrackerPage({ params }: { params: { id: string } 
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const handleMarkComplete = useCallback(() => {
+    // In a real app, this would write to Firestore
+    toast({
+      title: "Workout Completed!",
+      description: `Great job finishing ${workout?.title}.`,
+    });
+    router.push('/workouts');
+  }, [workout, toast, router]);
+
   useEffect(() => {
     if (isRunning) {
       timerRef.current = setInterval(() => {
@@ -31,6 +40,13 @@ export default function WorkoutTrackerPage({ params }: { params: { id: string } 
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isRunning]);
+
+  useEffect(() => {
+    if (workout && time >= workout.duration * 60) {
+      setIsRunning(false);
+      handleMarkComplete();
+    }
+  }, [time, workout, handleMarkComplete]);
 
   const formatTime = (seconds: number) => {
     const getSeconds = `0${seconds % 60}`.slice(-2);
@@ -49,15 +65,6 @@ export default function WorkoutTrackerPage({ params }: { params: { id: string } 
     setTime(0);
   };
 
-  const handleMarkComplete = () => {
-    // In a real app, this would write to Firestore
-    toast({
-      title: "Workout Completed!",
-      description: `Great job finishing ${workout?.title}.`,
-    });
-    router.push('/workouts');
-  };
-
   if (!workout) {
     return <div className="p-8">Workout not found.</div>;
   }
@@ -72,7 +79,7 @@ export default function WorkoutTrackerPage({ params }: { params: { id: string } 
         <Card className="w-full max-w-md">
             <CardHeader>
                 <CardTitle className="text-3xl font-bold">{workout.title}</CardTitle>
-                <CardDescription>Stay focused and give it your all.</CardDescription>
+                <CardDescription>Target: {workout.duration} minutes. Stay focused!</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
                 <div className="text-8xl font-mono font-bold text-primary tabular-nums">
