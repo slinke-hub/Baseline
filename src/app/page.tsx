@@ -16,6 +16,7 @@ export default function EntryPage() {
         if (appUser.role === 'admin') {
           router.replace('/admin');
         } else {
+          // Force redirect to client home for any non-admin user
           router.replace('/home');
         }
       } else {
