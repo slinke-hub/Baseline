@@ -24,6 +24,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   Dialog,
@@ -54,6 +55,7 @@ export default function AdminUsersPage() {
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
     const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -76,13 +78,15 @@ export default function AdminUsersPage() {
         setAddUserOpen(false);
     }
     
-    const handleDeleteUser = (userId: string) => {
-        setUsers(currentUsers => currentUsers.filter(user => user.id !== userId));
+    const handleDeleteUser = () => {
+        if (!userToDelete) return;
+        setUsers(currentUsers => currentUsers.filter(user => user.id !== userToDelete.id));
         toast({
             title: "User Deleted",
             description: "The user has been removed from the list.",
             variant: "destructive",
         })
+        setUserToDelete(null);
     }
 
     const handleEditUser = (event: React.FormEvent<HTMLFormElement>) => {
@@ -107,134 +111,137 @@ export default function AdminUsersPage() {
     }
 
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle>User Management</CardTitle>
-                    <CardDescription>View, edit, or delete user profiles.</CardDescription>
-                </div>
-                <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
-                  <DialogTrigger asChild>
-                    <Button><PlusCircle className="mr-2 h-4 w-4" /> Add User</Button>
-                  </DialogTrigger>
+        <>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>User Management</CardTitle>
+                        <CardDescription>View, edit, or delete user profiles.</CardDescription>
+                    </div>
+                    <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
+                      <DialogTrigger asChild>
+                        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add User</Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <form onSubmit={handleAddUser}>
+                          <DialogHeader>
+                            <DialogTitle>Add New User</DialogTitle>
+                            <DialogDescription>
+                              Fill in the details for the new user. An invitation will be sent to their email.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="name" className="text-right">
+                                Name
+                              </Label>
+                              <Input id="name" name="name" defaultValue="Ja Morant" className="col-span-3" required/>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="email" className="text-right">
+                                Email
+                              </Label>
+                              <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" required/>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button type="submit">Create User</Button>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Joined</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map(user => (
+                                <TableRow key={user.id}>
+                                    <TableCell className="font-medium">{user.name}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell><Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role}</Badge></TableCell>
+                                    <TableCell>{user.joined}</TableCell>
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreVertical className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild><Link href="/admin/schedule"><Eye className="mr-2 h-4 w-4" />View Schedule</Link></DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => openEditDialog(user)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                                                <DropdownMenuItem 
+                                                    className="text-destructive"
+                                                    onClick={() => setUserToDelete(user)}
+                                                >
+                                                    <Trash2 className="mr-2 h-4 w-4" />Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+                <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
                   <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={handleAddUser}>
+                    <form onSubmit={handleEditUser}>
                       <DialogHeader>
-                        <DialogTitle>Add New User</DialogTitle>
+                        <DialogTitle>Edit User</DialogTitle>
                         <DialogDescription>
-                          Fill in the details for the new user. An invitation will be sent to their email.
+                          Update the details for {selectedUser?.name}.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="name" className="text-right">
+                          <Label htmlFor="edit-name" className="text-right">
                             Name
                           </Label>
-                          <Input id="name" name="name" defaultValue="Ja Morant" className="col-span-3" required/>
+                          <Input id="edit-name" name="name" defaultValue={selectedUser?.name} className="col-span-3" required/>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="email" className="text-right">
+                          <Label htmlFor="edit-email" className="text-right">
                             Email
                           </Label>
-                          <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" required/>
+                          <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button type="submit">Create User</Button>
+                        <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
+                        <Button type="submit">Save Changes</Button>
                       </DialogFooter>
                     </form>
                   </DialogContent>
                 </Dialog>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead>Joined</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {users.map(user => (
-                            <TableRow key={user.id}>
-                                <TableCell className="font-medium">{user.name}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell><Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role}</Badge></TableCell>
-                                <TableCell>{user.joined}</TableCell>
-                                <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <MoreVertical className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem asChild><Link href="/admin/schedule"><Eye className="mr-2 h-4 w-4" />View Schedule</Link></DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => openEditDialog(user)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <div className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
-                                                        <Trash2 className="mr-2 h-4 w-4" />Delete
-                                                    </div>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you sure you want to delete {user.name}?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently delete the user's account and remove their data from our servers.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                                                            Continue
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </CardContent>
-            <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-              <DialogContent className="sm:max-w-[425px]">
-                <form onSubmit={handleEditUser}>
-                  <DialogHeader>
-                    <DialogTitle>Edit User</DialogTitle>
-                    <DialogDescription>
-                      Update the details for {selectedUser?.name}.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="edit-name" className="text-right">
-                        Name
-                      </Label>
-                      <Input id="edit-name" name="name" defaultValue={selectedUser?.name} className="col-span-3" required/>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="edit-email" className="text-right">
-                        Email
-                      </Label>
-                      <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
-                    <Button type="submit">Save Changes</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-        </Card>
+            </Card>
+
+            <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to delete {userToDelete?.name}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the user's account and remove their data from our servers.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     )
 }
-
     
