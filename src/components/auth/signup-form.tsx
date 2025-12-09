@@ -42,7 +42,7 @@ export function SignupForm() {
     defaultValues: {
       displayName: 'Stephen Curry',
       email: 'steph@example.com',
-      password: 'password',
+      password: '0912577544Asd',
     },
   });
 
