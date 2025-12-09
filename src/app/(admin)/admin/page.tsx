@@ -64,29 +64,29 @@ export default function AdminDashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-2 aspect-square text-center">
-              <CardHeader className="p-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Users className="h-4 w-4 text-muted-foreground" /> Total Users</CardTitle>
+              <CardHeader className="p-1">
+                  <CardTitle className="text-xs font-medium flex items-center gap-2 justify-center"><Users className="h-4 w-4 text-muted-foreground" /> Total Users</CardTitle>
               </CardHeader>
-              <CardContent className="p-2">
-                  <div className="text-3xl font-bold">{mockUsers.length}</div>
+              <CardContent className="p-1">
+                  <div className="text-2xl font-bold">{mockUsers.length}</div>
                   <p className="text-xs text-muted-foreground">+2 since last week</p>
               </CardContent>
           </Card>
           <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-2 aspect-square text-center">
-              <CardHeader className="p-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Dumbbell className="h-4 w-4 text-muted-foreground" /> Total Workouts</CardTitle>
+              <CardHeader className="p-1">
+                  <CardTitle className="text-xs font-medium flex items-center gap-2 justify-center"><Dumbbell className="h-4 w-4 text-muted-foreground" /> Total Workouts</CardTitle>
               </CardHeader>
-              <CardContent className="p-2">
-                  <div className="text-3xl font-bold">{mockWorkouts.length}</div>
+              <CardContent className="p-1">
+                  <div className="text-2xl font-bold">{mockWorkouts.length}</div>
                   <p className="text-xs text-muted-foreground">Manage workout content</p>
               </CardContent>
           </Card>
           <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-2 aspect-square text-center">
-              <CardHeader className="p-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Total Meals</CardTitle>
+              <CardHeader className="p-1">
+                  <CardTitle className="text-xs font-medium flex items-center gap-2 justify-center"><UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Total Meals</CardTitle>
               </CardHeader>
-              <CardContent className="p-2">
-                  <div className="text-3xl font-bold">{mockMeals.length}</div>
+              <CardContent className="p-1">
+                  <div className="text-2xl font-bold">{mockMeals.length}</div>
                   <p className="text-xs text-muted-foreground">Manage nutrition plans</p>
               </CardContent>
           </Card>
