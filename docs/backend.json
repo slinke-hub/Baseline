@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -44,11 +45,15 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Workout",
       "type": "object",
-      "description": "Represents a basketball workout with instructions and details.",
+      "description": "Represents a basketball workout with instructions and details. Can be assigned to users.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the workout."
+        },
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the admin or coach who created this workout."
         },
         "title": {
           "type": "string",
@@ -77,7 +82,7 @@
         }
       },
       "required": [
-        "id"
+        "id", "authorId"
       ]
     },
     "WorkoutProgress": {
@@ -126,11 +131,15 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Meal",
       "type": "object",
-      "description": "Represents a meal with ingredients, instructions, and nutritional information.",
+      "description": "Represents a meal with ingredients, instructions, and nutritional information. Can be assigned to users.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the meal."
+        },
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the admin or coach who created this meal."
         },
         "name": {
           "type": "string",
@@ -171,7 +180,7 @@
         }
       },
       "required": [
-        "id"
+        "id", "authorId"
       ]
     },
     "UserMealPlan": {
@@ -224,7 +233,7 @@
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores user profile information.  Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "description": "Stores user profile information. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
           "params": [
             {
               "name": "userId",
@@ -280,7 +289,7 @@
           "schema": {
             "$ref": "#/backend/entities/Workout"
           },
-          "description": "Stores workout information.  This collection is publicly readable; write access should be restricted to admin roles (if any).",
+          "description": "Stores a central library of workout information. This collection should be readable by all users but only writable by admins.",
           "params": [
             {
               "name": "workoutId",
@@ -296,7 +305,7 @@
           "schema": {
             "$ref": "#/backend/entities/Meal"
           },
-          "description": "Stores meal information. This collection is publicly readable; write access should be restricted to admin roles (if any).",
+          "description": "Stores a central library of meal information. This collection should be readable by all users but only writable by admins.",
           "params": [
             {
               "name": "mealId",
@@ -306,6 +315,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data is stored under the `/users/{userId}` path to easily control data access. The `WorkoutProgress` and `UserMealPlan` collections are also stored under the user's path to maintain the 1:N relationship between `User` and respective collections. Public workout and meal data are segregated into dedicated collections (`/workouts` and `/meals`) to simplify security rules and enable easy listing without complex filtering. No custom claims are used, relying solely on the `request.auth.uid` and path-based ownership. This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability. By segregating data with different access requirements (e.g., public workouts vs. user-specific progress), the structure ensures a homogeneous security posture for each collection, making rules more straightforward. The denormalization strategy involves storing authorization-related data directly within the documents needing protection, avoiding hierarchical dependencies."
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts and meals is maintained in top-level `/workouts` and `/meals` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management. This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
   }
 }
