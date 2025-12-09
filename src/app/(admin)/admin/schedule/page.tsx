@@ -1,11 +1,12 @@
 
 'use client';
 
+import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { addDays, format, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Edit, Trash2, UtensilsCrossed } from 'lucide-react';
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from '@/components/ui/label';
 import { mockWorkouts, mockMeals } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'next/navigation';
 
 const mockUsers = [
     { id: 'user-1', name: 'LeBron James' },
@@ -47,13 +49,22 @@ const initialSchedule: ScheduleEvent[] = [
     { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
 ]
 
-export default function AdminSchedulePage() {
+function ScheduleComponent() {
+    const searchParams = useSearchParams();
+    const userIdFromParams = searchParams.get('userId');
+
     const { toast } = useToast();
     const [schedule, setSchedule] = useState(initialSchedule);
-    const [selectedUser, setSelectedUser] = useState('user-2');
+    const [selectedUser, setSelectedUser] = useState(userIdFromParams || 'user-2');
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [isFormOpen, setFormOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
+
+    useEffect(() => {
+        if (userIdFromParams) {
+            setSelectedUser(userIdFromParams);
+        }
+    }, [userIdFromParams]);
 
     const isEditing = !!selectedEvent;
     const userSchedule = schedule.filter(event => event.userId === selectedUser);
@@ -229,6 +240,15 @@ export default function AdminSchedulePage() {
             </Dialog>
         </div>
     )
+}
+
+
+export default function AdminSchedulePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ScheduleComponent />
+        </Suspense>
+    );
 }
 
 function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: ScheduleEvent | null, selectedUser: string }) {

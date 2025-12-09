@@ -178,7 +178,11 @@ export default function AdminUsersPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem asChild><Link href="/admin/schedule"><Eye className="mr-2 h-4 w-4" />View Schedule</Link></DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={`/admin/schedule?userId=${user.id}`}>
+                                                        <Eye className="mr-2 h-4 w-4" />View Schedule
+                                                    </Link>
+                                                </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => openEditDialog(user)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
                                                 <DropdownMenuItem 
                                                     className="text-destructive"
