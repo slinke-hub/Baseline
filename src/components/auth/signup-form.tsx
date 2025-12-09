@@ -58,13 +58,28 @@ export function SignupForm() {
 
       const userRole: AppUser['role'] = values.email.endsWith('@baseline.dev') ? 'admin' : 'client';
 
-      await setDoc(doc(firestore, 'users', user.uid), {
+      const userDocRef = doc(firestore, 'users', user.uid);
+      await setDoc(userDocRef, {
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
         role: userRole,
+      }).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'create',
+            requestResourceData: {
+                uid: user.uid,
+                displayName: values.displayName,
+                email: values.email,
+                photoURL: user.photoURL || '',
+                createdAt: new Date().toISOString(),
+                role: userRole,
+            },
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
       
       router.push('/');
