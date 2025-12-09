@@ -1,28 +1,36 @@
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+
+let firebaseApp: FirebaseApp;
+let auth: Auth;
+let firestore: Firestore;
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
-export function initializeFirebase() {
-  if (getApps().length) {
-    return getSdks(getApp());
+function getFirebase() {
+  if (!firebaseApp) {
+    if (getApps().length) {
+      firebaseApp = getApp();
+    } else {
+      firebaseApp = initializeApp(firebaseConfig);
+    }
+    auth = getAuth(firebaseApp);
+    firestore = getFirestore(firebaseApp);
   }
 
-  const firebaseApp = initializeApp(firebaseConfig);
-  return getSdks(firebaseApp);
+  return { firebaseApp, auth, firestore };
 }
 
-export function getSdks(firebaseApp: FirebaseApp) {
-  return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
-  };
+// DEPRECATED: This function is deprecated and will be removed in a future version.
+// Use getFirebase() instead.
+export function initializeFirebase() {
+  return getFirebase();
 }
 
+export { getFirebase };
 export * from './provider';
 export * from './client-provider';
 export * from './firestore/use-collection';

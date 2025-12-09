@@ -52,25 +52,27 @@ export function ProfileForm() {
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      displayName: appUser?.displayName || '',
-      age: appUser?.age || undefined,
-      height: appUser?.height || undefined,
-      weight: appUser?.weight || undefined,
-      position: appUser?.position || undefined,
-      experienceLevel: appUser?.experienceLevel || undefined,
+      displayName: '',
+      age: undefined,
+      height: undefined,
+      weight: undefined,
+      position: undefined,
+      experienceLevel: undefined,
     },
   });
   
   useEffect(() => {
-    form.reset({
-      displayName: appUser?.displayName || '',
-      age: appUser?.age || undefined,
-      height: appUser?.height || undefined,
-      weight: appUser?.weight || undefined,
-      position: appUser?.position || undefined,
-      experienceLevel: appUser?.experienceLevel || undefined,
-    })
-  }, [appUser, form.reset, form]);
+    if (appUser) {
+      form.reset({
+        displayName: appUser.displayName || '',
+        age: appUser.age || undefined,
+        height: appUser.height || undefined,
+        weight: appUser.weight || undefined,
+        position: appUser.position || undefined,
+        experienceLevel: appUser.experienceLevel || undefined,
+      })
+    }
+  }, [appUser, form]);
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0] && user) {
@@ -171,13 +173,13 @@ export function ProfileForm() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="position" render={({ field }) => (
-                    <FormItem><FormLabel>Position</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormItem><FormLabel>Position</FormLabel><Select onValueChange={field.onChange} value={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select position" /></SelectTrigger></FormControl>
                         <SelectContent>{['PG', 'SG', 'SF', 'PF', 'C'].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                     </Select><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="experienceLevel" render={({ field }) => (
-                    <FormItem><FormLabel>Experience Level</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormItem><FormLabel>Experience Level</FormLabel><Select onValueChange={field.onChange} value={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger></FormControl>
                         <SelectContent>{['Beginner', 'Intermediate', 'Advanced', 'Pro'].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                     </Select><FormMessage /></FormItem>
