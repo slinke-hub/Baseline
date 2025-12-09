@@ -12,8 +12,7 @@ import { ArrowLeft, Flame, Beef, Wheat, Leaf, PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 
-export default function MealDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function MealDetailPage({ params: { id } }: { params: { id: string } }) {
   const { toast } = useToast();
   const meal = mockMeals.find(m => m.id === id);
 
