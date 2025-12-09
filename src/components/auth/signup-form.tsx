@@ -40,9 +40,9 @@ export function SignupForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      displayName: '',
-      email: '',
-      password: '',
+      displayName: 'Stephen Curry',
+      email: 'steph@example.com',
+      password: 'password',
     },
   });
 
@@ -89,8 +89,8 @@ export function SignupForm() {
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
             <Logo className="h-20 w-40 text-primary" />
         </div>
-        <CardTitle>Create an Account</CardTitle>
-        <CardDescription>Start your journey to become a better player</CardDescription>
+        <CardTitle>Create a Client Account</CardTitle>
+        <CardDescription>Click below to create the "Stephen Curry" client account.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -102,7 +102,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Michael Jordan" {...field} autoComplete="name" />
+                    <Input placeholder="Michael Jordan" {...field} autoComplete="name" readOnly/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,7 +115,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} autoComplete="email" />
+                    <Input placeholder="name@example.com" {...field} autoComplete="email" readOnly/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +128,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password"/>
+                    <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" readOnly/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,14 +136,14 @@ export function SignupForm() {
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account
+              Create Client User & Sign In
             </Button>
           </form>
         </Form>
         <div className="mt-4 text-center text-sm">
-          Already have an account?{' '}
+          Already created the user?{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
-            Sign in
+            Sign in here
           </Link>
         </div>
       </CardContent>
