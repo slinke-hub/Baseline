@@ -26,7 +26,7 @@ const mealTimes: MealCategory[] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
 type WeeklyPlan = {
     [day: string]: {
-        [mealTime: string]: Meal | null;
+        [mealTime in MealCategory]?: Meal | null;
     };
 };
 
@@ -36,9 +36,12 @@ type UserWeeklyPlans = {
 
 const initialPlan: UserWeeklyPlans = {
     'user-2': {
-        'Monday': { 'Breakfast': mockMeals[0], 'Lunch': mockMeals[1], 'Dinner': mockMeals[2], 'Snacks': null },
-        'Tuesday': { 'Breakfast': mockMeals[0], 'Lunch': null, 'Dinner': mockMeals[2], 'Snacks': mockMeals[3] },
-        'Wednesday': { 'Breakfast': null, 'Lunch': mockMeals[1], 'Dinner': null, 'Snacks': null },
+        'Monday': { 'Breakfast': mockMeals[0], 'Lunch': mockMeals[1], 'Dinner': mockMeals[2] },
+        'Tuesday': { 'Breakfast': mockMeals[0], 'Dinner': mockMeals[2], 'Snacks': mockMeals[3] },
+        'Wednesday': { 'Lunch': mockMeals[1] },
+    },
+    'user-1': {
+        'Monday': { 'Breakfast': mockMeals[0] },
     }
 };
 
@@ -57,11 +60,11 @@ export default function AdminMealPlannerPage() {
     };
 
     const handleSelectMeal = (meal: Meal) => {
-        if (!currentSlot) return;
+        if (!currentSlot || !selectedUser) return;
         const { day, mealTime } = currentSlot;
 
         setPlans(prev => {
-            const newPlans = { ...prev };
+            const newPlans = JSON.parse(JSON.stringify(prev)); // Deep copy
             if (!newPlans[selectedUser]) {
                 newPlans[selectedUser] = {};
             }
@@ -77,8 +80,10 @@ export default function AdminMealPlannerPage() {
     };
     
     const handleRemoveMeal = (day: string, mealTime: MealCategory) => {
+        if (!selectedUser) return;
+
         setPlans(prev => {
-            const newPlans = { ...prev };
+            const newPlans = JSON.parse(JSON.stringify(prev)); // Deep copy
             if(newPlans[selectedUser] && newPlans[selectedUser][day]) {
                 newPlans[selectedUser][day][mealTime] = null;
             }
@@ -129,7 +134,7 @@ export default function AdminMealPlannerPage() {
                                                             height={40}
                                                             className="rounded-md object-cover"
                                                         />
-                                                        <div className="flex-1">
+                                                        <div className="flex-1 overflow-hidden">
                                                             <p className="text-sm font-medium truncate">{meal.title}</p>
                                                             <p className="text-xs text-muted-foreground">{meal.calories} kcal</p>
                                                         </div>
