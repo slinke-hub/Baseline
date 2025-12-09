@@ -23,7 +23,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { AppUser } from '@/lib/types';
-import { useFirebase } from '@/firebase';
+import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -40,9 +40,9 @@ export function SignupForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      displayName: 'Stephen Curry',
-      email: 'steph@example.com',
-      password: '0912577544Asd',
+      displayName: '',
+      email: '',
+      password: '',
     },
   });
 
@@ -59,25 +59,20 @@ export function SignupForm() {
       const userRole: AppUser['role'] = values.email.endsWith('@baseline.dev') ? 'admin' : 'client';
 
       const userDocRef = doc(firestore, 'users', user.uid);
-      await setDoc(userDocRef, {
+      const userData = {
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
         role: userRole,
-      }).catch(async (serverError) => {
+      };
+
+      await setDoc(userDocRef, userData).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: userDocRef.path,
             operation: 'create',
-            requestResourceData: {
-                uid: user.uid,
-                displayName: values.displayName,
-                email: values.email,
-                photoURL: user.photoURL || '',
-                createdAt: new Date().toISOString(),
-                role: userRole,
-            },
+            requestResourceData: userData,
         });
         errorEmitter.emit('permission-error', permissionError);
       });
@@ -104,8 +99,8 @@ export function SignupForm() {
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
             <Logo className="h-20 w-40 text-primary" />
         </div>
-        <CardTitle>Create a Client Account</CardTitle>
-        <CardDescription>Click below to create the "Stephen Curry" client account.</CardDescription>
+        <CardTitle>Create an Account</CardTitle>
+        <CardDescription>Enter your details below to create your account.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -117,7 +112,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Michael Jordan" {...field} autoComplete="name" readOnly/>
+                    <Input placeholder="Michael Jordan" {...field} autoComplete="name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -130,7 +125,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} autoComplete="email" readOnly/>
+                    <Input placeholder="name@example.com" {...field} autoComplete="email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,7 +138,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" readOnly/>
+                    <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,14 +146,14 @@ export function SignupForm() {
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Client User & Sign In
+              Sign Up
             </Button>
           </form>
         </Form>
         <div className="mt-4 text-center text-sm">
-          Already created the user?{' '}
+          Already have an account?{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
-            Sign in here
+            Sign in
           </Link>
         </div>
       </CardContent>

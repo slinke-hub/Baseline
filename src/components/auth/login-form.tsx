@@ -30,17 +30,15 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { auth } = useFirebase();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const fromAdmin = searchParams.get('from') === 'admin';
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: fromAdmin ? 'admin@baseline.dev' : 'steph@example.com',
-      password: fromAdmin ? 'password' : '0912577544Asd',
+      email: '',
+      password: '',
     },
   });
 
