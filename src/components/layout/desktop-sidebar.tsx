@@ -50,7 +50,7 @@ export function DesktopSidebar() {
       <div className="flex h-20 items-center justify-center px-6">
         <Link href="/home" className="flex items-center gap-2">
           <Logo className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold">HoopsCoach</span>
+          <span className="text-xl font-bold">Baseline</span>
         </Link>
       </div>
       

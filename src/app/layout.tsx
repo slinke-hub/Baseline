@@ -4,7 +4,7 @@ import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'HoopsCoach',
+  title: 'Baseline',
   description: 'Your Personal Basketball Training App',
 };
 

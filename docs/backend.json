@@ -4,7 +4,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user's profile within the HoopsCoach application.",
+      "description": "Represents a user's profile within the Baseline application.",
       "properties": {
         "id": {
           "type": "string",
@@ -306,6 +306,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the HoopsCoach application. User-owned data is stored under the `/users/{userId}` path to easily control data access. The `WorkoutProgress` and `UserMealPlan` collections are also stored under the user's path to maintain the 1:N relationship between `User` and respective collections. Public workout and meal data are segregated into dedicated collections (`/workouts` and `/meals`) to simplify security rules and enable easy listing without complex filtering. No custom claims are used, relying solely on the `request.auth.uid` and path-based ownership. This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability. By segregating data with different access requirements (e.g., public workouts vs. user-specific progress), the structure ensures a homogeneous security posture for each collection, making rules more straightforward. The denormalization strategy involves storing authorization-related data directly within the documents needing protection, avoiding hierarchical dependencies."
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data is stored under the `/users/{userId}` path to easily control data access. The `WorkoutProgress` and `UserMealPlan` collections are also stored under the user's path to maintain the 1:N relationship between `User` and respective collections. Public workout and meal data are segregated into dedicated collections (`/workouts` and `/meals`) to simplify security rules and enable easy listing without complex filtering. No custom claims are used, relying solely on the `request.auth.uid` and path-based ownership. This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability. By segregating data with different access requirements (e.g., public workouts vs. user-specific progress), the structure ensures a homogeneous security posture for each collection, making rules more straightforward. The denormalization strategy involves storing authorization-related data directly within the documents needing protection, avoiding hierarchical dependencies."
   }
 }

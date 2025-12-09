@@ -53,7 +53,7 @@ export function AdminHeader() {
       <div className="flex items-center gap-4">
         <Link href="/admin" className="flex items-center gap-2">
           <Logo className="h-8 w-8 text-primary" />
-          <span className="hidden text-xl font-bold sm:inline-block">HoopsCoach</span>
+          <span className="hidden text-xl font-bold sm:inline-block">Baseline</span>
         </Link>
       </div>
 

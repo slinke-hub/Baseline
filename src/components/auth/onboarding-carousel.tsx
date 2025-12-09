@@ -41,7 +41,7 @@ export function OnboardingCarousel() {
       <div className="flex w-full max-w-md flex-col items-center justify-center space-y-8">
         <div className="flex items-center gap-2">
             <Logo className="h-10 w-10 text-primary" />
-            <h1 className="text-3xl font-bold">HoopsCoach</h1>
+            <h1 className="text-3xl font-bold">Baseline</h1>
         </div>
         <Carousel className="w-full">
           <CarouselContent>

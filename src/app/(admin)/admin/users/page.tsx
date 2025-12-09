@@ -43,7 +43,7 @@ const initialUsers = [
     { id: 'user-1', name: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-10-26' },
     { id: 'user-2', name: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-10-25' },
     { id: 'user-3', name: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, plan: 'Free', joined: '2023-10-24' },
-    { id: 'user-4', name: 'Admin User', email: 'admin@hoopscoach.dev', role: 'admin' as const, plan: 'N/A', joined: '2023-10-20' },
+    { id: 'user-4', name: 'Admin User', email: 'admin@baseline.dev', role: 'admin' as const, plan: 'N/A', joined: '2023-10-20' },
 ];
 
 type User = typeof initialUsers[0];
