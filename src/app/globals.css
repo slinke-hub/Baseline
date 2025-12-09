@@ -67,3 +67,58 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .animated-text-gradient {
+    background: linear-gradient(
+      -45deg,
+      hsl(var(--primary)),
+      hsl(var(--accent-foreground)),
+      hsl(var(--primary)),
+      hsl(var(--accent-foreground))
+    );
+    background-size: 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: animated_text 5s ease-in-out infinite;
+    -moz-animation: animated_text 5s ease-in-out infinite;
+    -webkit-animation: animated_text 5s ease-in-out infinite;
+  }
+
+  @keyframes animated_text {
+    0% {
+      background-position: 0px 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0px 50%;
+    }
+  }
+
+  .typing-container .input-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 42px;
+    background-color: hsl(var(--primary));
+    margin-left: 8px;
+    animation: blink 0.6s linear infinite alternate;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 1;
+    }
+    60% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}

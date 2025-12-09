@@ -1,5 +1,5 @@
-import { OnboardingCarousel } from '@/components/auth/onboarding-carousel';
+import { LandingHero } from '@/components/landing-hero';
 
 export default function OnboardingPage() {
-  return <OnboardingCarousel />;
+  return <LandingHero />;
 }
