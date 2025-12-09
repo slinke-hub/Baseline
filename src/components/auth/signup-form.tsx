@@ -60,6 +60,7 @@ export function SignupForm() {
 
       const userDocRef = doc(firestore, 'users', user.uid);
       const userData = {
+        id: user.uid,
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
