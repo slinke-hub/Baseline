@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Calendar, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meals' },
+  { href: '/schedule', icon: Calendar, label: 'Schedule' },
+  { href: '/chat', icon: MessageSquare, label: 'Chat' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
@@ -17,7 +18,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-4">
+      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 items-center justify-around px-4">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (

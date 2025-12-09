@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,8 @@ const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meal Planner' },
+  { href: '/schedule', icon: Calendar, label: 'Schedule'},
+  { href: '/chat', icon: MessageSquare, label: 'Chat'},
   { href: '/progress', icon: BarChart, label: 'Progress' },
   { href: '/bmi-calculator', icon: Calculator, label: 'BMI Calculator' },
 ];
