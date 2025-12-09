@@ -14,7 +14,7 @@ export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
       </linearGradient>
     </defs>
     
-    <g transform="translate(10, 0)">
+    <g transform="translate(10, -5)">
       {/* Main B Shape */}
       <path d="M20,10 L20,75 L50,75 C70,75 70,55 50,50 C70,45 70,25 50,15 L20,10 Z" fill="none" stroke="#1E2A5D" strokeWidth="6" />
       <path d="M22,13 L48,16 V38 L22,40 Z" fill="#C41E3A"/>
