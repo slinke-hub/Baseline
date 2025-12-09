@@ -5,6 +5,7 @@ export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
   >
+    <rect width="200" height="150" fill="white" />
     <defs>
       <linearGradient id="baseline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" style={{ stopColor: '#1E2A5D' }} />
