@@ -9,10 +9,10 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Play, Pause, RotateCcw, Check } from "lucide-react";
 import Link from 'next/link';
 
-export default function WorkoutTrackerPage({ params }: { params: { id: string } }) {
+export default function WorkoutTrackerPage({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const workout = mockWorkouts.find(w => w.id === params.id);
+  const workout = mockWorkouts.find(w => w.id === id);
 
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
