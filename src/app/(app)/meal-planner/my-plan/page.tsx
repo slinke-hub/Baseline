@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { UtensilsCrossed } from 'lucide-react';
-import { AiSuggestionModal } from '@/components/meal-plan/ai-suggestion-modal';
 
 export default function MyMealPlanPage() {
   return (
@@ -10,7 +9,6 @@ export default function MyMealPlanPage() {
             <h1 className="text-3xl font-bold tracking-tight">My Meal Plan</h1>
             <p className="text-muted-foreground">Your personalized weekly nutrition schedule.</p>
         </div>
-        <AiSuggestionModal />
       </div>
 
       <Card>
