@@ -1,4 +1,3 @@
-
 import { mockWorkouts } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,8 +66,15 @@ export default function WorkoutDetailPage({ params }: { params: { id: string } }
                     <CardTitle>Ready to Train?</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="aspect-video w-full bg-secondary rounded-lg mb-4 flex items-center justify-center text-muted-foreground">
-                        Video placeholder
+                    <div className="aspect-video w-full bg-secondary rounded-lg mb-4">
+                        <iframe
+                            className="w-full h-full rounded-lg"
+                            src={workout.videoUrl}
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
                     </div>
                     <Button asChild size="lg" className="w-full">
                         <Link href={`/workouts/track/${workout.id}`}>Start Workout</Link>
