@@ -7,59 +7,68 @@ export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <title>Baseline Logo</title>
     <defs>
-      <linearGradient id="red-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#E53935" />
-        <stop offset="100%" stopColor="#C62828" />
+      <linearGradient id="red-grad-new" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#D81E27" />
+        <stop offset="100%" stopColor="#A0161D" />
       </linearGradient>
-      <linearGradient id="blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#1E3A8A" />
-        <stop offset="100%" stopColor="#1C2B5D" />
+      <linearGradient id="blue-grad-new" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#1E2A5D" />
+        <stop offset="100%" stopColor="#101733" />
       </linearGradient>
-      <filter id="text-shadow" x="-0.025" y="-0.025" width="1.05" height="1.05">
-        <feDropShadow dx="0.5" dy="0.5" stdDeviation="0.5" floodColor="#000000" floodOpacity="0.3" />
-      </filter>
     </defs>
 
-    {/* Background */}
-    <circle cx="50" cy="50" r="48" fill="white" />
-    
-    {/* Outer Rings */}
-    <circle cx="50" cy="50" r="46" fill="none" stroke="url(#blue-grad)" strokeWidth="2.5" />
-    <circle cx="50" cy="50" r="43" fill="none" stroke="url(#red-grad)" strokeWidth="2.5" />
+    <g transform="translate(0, -2)">
+        {/* Outer Rings */}
+        <circle cx="50" cy="52" r="45" fill="none" stroke="#1E2A5D" strokeWidth="2.5" />
+        <circle cx="50" cy="52" r="42" fill="none" stroke="#D81E27" strokeWidth="2.5" />
 
-    {/* B Shape */}
-    <g transform="translate(25, 15) scale(0.6)">
-        {/* Main B body */}
-        <path d="M 20,0 L 50,0 C 75,0 80,20 65,40 L 65,40 C 85,60 75,80 50,80 L 20,80 L 20,0 Z" fill="#1C2B5D" />
-        {/* Court inside B */}
-        <path d="M 25,5 L 50,5 C 65,5 70,20 60,35 L 25,35 L 25,5 Z" fill="#D12727" />
-        <path d="M 25,45 L 55,45 C 70,45 70,60 55,75 L 25,75 L 25,45 Z" fill="#D12727" />
-        {/* Hoop */}
-        <path d="M 58 25 A 8 4 0 0 0 42 25" fill="none" stroke="white" strokeWidth="1.5" />
-        <path d="M 43 25 L 45 32 L 55 32 L 57 25" fill="none" stroke="white" strokeWidth="1" />
-        {/* Court lines */}
-        <path d="M 25 20 H 45" stroke="white" strokeWidth="1.5" />
-        <path d="M 35 5 V 35" stroke="white" strokeWidth="1.5" />
-        <path d="M 25 60 H 50" stroke="white" strokeWidth="1.5" />
-    </g>
+        {/* B Shape & swooshes */}
+        <g transform="translate(26, 20) scale(0.65)">
+            {/* Top part of B */}
+            <path d="M 18,10 L 50,10 L 50,40 L 22,40 C 35,20 25,12 18,10 Z" fill="#1E2A5D" />
+            {/* Bottom part of B */}
+            <path d="M 20,45 L 50,45 C 70,45 70,65 50,75 L 20,75 L 20,45 Z" fill="#1E2A5D" />
+            
+            {/* Court inside B */}
+            <path d="M 22,15 L 45,15 L 45,35 L 25,35 C 32,27 28,18 22,15 Z" fill="#D81E27"/>
+            <path d="M 25,50 L 48,50 C 60,50 60,65 48,70 L 25,70 L 25,50 Z" fill="#D81E27"/>
 
-    {/* Basketball */}
-    <circle cx="68" cy="58" r="12" fill="#F97316" />
-    <path d="M 68 46 A 12 12 0 0 1 68 70" fill="none" stroke="black" strokeWidth="0.8"/>
-    <path d="M 56 58 A 12 12 0 0 0 80 58" fill="none" stroke="black" strokeWidth="0.8"/>
-    <path d="M 59 50 A 10 10 0 0 1 77 66" fill="none" stroke="black" strokeWidth="0.8"/>
-    <path d="M 59 66 A 10 10 0 0 0 77 50" fill="none" stroke="black" strokeWidth="0.8"/>
+            {/* Backboard and Hoop */}
+            <path d="M 35 20 H 45 V 30 H 35 Z" fill="white" stroke="#1E2A5D" strokeWidth="0.5"/>
+            <path d="M 37 22 H 43 V 28 H 37 Z" fill="none" stroke="#D81E27" strokeWidth="0.5"/>
+            <ellipse cx="40" cy="29" rx="4" ry="2" fill="none" stroke="#D81E27" strokeWidth="1" />
+            <path d="M 37 29 L 38 34 L 42 34 L 43 29" fill="none" stroke="#D81E27" strokeWidth="0.5" />
 
-    {/* Text */}
-    <text x="50" y="86" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#1C2B5D" filter="url(#text-shadow)">BASELINE</text>
-    <text x="50" y="94" textAnchor="middle" fontSize="5" fontWeight="600" fill="#D12727" letterSpacing="0.1">PERSONAL TRAINING</text>
-    
-    {/* Lightning Bolts */}
-    <g strokeWidth="1.5">
-        <path d="M 80 20 l 10 -5 l -5 10 l 8 -6" stroke="#D12727" fill="none" />
-        <path d="M 82 22 l 10 -5 l -5 10 l 8 -6" stroke="#1C2B5D" fill="none" />
-        <path d="M 20 80 l -10 5 l 5 -10 l -8 6" stroke="#D12727" fill="none" />
-        <path d="M 18 78 l -10 5 l 5 -10 l -8 6" stroke="#1C2B5D" fill="none" />
+            {/* Red swoosh top */}
+            <path d="M 15,10 C 40,0 70,15 80,25" fill="none" stroke="#D81E27" strokeWidth="2.5" />
+            {/* Blue swoosh bottom */}
+            <path d="M 20,80 C 40,90 70,85 85,70" fill="none" stroke="#1E2A5D" strokeWidth="2.5" />
+        </g>
+
+        {/* Basketball */}
+        <g transform="translate(3,3)">
+            <circle cx="62" cy="58" r="11" fill="#D95E0C" />
+            <path d="M 62 47 A 11 11 0 0 1 62 69" fill="none" stroke="black" strokeWidth="0.8"/>
+            <path d="M 51 58 A 11 11 0 0 0 73 58" fill="none" stroke="black" strokeWidth="0.8"/>
+            <path d="M 53 50 A 9 9 0 0 1 71 66" fill="none" stroke="black" strokeWidth="0.8"/>
+            <path d="M 53 66 A 9 9 0 0 0 71 50" fill="none" stroke="black" strokeWidth="0.8"/>
+        </g>
+        
+        {/* Lightning Bolts */}
+        <g strokeWidth="2">
+            {/* Top right */}
+            <path d="M 80 20 l 10 -5 l -5 10 l 8 -6" stroke="#D81E27" fill="none" />
+            <path d="M 82 22 l 10 -5 l -5 10 l 8 -6" stroke="#1E2A5D" fill="none" />
+            {/* Bottom left */}
+            <path d="M 20 85 l -10 5 l 5 -10 l -8 6" stroke="#D81E27" fill="none" />
+            <path d="M 18 83 l -10 5 l 5 -10 l -8 6" stroke="#1E2A5D" fill="none" />
+        </g>
+        
+        {/* Text */}
+        <text x="50" y="86" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#1E2A5D" fontStyle="italic">
+            <tspan fill="url(#red-grad-new)">BASE</tspan>LINE
+        </text>
+        <text x="50" y="93" textAnchor="middle" fontSize="5" fontWeight="600" fill="#D81E27" letterSpacing="0.1">PERSONAL TRAINING</text>
     </g>
   </svg>
 );
