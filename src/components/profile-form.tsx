@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,12 +36,18 @@ const profileSchema = z.object({
 
 export function ProfileForm() {
   const { appUser, user } = useAuth();
-  const { firestore } = useFirebase();
+  const { firestore, firebaseApp } = useFirebase();
   const { toast } = useToast();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(appUser?.photoURL || null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (appUser?.photoURL) {
+      setPhotoPreview(appUser.photoURL);
+    }
+  }, [appUser?.photoURL]);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -54,30 +60,59 @@ export function ProfileForm() {
       experienceLevel: appUser?.experienceLevel || undefined,
     },
   });
+  
+  useEffect(() => {
+    form.reset({
+      displayName: appUser?.displayName || '',
+      age: appUser?.age || undefined,
+      height: appUser?.height || undefined,
+      weight: appUser?.weight || undefined,
+      position: appUser?.position || undefined,
+      experienceLevel: appUser?.experienceLevel || undefined,
+    })
+  }, [appUser, form.reset, form]);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0] && user) {
       const file = e.target.files[0];
-      setPhotoFile(file);
       setPhotoPreview(URL.createObjectURL(file));
+      setIsUploading(true);
+      
+      try {
+        const storage = getStorage(firebaseApp);
+        const storageRef = ref(storage, `profile-photos/${user.uid}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const photoURL = await getDownloadURL(snapshot.ref);
+
+        const userDocRef = doc(firestore, 'users', user.uid);
+        await updateDoc(userDocRef, { photoURL });
+        
+        setPhotoPreview(photoURL);
+        toast({
+          title: 'Photo Updated',
+          description: 'Your new profile photo has been saved.',
+        });
+      } catch (error) {
+        console.error("Photo upload failed:", error);
+        toast({
+          title: 'Upload Failed',
+          description: 'Could not upload your new photo. Please try again.',
+          variant: 'destructive',
+        });
+        setPhotoPreview(appUser?.photoURL || null);
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
   async function onSubmit(values: z.infer<typeof profileSchema>) {
     if (!user) return;
-    setIsLoading(true);
+    setIsSaving(true);
 
     try {
-      let photoURL = appUser?.photoURL || '';
-      if (photoFile) {
-        const storage = getStorage(useFirebase().firebaseApp);
-        const storageRef = ref(storage, `profile-photos/${user.uid}`);
-        const snapshot = await uploadBytes(storageRef, photoFile);
-        photoURL = await getDownloadURL(snapshot.ref);
-      }
-
       const userDocRef = doc(firestore, 'users', user.uid);
-      await updateDoc(userDocRef, { ...values, photoURL });
+      await updateDoc(userDocRef, values);
 
       toast({
         title: 'Profile Updated',
@@ -91,7 +126,7 @@ export function ProfileForm() {
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -105,15 +140,16 @@ export function ProfileForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
+              <Avatar className="h-20 w-20 relative">
                 <AvatarImage src={photoPreview || ''} />
                 <AvatarFallback>PIC</AvatarFallback>
+                {isUploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full"><Loader2 className="h-8 w-8 animate-spin text-white" /></div>}
               </Avatar>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" disabled={isUploading}>
                 <label htmlFor="photo-upload" className="cursor-pointer">
                   <Upload className="mr-2 h-4 w-4" />
-                  Upload Photo
-                  <Input id="photo-upload" type="file" className="sr-only" onChange={handlePhotoChange} accept="image/*" />
+                  {isUploading ? 'Uploading...' : 'Change Photo'}
+                  <Input id="photo-upload" type="file" className="sr-only" onChange={handlePhotoChange} accept="image/*" disabled={isUploading} />
                 </label>
               </Button>
             </div>
@@ -124,13 +160,13 @@ export function ProfileForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <FormField control={form.control} name="age" render={({ field }) => (
-                    <FormItem><FormLabel>Age</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Age</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="height" render={({ field }) => (
-                    <FormItem><FormLabel>Height (cm)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Height (cm)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="weight" render={({ field }) => (
-                    <FormItem><FormLabel>Weight (kg)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Weight (kg)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                 )}/>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -150,8 +186,8 @@ export function ProfileForm() {
             
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="ghost" onClick={() => router.back()}>Cancel</Button>
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Button type="submit" disabled={isSaving || isUploading}>
+                    {(isSaving) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Save Changes
                 </Button>
             </div>
