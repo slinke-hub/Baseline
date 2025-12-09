@@ -106,5 +106,17 @@ export const mockMeals: Meal[] = [
         protein: 25,
         carbs: 30,
         fat: 15,
+    },
+    {
+        id: '5',
+        title: 'Post-Game Protein Shake',
+        category: 'Post-game',
+        imageId: 'meal-snack-1',
+        ingredients: ['1 scoop Whey Protein', '1 Banana', '250ml Almond Milk', '1 tbsp Peanut Butter'],
+        steps: ['Combine all ingredients in a blender.', 'Blend until smooth.', 'Serve immediately for best results.'],
+        calories: 420,
+        protein: 30,
+        carbs: 45,
+        fat: 15,
     }
 ];

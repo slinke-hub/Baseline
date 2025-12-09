@@ -18,6 +18,7 @@ const mockUsers = [
     { id: 'user-1', name: 'LeBron James' },
     { id: 'user-2', name: 'Stephen Curry' },
     { id: 'user-3', name: 'Kevin Durant' },
+    { id: 'user-5', name: 'Zion Williamson' },
 ];
 
 type ScheduleEvent = {
@@ -43,6 +44,7 @@ const initialSchedule: ScheduleEvent[] = [
     { id: 'event-7', userId: 'user-3', date: new Date(), type: 'workout', title: 'Hill Sprints', workoutId: '4' },
     { id: 'event-8', userId: 'user-3', date: addDays(new Date(), 1), type: 'rest', title: 'Rest Day' },
     { id: 'event-9', userId: 'user-3', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
+    { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
 ]
 
 export default function AdminSchedulePage() {
@@ -290,5 +292,3 @@ function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: Sc
         </div>
     )
 }
-
-    

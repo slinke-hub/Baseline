@@ -19,6 +19,7 @@ const mockUsers = [
     { id: 'user-1', name: 'LeBron James' },
     { id: 'user-2', name: 'Stephen Curry' },
     { id: 'user-3', name: 'Kevin Durant' },
+    { id: 'user-5', name: 'Zion Williamson' },
 ];
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -42,6 +43,9 @@ const initialPlan: UserWeeklyPlans = {
     },
     'user-1': {
         'Monday': { 'Breakfast': mockMeals[0] },
+    },
+    'user-5': {
+        'Monday': { 'Post-game': mockMeals[4] },
     }
 };
 

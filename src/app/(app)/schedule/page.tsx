@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,6 +29,7 @@ const initialSchedule: ScheduleEvent[] = [
     { id: 'event-10', userId: 'user-2', date: new Date(), type: 'meal', title: 'Power Oatmeal', mealId: '1'},
     { id: 'event-11', userId: 'user-2', date: new Date(), type: 'meal', title: 'Grilled Chicken Salad', mealId: '2'},
     { id: 'event-12', userId: 'user-2', date: addDays(new Date(),1), type: 'meal', title: 'Recovery Salmon', mealId: '3'},
+    { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
 ];
 
 
@@ -36,7 +38,7 @@ export default function ClientSchedulePage() {
     const [date, setDate] = useState<Date | undefined>(new Date());
     
     // In a real app, this would be a Firestore query. For now, we mock a "logged in" user.
-    const currentUserMockId = 'user-2'; 
+    const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2'; 
     const userSchedule = initialSchedule.filter(event => event.userId === currentUserMockId);
 
     const getEventsForDate = (d: Date) => {
