@@ -29,6 +29,10 @@ export default function WorkoutTrackerPage() {
       title: "Workout Completed!",
       description: `Great job finishing ${workout?.title}.`,
     });
+    
+    // Play notification sound
+    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    audio.play().catch(e => console.error("Error playing sound:", e));
 
     const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2';
     const todaysWorkouts = mockSchedule.filter(event => 
