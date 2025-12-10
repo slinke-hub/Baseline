@@ -18,12 +18,9 @@ export default function WorkoutTrackerPage() {
   const workout = mockWorkouts.find(w => w.id === id);
 
   const [time, setTime] = useState(0);
-  const [addedMinutes, setAddedMinutes] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  const totalDurationInMinutes = workout ? workout.duration + addedMinutes : 0;
 
   const handleMarkComplete = useCallback(() => {
     if (audioRef.current) {
@@ -37,26 +34,26 @@ export default function WorkoutTrackerPage() {
   }, [workout, toast, router]);
 
   useEffect(() => {
-    if (isRunning) {
+    if (workout) {
+        setTime(workout.duration * 60);
+    }
+  }, [workout]);
+
+  useEffect(() => {
+    if (isRunning && time > 0) {
       timerRef.current = setInterval(() => {
-        setTime(prevTime => prevTime + 1);
+        setTime(prevTime => prevTime - 1);
       }, 1000);
+    } else if (time === 0 && isRunning) {
+      setIsRunning(false);
+      handleMarkComplete();
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isRunning]);
-
-  useEffect(() => {
-    if (workout && time >= totalDurationInMinutes * 60) {
-      setIsRunning(false);
-      if (time > 0) { 
-        handleMarkComplete();
-      }
-    }
-  }, [time, workout, totalDurationInMinutes, handleMarkComplete]);
+  }, [isRunning, time, handleMarkComplete]);
 
   const formatTime = (seconds: number) => {
     const getSeconds = `0${seconds % 60}`.slice(-2);
@@ -67,19 +64,20 @@ export default function WorkoutTrackerPage() {
   };
 
   const handleStartPause = () => {
-    setIsRunning(!isRunning);
+    if (time > 0) {
+      setIsRunning(!isRunning);
+    }
   };
 
   const handleReset = () => {
     setIsRunning(false);
-    setTime(0);
-    setAddedMinutes(0);
+    if(workout) {
+        setTime(workout.duration * 60);
+    }
   };
 
   const handleAddTime = () => {
-    if (addedMinutes < 5) {
-      setAddedMinutes(prev => prev + 1);
-    }
+    setTime(prev => prev + 60);
   }
 
   if (!workout) {
@@ -97,17 +95,17 @@ export default function WorkoutTrackerPage() {
         <Card className="w-full max-w-md">
             <CardHeader>
                 <CardTitle className="text-3xl font-bold">{workout.title}</CardTitle>
-                <CardDescription>Target: {totalDurationInMinutes} minutes. Stay focused!</CardDescription>
+                <CardDescription>Time Remaining. Stay focused!</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
                 <div className="text-8xl font-mono font-bold text-primary tabular-nums">
                     {formatTime(time)}
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                    <Button size="lg" onClick={handleStartPause} className="flex items-center gap-2 col-span-2">
+                    <Button size="lg" onClick={handleStartPause} className="flex items-center gap-2 col-span-2" disabled={time === 0}>
                         {isRunning ? <><Pause className="h-5 w-5"/>Pause</> : <><Play className="h-5 w-5"/>Start</>}
                     </Button>
-                    <Button size="lg" variant="outline" onClick={handleAddTime} disabled={addedMinutes >= 5} className="flex items-center gap-2">
+                    <Button size="lg" variant="outline" onClick={handleAddTime} className="flex items-center gap-2">
                         <Plus className="h-5 w-5"/>+1 Min
                     </Button>
                 </div>
