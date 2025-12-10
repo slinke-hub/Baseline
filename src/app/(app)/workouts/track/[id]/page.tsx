@@ -2,19 +2,22 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { mockWorkouts } from "@/lib/mock-data";
+import { mockWorkouts, mockSchedule } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Play, Pause, RotateCcw, Check, Plus } from "lucide-react";
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import { isSameDay } from 'date-fns';
 
 export default function WorkoutTrackerPage() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
   const { toast } = useToast();
+  const { appUser } = useAuth();
   const workout = mockWorkouts.find(w => w.id === id);
 
   const [time, setTime] = useState(0);
@@ -26,8 +29,22 @@ export default function WorkoutTrackerPage() {
       title: "Workout Completed!",
       description: `Great job finishing ${workout?.title}.`,
     });
-    router.push('/home');
-  }, [workout, toast, router]);
+
+    const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2';
+    const todaysWorkouts = mockSchedule.filter(event => 
+        event.userId === currentUserMockId &&
+        event.type === 'workout' &&
+        isSameDay(event.date, new Date()) &&
+        event.workoutId !== id
+    );
+
+    if (todaysWorkouts.length > 0) {
+        router.push('/workouts');
+    } else {
+        router.push('/home');
+    }
+
+  }, [workout, toast, router, appUser, id]);
 
   useEffect(() => {
     if (workout) {

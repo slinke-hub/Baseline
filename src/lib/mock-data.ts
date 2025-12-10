@@ -1,5 +1,6 @@
 
-import type { Workout, Meal } from '@/lib/types';
+import type { Workout, Meal, ScheduleEvent } from '@/lib/types';
+import { addDays } from 'date-fns';
 
 export const mockWorkouts: Workout[] = [
   {
@@ -120,4 +121,20 @@ export const mockMeals: Meal[] = [
         carbs: 45,
         fat: 15,
     }
+];
+
+export const mockSchedule: ScheduleEvent[] = [
+    { id: 'event-1', userId: 'user-1', date: new Date(), type: 'workout', title: 'Plyometric Power', workoutId: '5' },
+    { id: 'event-2', userId: 'user-1', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
+    { id: 'event-3', userId: 'user-1', date: addDays(new Date(), 4), type: 'rest', title: 'Rest Day' },
+    { id: 'event-4', userId: 'user-2', date: new Date(), type: 'workout', title: 'Stationary Dribbling Series', workoutId: '2' },
+    { id: 'event-5', userId: 'user-2', date: addDays(new Date(), 1), type: 'workout', title: 'Defensive Slides', workoutId: '3' },
+    { id: 'event-6', userId: 'user-2', date: addDays(new Date(), 3), type: 'game', title: 'Game Day' },
+    { id: 'event-10', userId: 'user-2', date: new Date(), type: 'meal', title: 'Power Oatmeal', mealId: '1'},
+    { id: 'event-11', userId: 'user-2', date: new Date(), type: 'meal', title: 'Grilled Chicken Salad', mealId: '2'},
+    { id: 'event-12', userId: 'user-2', date: addDays(new Date(),1), type: 'meal', title: 'Recovery Salmon', mealId: '3'},
+    { id: 'event-7', userId: 'user-3', date: new Date(), type: 'workout', title: 'Hill Sprints', workoutId: '4' },
+    { id: 'event-8', userId: 'user-3', date: addDays(new Date(), 1), type: 'rest', title: 'Rest Day' },
+    { id: 'event-9', userId: 'user-3', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
+    { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
 ];

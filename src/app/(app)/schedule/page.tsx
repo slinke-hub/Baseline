@@ -5,32 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { addDays, format, isSameDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { UtensilsCrossed, Dumbbell } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-
-type ScheduleEvent = {
-    id: string;
-    userId: string;
-    date: Date;
-    type: 'workout' | 'rest' | 'game' | 'meal';
-    title: string;
-    workoutId?: string;
-    mealId?: string;
-}
-
-// NOTE: This is the same mock data from the admin schedule page to simulate persistence
-const initialSchedule: ScheduleEvent[] = [
-    { id: 'event-1', userId: 'user-1', date: new Date(), type: 'workout', title: 'Plyometric Power', workoutId: '5' },
-    { id: 'event-2', userId: 'user-1', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
-    { id: 'event-4', userId: 'user-2', date: new Date(), type: 'workout', title: 'Stationary Dribbling Series', workoutId: '2' },
-    { id: 'event-5', userId: 'user-2', date: addDays(new Date(), 1), type: 'workout', title: 'Defensive Slides', workoutId: '3' },
-    { id: 'event-6', userId: 'user-2', date: addDays(new Date(), 3), type: 'game', title: 'Game Day' },
-    { id: 'event-10', userId: 'user-2', date: new Date(), type: 'meal', title: 'Power Oatmeal', mealId: '1'},
-    { id: 'event-11', userId: 'user-2', date: new Date(), type: 'meal', title: 'Grilled Chicken Salad', mealId: '2'},
-    { id: 'event-12', userId: 'user-2', date: addDays(new Date(),1), type: 'meal', title: 'Recovery Salmon', mealId: '3'},
-    { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
-];
+import type { ScheduleEvent } from '@/lib/types';
+import { mockSchedule } from '@/lib/mock-data';
 
 
 export default function ClientSchedulePage() {
@@ -39,7 +18,7 @@ export default function ClientSchedulePage() {
     
     // In a real app, this would be a Firestore query. For now, we mock a "logged in" user.
     const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2'; 
-    const userSchedule = initialSchedule.filter(event => event.userId === currentUserMockId);
+    const userSchedule = mockSchedule.filter(event => event.userId === currentUserMockId);
 
     const getEventsForDate = (d: Date) => {
         return userSchedule.filter(event => isSameDay(event.date, d));

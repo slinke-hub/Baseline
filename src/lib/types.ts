@@ -47,3 +47,13 @@ export interface WorkoutProgress {
   date: number; // timestamp
   duration: number; // minutes spent
 }
+
+export type ScheduleEvent = {
+    id: string;
+    userId: string;
+    date: Date;
+    type: 'workout' | 'rest' | 'game' | 'meal';
+    title: string;
+    workoutId?: string;
+    mealId?: string;
+}
