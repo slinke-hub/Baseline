@@ -20,12 +20,8 @@ export default function WorkoutTrackerPage() {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleMarkComplete = useCallback(() => {
-    if (audioRef.current) {
-        audioRef.current.play();
-    }
     toast({
       title: "Workout Completed!",
       description: `Great job finishing ${workout?.title}.`,
@@ -86,7 +82,6 @@ export default function WorkoutTrackerPage() {
 
   return (
     <div className="flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
-      <audio ref={audioRef} src="/sounds/notification.mp3" preload="auto"></audio>
       <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="h-4 w-4" />
         Back to Workout
