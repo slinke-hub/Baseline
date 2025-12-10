@@ -6,12 +6,13 @@ import { mockWorkouts } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Play, Pause, RotateCcw, Check, Plus } from "lucide-react";
 import Link from 'next/link';
 
-export default function WorkoutTrackerPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function WorkoutTrackerPage() {
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
   const { toast } = useToast();
   const workout = mockWorkouts.find(w => w.id === id);
