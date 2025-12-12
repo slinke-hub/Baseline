@@ -56,16 +56,29 @@ export function LoginForm() {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push('/');
     } catch (error: any) {
-      let errorMessage = 'An unexpected error occurred.';
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        errorMessage = 'Invalid email or password. Please try again.';
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      if (error.code) {
+          switch (error.code) {
+              case 'auth/user-not-found':
+              case 'auth/wrong-password':
+              case 'auth/invalid-credential':
+                  errorMessage = 'Invalid email or password. Please try again.';
+                  break;
+              case 'auth/too-many-requests':
+                  errorMessage = 'Too many login attempts. Please try again later.';
+                  break;
+              default:
+                  errorMessage = error.message || errorMessage;
+                  break;
+          }
       }
       toast({
         title: 'Login Failed',
         description: errorMessage,
         variant: 'destructive',
       });
-      setIsLoading(false);
+    } finally {
+        setIsLoading(false);
     }
   }
 
