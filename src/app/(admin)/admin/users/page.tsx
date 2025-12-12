@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 // Mock user data for demonstration
@@ -63,12 +64,13 @@ export default function AdminUsersPage() {
         const formData = new FormData(event.currentTarget);
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
+        const role = formData.get('role') as 'admin' | 'client';
         
         const newUser: User = {
             id: `user-${Date.now()}`,
             name,
             email,
-            role: 'client',
+            role: role || 'client',
             plan: 'Free',
             joined: new Date().toISOString().split('T')[0],
         };
@@ -143,6 +145,20 @@ export default function AdminUsersPage() {
                                 Email
                               </Label>
                               <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" required/>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="role" className="text-right">
+                                Role
+                              </Label>
+                               <Select name="role" defaultValue="client">
+                                <SelectTrigger className="col-span-3" id="role">
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="client">Client</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
                           <DialogFooter>
