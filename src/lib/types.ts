@@ -1,3 +1,6 @@
+
+import { Timestamp } from "firebase/firestore";
+
 export interface AppUser {
   uid: string;
   email: string;
@@ -44,8 +47,9 @@ export interface WorkoutProgress {
   id: string;
   userId: string;
   workoutId: string;
-  date: number; // timestamp
-  duration: number; // minutes spent
+  date: Timestamp;
+  timeSpent: number; // minutes spent
+  isCompleted: boolean;
 }
 
 export type ScheduleEvent = {

@@ -11,51 +11,91 @@ import { ArrowLeft, Play, Pause, RotateCcw, Check, Plus } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { isSameDay } from 'date-fns';
+import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import type { WorkoutProgress } from '@/lib/types';
+
 
 export default function WorkoutTrackerPage() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
   const { toast } = useToast();
-  const { appUser } = useAuth();
+  const { appUser, user } = useAuth();
+  const { firestore } = useFirebase();
   const workout = mockWorkouts.find(w => w.id === id);
 
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMarkComplete = useCallback(() => {
-    toast({
-      title: "Workout Completed!",
-      description: `Great job finishing ${workout?.title}.`,
-    });
-    
-    // Play notification sound
-    const audio = new Audio('https://actions.google.com/sounds/v1/notifications/notification_simple.ogg');
-    audio.volume = 0.5;
-    audio.play().catch(e => console.error("Error playing sound:", e));
-
-    const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2';
-    const todaysWorkouts = mockSchedule.filter(event => 
-        event.userId === currentUserMockId &&
-        event.type === 'workout' &&
-        isSameDay(event.date, new Date()) &&
-        event.workoutId !== id
-    );
-
-    if (todaysWorkouts.length > 0) {
-        router.push('/workouts');
-    } else {
-        router.push('/home');
-    }
-
-  }, [workout, toast, router, appUser, id]);
+  const initialDuration = useRef(0);
 
   useEffect(() => {
     if (workout) {
-        setTime(workout.duration * 60);
+      const durationInSeconds = workout.duration * 60;
+      setTime(durationInSeconds);
+      initialDuration.current = durationInSeconds;
     }
   }, [workout]);
+
+  const handleMarkComplete = useCallback(async () => {
+    if (!user || !workout) return;
+
+    setIsRunning(false);
+
+    const timeSpent = Math.round((initialDuration.current - time) / 60);
+
+    const progressData: Omit<WorkoutProgress, 'id'> = {
+      userId: user.uid,
+      workoutId: workout.id,
+      date: Timestamp.now(),
+      timeSpent: timeSpent > 0 ? timeSpent : 1, // Log at least 1 minute
+      isCompleted: true,
+    };
+
+    try {
+      const progressColRef = collection(firestore, 'users', user.uid, 'workoutProgress');
+      await addDoc(progressColRef, progressData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: progressColRef.path,
+            operation: 'create',
+            requestResourceData: progressData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
+
+      toast({
+        title: "Workout Completed!",
+        description: `Great job finishing ${workout.title}.`,
+      });
+      
+      const audio = new Audio('https://actions.google.com/sounds/v1/notifications/notification_simple.ogg');
+      audio.volume = 0.5;
+      audio.play().catch(e => console.error("Error playing sound:", e));
+
+      const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2';
+      const todaysWorkouts = mockSchedule.filter(event => 
+          event.userId === currentUserMockId &&
+          event.type === 'workout' &&
+          isSameDay(event.date, new Date()) &&
+          event.workoutId !== id
+      );
+
+      if (todaysWorkouts.length > 0) {
+          router.push('/workouts');
+      } else {
+          router.push('/home');
+      }
+    } catch(e) {
+        console.error("Failed to save workout progress", e);
+        toast({
+            title: "Save Failed",
+            description: "Could not save your workout progress. Please try again.",
+            variant: "destructive",
+        });
+    }
+
+  }, [workout, toast, router, appUser, id, user, firestore, time]);
 
   useEffect(() => {
     if (isRunning && time > 0) {
@@ -63,10 +103,8 @@ export default function WorkoutTrackerPage() {
         setTime(prevTime => prevTime - 1);
       }, 1000);
     } else if (time === 0 && isRunning) {
-      setIsRunning(false);
-      handleMarkComplete();
-    } else {
       if (timerRef.current) clearInterval(timerRef.current);
+      handleMarkComplete();
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -90,7 +128,7 @@ export default function WorkoutTrackerPage() {
   const handleReset = () => {
     setIsRunning(false);
     if(workout) {
-        setTime(workout.duration * 60);
+      setTime(workout.duration * 60);
     }
   };
 

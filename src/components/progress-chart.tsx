@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
@@ -8,16 +9,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
-const chartData = [
-  { day: "Mon", minutes: 55, workouts: 1 },
-  { day: "Tue", minutes: 40, workouts: 1 },
-  { day: "Wed", minutes: 70, workouts: 2 },
-  { day: "Thu", minutes: 0, workouts: 0 },
-  { day: "Fri", minutes: 60, workouts: 1 },
-  { day: "Sat", minutes: 90, workouts: 2 },
-  { day: "Sun", minutes: 0, workouts: 0 },
-]
 
 const chartConfig = {
   minutes: {
@@ -30,10 +21,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ProgressChart() {
+type ProgressChartProps = {
+    data: {
+        day: string;
+        minutes: number;
+        workouts: number;
+    }[];
+}
+
+export function ProgressChart({ data }: ProgressChartProps) {
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-      <BarChart accessibilityLayer data={chartData}>
+      <BarChart accessibilityLayer data={data}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="day"
