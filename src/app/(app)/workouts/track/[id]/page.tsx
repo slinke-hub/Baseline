@@ -31,7 +31,8 @@ export default function WorkoutTrackerPage() {
     });
     
     // Play notification sound
-    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    const audio = new Audio('https://actions.google.com/sounds/v1/notifications/notification_simple.ogg');
+    audio.volume = 0.5;
     audio.play().catch(e => console.error("Error playing sound:", e));
 
     const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2';
