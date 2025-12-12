@@ -8,22 +8,25 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 
 const chartData = [
-  { day: "Mon", minutes: 55 },
-  { day: "Tue", minutes: 40 },
-  { day: "Wed", minutes: 70 },
-  { day: "Thu", minutes: 0 },
-  { day: "Fri", minutes: 60 },
-  { day: "Sat", minutes: 90 },
-  { day: "Sun", minutes: 0 },
+  { day: "Mon", minutes: 55, workouts: 1 },
+  { day: "Tue", minutes: 40, workouts: 1 },
+  { day: "Wed", minutes: 70, workouts: 2 },
+  { day: "Thu", minutes: 0, workouts: 0 },
+  { day: "Fri", minutes: 60, workouts: 1 },
+  { day: "Sat", minutes: 90, workouts: 2 },
+  { day: "Sun", minutes: 0, workouts: 0 },
 ]
 
 const chartConfig = {
   minutes: {
     label: "Minutes",
-    color: "hsl(var(--primary))",
+    color: "hsl(var(--chart-1))",
+  },
+  workouts: {
+    label: "Workouts",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
 
@@ -42,6 +45,7 @@ export function ProgressChart() {
         <YAxis />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Bar dataKey="minutes" fill="var(--color-minutes)" radius={4} />
+        <Bar dataKey="workouts" fill="var(--color-workouts)" radius={4} />
       </BarChart>
     </ChartContainer>
   )
