@@ -26,7 +26,7 @@ export default function EntryPage() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
-      <Logo className="h-32 w-80" />
+      <Logo className="h-40 w-[512px]" />
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
       <p>Loading your experience...</p>
     </div>
