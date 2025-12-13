@@ -1,107 +1,13 @@
-export const Logo = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    viewBox="35 40 135 130"
-    xmlns="http://www.w3.org/2000/svg"
-    fillRule="evenodd"
-    clipRule="evenodd"
-    strokeLinejoin="round"
-    strokeMiterlimit={2}
-  >
-    <path
-      d="M63,39.333H99.667V54.333H63V39.333Z"
-      fill="#b92d2f"
-      fillRule="nonzero"
-      transform="matrix(1,0,0,0.666667,0,14.7778)"
+import Image from 'next/image';
+
+export const Logo = ({ className }: { className?: string }) => (
+  <div className={`relative ${className}`}>
+    <Image
+      src="/logo.png"
+      alt="Baseline Logo"
+      fill
+      style={{ objectFit: 'contain' }}
+      priority
     />
-    <path
-      d="M63,115.333H99.667V130.333H63V115.333Z"
-      fill="#b92d2f"
-      fillRule="nonzero"
-      transform="matrix(1,0,0,0.666667,0,18.1111)"
-    />
-    <path
-      d="M99.667,39.333h19.666c11.046,0,20,8.954,20,20v61.334c0,11.046,-8.954,20,-20,20H99.667v-15H119.333c2.761,0,5,-2.239,5,-5v-61.334c0,-2.761,-2.239,-5,-5,-5H99.667v-15Z"
-      fill="#232e4d"
-      fillRule="nonzero"
-    />
-    <path
-      d="M99.667,39.333v101.334H63c-11.046,0,-20,-8.954,-20,-20v-61.334c0,-11.046,8.954,-20,20,-20h36.667Zm-36.667,15c-2.761,0,-5,2.239,-5,5v61.334c0,2.761,2.239,5,5,5h31.667v-71.334H63Z"
-      fill="#b92d2f"
-      fillRule="nonzero"
-    />
-    <path
-      d="M139.333,87.667c0,-22.091,-17.909,-40,-40,-40s-40,17.909,-40,40"
-      fill="none"
-      stroke="#232e4d"
-      strokeWidth={15}
-      transform="matrix(1,0,0,1,0,3.33333)"
-    />
-    <path
-      d="M139.333,91c0,22.091,-17.909,40,-40,40s-40,-17.909,-40,-40"
-      fill="none"
-      stroke="#b92d2f"
-      strokeWidth={15}
-    />
-    <g transform="matrix(1,0,0,1,2,0)">
-      <g>
-        <path
-          d="m 109.89,101.99 c 0,-1.38 -1.12,-2.5 -2.5,-2.5 H 77.39 c -1.38,0 -2.5,1.12 -2.5,2.5 v 0 c 0,1.38 1.12,2.5 2.5,2.5 h 29.99 c 1.39,0 2.51,-1.12 2.51,-2.5 z"
-          fill="#fff"
-        />
-        <path
-          d="m 84,81.33 h 18.67 v -3 H 84 Z m 10,13.34 v -14 h -2 v 14 z"
-          fill="#fff"
-        />
-        <path
-          d="M84,78.333h18.667v5.334H84v-5.334Z"
-          fill="#b92d2f"
-          transform="matrix(1,0,0,1,0,-4)"
-        />
-        <path
-          d="M90.333,78h6v-3h-6v3Z"
-          fill="#fff"
-          transform="matrix(1,0,0,1,0,-4)"
-        />
-      </g>
-      <path
-        d="m 102.33,96.33 c -4.42,0 -8,3.58 -8,8 0,3.92 2.84,7.18 6.5,7.82 V 110.33 H 84.16 c -0.55,0 -1,0.45 -1,1 v 0 c 0,0.55 0.45,1 1,1 H 102.33 v 3.67 c -7.18,0 -13,-5.82 -13,-13 0,-7.18 5.82,-13 13,-13 6.9,0 12.55,5.43 12.96,12.25 0.03,0.55 -0.4,1.01 -0.95,1.01 h -0.01 c -0.52,0 -0.95,-0.43 -0.98,-0.95 -0.32,-5.22 -4.61,-9.31 -9.67,-9.31 z"
-        fill="#fff"
-        fillRule="nonzero"
-      />
-    </g>
-    <circle
-      cx="116.333"
-      cy="123"
-      r="22"
-      fill="#b92d2f"
-      transform="matrix(1,0,0,1,0,3.33333)"
-    />
-    <circle
-      cx="116.333"
-      cy="126.333"
-      r="22"
-      fill="none"
-      stroke="#232e4d"
-      strokeWidth={4}
-    />
-    <path
-      d="m 103.83,141.33 c 6.63,-6.63 6.63,-17.37 0,-24"
-      fill="none"
-      stroke="#232e4d"
-      strokeWidth={4}
-    />
-    <path
-      d="M128.833,111.333c-6.627,6.627 -6.627,17.373 0,24"
-      fill="none"
-      stroke="#232e4d"
-      strokeWidth={4}
-    />
-    <path
-      d="m 96.33,126.33 h 40"
-      fill="none"
-      stroke="#232e4d"
-      strokeWidth={4}
-    />
-  </svg>
+  </div>
 );
