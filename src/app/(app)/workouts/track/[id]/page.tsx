@@ -14,6 +14,7 @@ import { isSameDay } from 'date-fns';
 import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { WorkoutProgress } from '@/lib/types';
+import { Logo } from '@/components/icons/logo';
 
 
 export default function WorkoutTrackerPage() {
@@ -141,13 +142,16 @@ export default function WorkoutTrackerPage() {
   }
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
-      <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Workout
-      </Link>
-      <div className="flex-1 flex flex-col items-center justify-center text-center">
-        <Card className="w-full max-w-md">
+    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
+      <Logo className="absolute inset-0 m-auto h-auto w-full max-w-lg opacity-5 z-0" />
+      <div className="relative z-10">
+        <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Workout
+        </Link>
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
+        <Card className="w-full max-w-md bg-card/80 backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="text-3xl font-bold">{workout.title}</CardTitle>
                 <CardDescription>Time Remaining. Stay focused!</CardDescription>
