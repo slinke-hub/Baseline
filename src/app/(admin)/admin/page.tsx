@@ -29,6 +29,8 @@ type Announcement = {
     date: Date;
 }
 
+const LOGO_UPDATED_EVENT = 'logoUpdated';
+
 export default function AdminDashboardPage() {
     const { toast } = useToast();
     const { firebaseApp } = useFirebase();
@@ -46,9 +48,13 @@ export default function AdminDashboardPage() {
       ];
       setAnnouncements(initialAnnouncements);
 
-      const storage = getStorage(firebaseApp);
-      const logoRef = ref(storage, 'app/logo.png');
-      getDownloadURL(logoRef).then(setLogoPreview).catch(() => {});
+      if (firebaseApp) {
+          const storage = getStorage(firebaseApp);
+          const logoRef = ref(storage, 'app/logo.png');
+          getDownloadURL(logoRef)
+            .then(url => setLogoPreview(`${url}?t=${new Date().getTime()}`))
+            .catch(() => {});
+      }
 
     }, [firebaseApp]);
 
@@ -69,7 +75,7 @@ export default function AdminDashboardPage() {
 
     const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (!file) return;
+      if (!file || !firebaseApp) return;
 
       setIsUploading(true);
 
@@ -78,15 +84,22 @@ export default function AdminDashboardPage() {
         const logoRef = ref(storage, 'app/logo.png');
         await uploadBytes(logoRef, file);
         const downloadUrl = await getDownloadURL(logoRef);
-        setLogoPreview(downloadUrl);
-        toast({ title: 'Logo Updated', description: 'The new app logo has been uploaded successfully. It may take a moment to update across the app.'});
-        // Force a reload to see the new logo in the header
-        window.location.reload();
+        
+        const newUrl = `${downloadUrl}?t=${new Date().getTime()}`;
+        setLogoPreview(newUrl);
+
+        // Dispatch a global event to notify other components (like the header logo)
+        window.dispatchEvent(new CustomEvent(LOGO_UPDATED_EVENT));
+        
+        toast({ title: 'Logo Updated', description: 'The new app logo has been uploaded successfully.'});
       } catch (error) {
         console.error("Logo upload failed: ", error);
         toast({ title: 'Upload Failed', description: 'Could not upload the new logo.', variant: 'destructive' });
       } finally {
         setIsUploading(false);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
       }
     };
 
