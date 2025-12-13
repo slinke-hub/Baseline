@@ -2,17 +2,14 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mockWorkouts, mockMeals } from '@/lib/mock-data';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { format } from 'date-fns';
-import { useFirebase } from '@/firebase';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Input } from '@/components/ui/input';
 
 // Mock user data for demonstration
 const mockUsers = [
@@ -29,16 +26,10 @@ type Announcement = {
     date: Date;
 }
 
-const LOGO_UPDATED_EVENT = 'logoUpdated';
-
 export default function AdminDashboardPage() {
     const { toast } = useToast();
-    const { firebaseApp } = useFirebase();
     const [newAnnouncement, setNewAnnouncement] = useState('');
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [isUploading, setIsUploading] = useState(false);
-    const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
     useEffect(() => {
       // Initialize announcements on the client to avoid hydration errors
@@ -47,16 +38,7 @@ export default function AdminDashboardPage() {
           { id: 2, author: 'Admin', text: 'New "Vertical Jump" workouts have been added! Check them out in the workouts section.', date: new Date(new Date().setDate(new Date().getDate() - 1)) },
       ];
       setAnnouncements(initialAnnouncements);
-
-      if (firebaseApp) {
-          const storage = getStorage(firebaseApp);
-          const logoRef = ref(storage, 'app/logo.png');
-          getDownloadURL(logoRef)
-            .then(url => setLogoPreview(`${url}?t=${new Date().getTime()}`))
-            .catch(() => {});
-      }
-
-    }, [firebaseApp]);
+    }, []);
 
     const handlePostAnnouncement = () => {
         if (!newAnnouncement.trim()) return;
@@ -72,36 +54,6 @@ export default function AdminDashboardPage() {
         setNewAnnouncement('');
         toast({ title: "Announcement Posted", description: "Your announcement is now visible to all clients." });
     }
-
-    const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file || !firebaseApp) return;
-
-      setIsUploading(true);
-
-      try {
-        const storage = getStorage(firebaseApp);
-        const logoRef = ref(storage, 'app/logo.png');
-        await uploadBytes(logoRef, file);
-        const downloadUrl = await getDownloadURL(logoRef);
-        
-        const newUrl = `${downloadUrl}?t=${new Date().getTime()}`;
-        setLogoPreview(newUrl);
-
-        // Dispatch a global event to notify other components (like the header logo)
-        window.dispatchEvent(new CustomEvent(LOGO_UPDATED_EVENT));
-        
-        toast({ title: 'Logo Updated', description: 'The new app logo has been uploaded successfully.'});
-      } catch (error) {
-        console.error("Logo upload failed: ", error);
-        toast({ title: 'Upload Failed', description: 'Could not upload the new logo.', variant: 'destructive' });
-      } finally {
-        setIsUploading(false);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-      }
-    };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -175,28 +127,6 @@ export default function AdminDashboardPage() {
                             </div>
                         ))}
                     </div>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>App Branding</CardTitle>
-                    <CardDescription>Manage the application's logo.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-32 h-16 relative rounded-md border p-2 flex items-center justify-center">
-                          {logoPreview ? <img src={logoPreview} alt="Logo preview" className="object-contain max-h-full max-w-full" /> : <ImageIcon className="h-8 w-8 text-muted-foreground" />}
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-semibold">App Logo</h3>
-                            <p className="text-xs text-muted-foreground">Upload a PNG file. Recommended size: 256x128px.</p>
-                        </div>
-                    </div>
-                    <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                        {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                        Upload New Logo
-                    </Button>
-                    <Input type="file" ref={fileInputRef} className="hidden" accept="image/png" onChange={handleLogoUpload} />
                 </CardContent>
             </Card>
         </div>
