@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -84,7 +85,7 @@ export default function AiCoachPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Upload Your Video</CardTitle>
-                    <CardDescription>For best results, use a side-on angle showing your full body.</CardDescription>
+                    <CardDescription>For best results, use a side-on angle showing your full body. Max file size: 10MB.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <div className="flex items-center gap-4">
