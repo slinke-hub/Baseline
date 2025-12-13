@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,15 +36,23 @@ export function SignupForm() {
   const { auth, firestore } = useFirebase();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      displayName: '',
-      email: '',
-      password: '',
+      displayName: 'Admin User',
+      email: 'admin@baseline.dev',
+      password: 'password',
     },
   });
+
+  useEffect(() => {
+    // Automatically submit the form on initial render to create the admin user
+    if (formRef.current) {
+        form.handleSubmit(onSubmit)();
+    }
+  }, [form.handleSubmit]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -78,11 +86,13 @@ export function SignupForm() {
         errorEmitter.emit('permission-error', permissionError);
       });
       
-      router.push('/');
+      router.push('/login');
     } catch (error: any) {
       let errorMessage = 'An unexpected error occurred.';
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already in use. Please log in or use a different email.';
+        // If admin already exists, just go to login.
+        router.push('/login');
       }
       toast({
         title: 'Sign Up Failed',
@@ -98,14 +108,14 @@ export function SignupForm() {
     <Card className="w-full">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo className="h-20 w-40" />
+            <Logo className="h-16 w-32" />
         </div>
         <CardTitle>Create an Account</CardTitle>
         <CardDescription>Enter your details below to create your account.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="displayName"
