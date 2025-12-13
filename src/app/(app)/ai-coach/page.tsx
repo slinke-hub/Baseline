@@ -56,10 +56,10 @@ export default function AiCoachPage() {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            if (file.size > 100 * 1024 * 1024) { // 100MB limit
                 toast({
                     title: 'File Too Large',
-                    description: 'Please upload a video smaller than 10MB.',
+                    description: 'Please upload a video smaller than 100MB.',
                     variant: 'destructive',
                 });
                 return;
