@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -34,6 +34,7 @@ const formSchema = z.object({
 const defaultUsers = [
     { displayName: 'Admin User', email: 'admin@baseline.dev', password: 'password'},
     { displayName: 'Stephen Curry', email: 'steph@example.com', password: 'password'},
+    { displayName: 'Zion Williamson', email: 'zion@example.com', password: 'password' },
 ];
 
 export function SignupForm() {
