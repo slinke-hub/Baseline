@@ -8,6 +8,7 @@ export const Logo = ({ className }: { className?: string }) => (
       fill
       style={{ objectFit: 'contain' }}
       priority
+      className="mix-blend-multiply dark:mix-blend-screen"
     />
   </div>
 );
