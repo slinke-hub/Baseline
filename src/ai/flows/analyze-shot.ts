@@ -59,7 +59,9 @@ const analyzeShotFlow = ai.defineFlow(
     outputSchema: AnalyzeShotOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // The model expects the data URI without the metadata prefix.
+    const videoData = input.videoDataUri.substring(input.videoDataUri.indexOf(',') + 1);
+    const {output} = await prompt({ videoDataUri: videoData });
     return output!;
   }
 );
