@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { mockWorkouts, mockSchedule } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Play, Pause, RotateCcw, Check, Plus } from "lucide-react";
@@ -153,34 +152,34 @@ export default function WorkoutTrackerPage() {
             Back to Workout
         </Link>
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
-        <Card className="w-full max-w-md bg-card/80 backdrop-blur-sm">
-            <CardHeader>
-                <CardTitle className="text-3xl font-bold">{workout.title}</CardTitle>
-                <CardDescription>Time Remaining. Stay focused!</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
-                <div className="text-8xl font-mono font-bold text-primary tabular-nums">
-                    {formatTime(time)}
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                    <Button size="lg" onClick={handleStartPause} className="flex items-center gap-2 col-span-2" disabled={time === 0}>
-                        {isRunning ? <><Pause className="h-5 w-5"/>Pause</> : <><Play className="h-5 w-5"/>Start</>}
-                    </Button>
-                    <Button size="lg" variant="outline" onClick={handleAddTime} className="flex items-center gap-2">
-                        <Plus className="h-5 w-5"/>+1 Min
-                    </Button>
-                </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <Button size="lg" variant="destructive" onClick={handleReset} className="flex items-center gap-2">
-                        <RotateCcw className="h-5 w-5"/>Reset
-                    </Button>
-                    <Button size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleMarkComplete}>
-                        <Check className="mr-2 h-5 w-5"/> Mark as Completed
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+      <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10 text-white">
+        <div className="w-full max-w-md space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold">{workout.title}</h1>
+                <p className="text-muted-foreground">Time Remaining. Stay focused!</p>
+            </div>
+            
+            <div className="text-8xl font-mono font-bold text-primary tabular-nums drop-shadow-lg">
+                {formatTime(time)}
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4">
+                <Button size="lg" onClick={handleStartPause} className="flex items-center gap-2 col-span-2" disabled={time === 0}>
+                    {isRunning ? <><Pause className="h-5 w-5"/>Pause</> : <><Play className="h-5 w-5"/>Start</>}
+                </Button>
+                <Button size="lg" variant="outline" onClick={handleAddTime} className="flex items-center gap-2 bg-transparent/20 hover:bg-transparent/40 border-white/50 text-white">
+                    <Plus className="h-5 w-5"/>+1 Min
+                </Button>
+            </div>
+             <div className="grid grid-cols-2 gap-4">
+                <Button size="lg" variant="destructive" onClick={handleReset} className="flex items-center gap-2">
+                    <RotateCcw className="h-5 w-5"/>Reset
+                </Button>
+                <Button size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleMarkComplete}>
+                    <Check className="mr-2 h-5 w-5"/> Mark as Completed
+                </Button>
+            </div>
+        </div>
       </div>
     </div>
   );
