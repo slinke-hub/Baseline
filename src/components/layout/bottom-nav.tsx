@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Calendar, MessageSquare } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Calendar, MessageSquare, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
+  { href: '/ai-coach', icon: Camera, label: 'AI Coach'},
   { href: '/schedule', icon: Calendar, label: 'Schedule' },
-  { href: '/chat', icon: MessageSquare, label: 'Chat' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
