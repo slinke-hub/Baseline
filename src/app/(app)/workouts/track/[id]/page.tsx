@@ -15,9 +15,6 @@ import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase'
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { WorkoutProgress } from '@/lib/types';
 import { Logo } from '@/components/icons/logo';
-import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
-
 
 export default function WorkoutTrackerPage() {
   const params = useParams();
@@ -32,8 +29,6 @@ export default function WorkoutTrackerPage() {
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const initialDuration = useRef(0);
-
-  const backgroundImage = placeholderData.placeholderImages.find(p => p.id === 'todays-workout');
 
   useEffect(() => {
     if (workout) {
@@ -147,19 +142,11 @@ export default function WorkoutTrackerPage() {
 
   return (
     <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
-      {backgroundImage && (
-        <>
-          <Image
-            src={backgroundImage.imageUrl}
-            alt="Workout background"
-            fill
-            className="object-cover -z-10"
-            priority
-            data-ai-hint={backgroundImage.imageHint}
-          />
-          <div className="absolute inset-0 bg-black/70 -z-10" />
-        </>
-      )}
+      <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-10">
+        <Logo className="w-[80vw] h-auto max-w-2xl" />
+      </div>
+      <div className="absolute inset-0 bg-black/70 -z-10" />
+
       <div className="relative z-10">
         <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4" />
