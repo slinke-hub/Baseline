@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,31 +31,62 @@ const formSchema = z.object({
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
+const defaultUsers = [
+    { displayName: 'Admin User', email: 'admin@baseline.dev', password: 'password'},
+    { displayName: 'Stephen Curry', email: 'steph@example.com', password: 'password'},
+];
+
 export function SignupForm() {
   const router = useRouter();
   const { auth, firestore } = useFirebase();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [usersCreated, setUsersCreated] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      displayName: 'Admin User',
-      email: 'admin@baseline.dev',
-      password: 'password',
+      displayName: '',
+      email: '',
+      password: '',
     },
   });
 
-  useEffect(() => {
-    // Automatically submit the form on initial render to create the admin user
-    if (formRef.current) {
-        form.handleSubmit(onSubmit)();
-    }
-  }, [form.handleSubmit]);
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const createDefaultUsers = useCallback(async () => {
+    if (usersCreated) return;
     setIsLoading(true);
+
+    for (const defaultUser of defaultUsers) {
+        try {
+            await onSubmit(defaultUser, true);
+        } catch (error: any) {
+            // We ignore email-already-in-use errors for default users
+            if (error.code !== 'auth/email-already-in-use') {
+                 toast({
+                    title: `Failed to create ${defaultUser.displayName}`,
+                    description: error.message || 'An unknown error occurred.',
+                    variant: 'destructive',
+                });
+            }
+        }
+    }
+    
+    setUsersCreated(true);
+    setIsLoading(false);
+    toast({
+        title: 'Default users ready!',
+        description: 'You can now log in as the admin or client user.',
+    });
+    router.push('/login');
+
+  }, [usersCreated, router, toast]);
+
+  useEffect(() => {
+    createDefaultUsers();
+  }, [createDefaultUsers]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>, isDefault: boolean = false) {
+    if (!isDefault) setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
@@ -84,23 +115,29 @@ export function SignupForm() {
             requestResourceData: userData,
         });
         errorEmitter.emit('permission-error', permissionError);
+        throw new Error("Firestore permission denied.");
       });
       
-      router.push('/login');
-    } catch (error: any) {
-      let errorMessage = 'An unexpected error occurred.';
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email is already in use. Please log in or use a different email.';
-        // If admin already exists, just go to login.
+      if (!isDefault) {
         router.push('/login');
       }
-      toast({
-        title: 'Sign Up Failed',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+    } catch (error: any) {
+      if (!isDefault) {
+          let errorMessage = 'An unexpected error occurred.';
+          if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'This email is already in use. Please log in or use a different email.';
+          }
+          toast({
+            title: 'Sign Up Failed',
+            description: errorMessage,
+            variant: 'destructive',
+          });
+      } else {
+        // re-throw for the batch creator to handle
+        throw error;
+      }
     } finally {
-      setIsLoading(false);
+      if (!isDefault) setIsLoading(false);
     }
   }
 
@@ -114,53 +151,60 @@ export function SignupForm() {
         <CardDescription>Enter your details below to create your account.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Michael Jordan" {...field} autoComplete="name" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="name@example.com" {...field} autoComplete="email" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign Up
-            </Button>
-          </form>
-        </Form>
+        {usersCreated ? (
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Michael Jordan" {...field} autoComplete="name" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                        <Input placeholder="name@example.com" {...field} autoComplete="email" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                        <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Sign Up
+                </Button>
+            </form>
+            </Form>
+        ) : (
+            <div className="flex flex-col items-center justify-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className="text-muted-foreground">Setting up default user accounts...</p>
+            </div>
+        )}
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
