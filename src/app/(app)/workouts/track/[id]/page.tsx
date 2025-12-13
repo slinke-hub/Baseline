@@ -159,7 +159,7 @@ export default function WorkoutTrackerPage() {
                 <p className="text-muted-foreground">Time Remaining. Stay focused!</p>
             </div>
             
-            <div className="text-8xl font-mono font-bold text-primary tabular-nums drop-shadow-lg">
+            <div className="text-7xl md:text-8xl font-mono font-bold text-primary tabular-nums drop-shadow-lg">
                 {formatTime(time)}
             </div>
             
