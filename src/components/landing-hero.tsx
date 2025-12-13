@@ -56,7 +56,7 @@ export function LandingHero() {
   return (
     <div className="flex h-screen w-full flex-col">
       <header className="absolute top-0 left-0 right-0 p-4">
-        <Logo className="h-16 w-[512px]" />
+        <Logo className="h-24 w-full max-w-sm" />
       </header>
       <div className="flex flex-1">
         <div className="flex w-full flex-col items-center justify-center space-y-8 p-8 text-center md:w-1/2 md:text-left md:items-start">
