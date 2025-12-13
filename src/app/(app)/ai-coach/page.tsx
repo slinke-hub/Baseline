@@ -1,41 +1,72 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect }s from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, Upload, CheckCircle, XCircle, Footprints, Armchair, Hand, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle, XCircle, Footprints, Armchair, Hand, Video, Camera, StopCircle, RefreshCw, AlertTriangle } from 'lucide-react';
 import { analyzeShot, type AnalyzeShotOutput } from '@/ai/flows/analyze-shot';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { sampleVideoDataUri } from '@/lib/sample-video';
 
 export default function AiCoachPage() {
     const { toast } = useToast();
-    const [videoFile, setVideoFile] = useState<File | null>(null);
-    const [videoPreview, setVideoPreview] = useState<string | null>(sampleVideoDataUri);
+    const [videoUri, setVideoUri] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<AnalyzeShotOutput | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    
-    const handleAnalyze = async (videoUri: string) => {
-        if (!videoUri) {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const [isRecording, setIsRecording] = useState(false);
+    const [hasCameraPermission, setHasCameraPermission] = useState(false);
+    const recordedChunks = useRef<Blob[]>([]);
+
+    useEffect(() => {
+        const getCameraPermission = async () => {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             toast({
-                title: 'No Video Selected',
-                description: 'Please upload a video of your jump shot first.',
-                variant: 'destructive'
+              variant: 'destructive',
+              title: 'Camera Not Supported',
+              description: 'Your browser does not support camera access.',
             });
             return;
-        }
+          }
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            setHasCameraPermission(true);
+    
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+          } catch (error) {
+            console.error('Error accessing camera:', error);
+            setHasCameraPermission(false);
+            toast({
+              variant: 'destructive',
+              title: 'Camera Access Denied',
+              description: 'Please enable camera permissions in your browser settings to use this feature.',
+            });
+          }
+        };
+    
+        getCameraPermission();
         
+        return () => {
+            if (videoRef.current && videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject as MediaStream;
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+      }, [toast]);
+
+    const handleAnalyze = async (uri: string) => {
         setIsLoading(true);
         setAnalysisResult(null);
 
         try {
-            const result = await analyzeShot({ videoDataUri: videoUri });
+            const result = await analyzeShot({ videoDataUri: uri });
             setAnalysisResult(result);
+            setVideoUri(uri);
         } catch (error) {
             console.error('Failed to analyze shot:', error);
             toast({
@@ -48,40 +79,40 @@ export default function AiCoachPage() {
         }
     };
     
-    // Automatically analyze the sample video on component mount
-    useEffect(() => {
-        handleAnalyze(sampleVideoDataUri);
-    }, []);
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            if (file.size > 100 * 1024 * 1024) { // 100MB limit
-                toast({
-                    title: 'File Too Large',
-                    description: 'Please upload a video smaller than 100MB.',
-                    variant: 'destructive',
-                });
-                return;
-            }
-            setVideoFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const newVideoUri = reader.result as string;
-                setVideoPreview(newVideoUri);
-                handleAnalyze(newVideoUri);
+    const handleStartRecording = () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            mediaRecorderRef.current.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.current.push(event.data);
+                }
             };
-            reader.readAsDataURL(file);
+            mediaRecorderRef.current.onstop = () => {
+                const blob = new Blob(recordedChunks.current, { type: 'video/webm' });
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    handleAnalyze(reader.result as string);
+                };
+                reader.readAsDataURL(blob);
+                recordedChunks.current = [];
+            };
+            mediaRecorderRef.current.start();
+            setIsRecording(true);
+        }
+    };
+
+    const handleStopRecording = () => {
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
         }
     };
 
     const handleReset = () => {
-        setVideoFile(null);
-        setVideoPreview(sampleVideoDataUri);
-        handleAnalyze(sampleVideoDataUri);
-        if(fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        setVideoUri(null);
+        setAnalysisResult(null);
+        setIsRecording(false);
     }
     
     const feedbackItems = analysisResult ? [
@@ -94,83 +125,108 @@ export default function AiCoachPage() {
         <div className="space-y-6 p-4 sm:p-6 lg:p-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">AI Shooting Coach</h1>
-                <p className="text-muted-foreground">Upload a video of your jump shot for instant analysis.</p>
+                <p className="text-muted-foreground">Record your jump shot for instant analysis from our AI coach.</p>
             </div>
             
             <Card>
                 <CardHeader>
-                    <CardTitle>Your Jump Shot Analysis</CardTitle>
-                    <CardDescription>Using our sample video by default. Upload your own to get personalized feedback.</CardDescription>
+                    <CardTitle>Live Shot Capture</CardTitle>
+                    <CardDescription>
+                        {hasCameraPermission ? 'Press record to capture your jump shot.' : 'Allow camera access to get started.'}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {videoPreview && (
-                        <div className="w-full max-w-md aspect-video rounded-lg overflow-hidden border bg-black mx-auto">
-                            <video src={videoPreview} controls className="w-full h-full" />
-                        </div>
+                     <div className="w-full max-w-md aspect-video rounded-lg overflow-hidden border bg-black mx-auto">
+                        <video ref={videoRef} className="w-full h-full" autoPlay muted playsInline />
+                    </div>
+
+                    {!hasCameraPermission && (
+                         <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Camera Access Required</AlertTitle>
+                            <AlertDescription>
+                                Please allow camera access in your browser to use this feature. You may need to refresh the page after granting permission.
+                            </AlertDescription>
+                        </Alert>
                     )}
 
                      <div className="flex items-center justify-center gap-4">
-                        <Button
-                            variant="outline"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isLoading}
-                        >
-                           <Upload className="mr-2 h-4 w-4" />
-                           {videoFile ? 'Change Video' : 'Upload Your Video'}
-                        </Button>
-                         <Input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="video/*"
-                            onChange={handleFileChange}
-                            className="hidden"
-                            disabled={isLoading}
-                        />
+                        {!isRecording ? (
+                            <Button
+                                size="lg"
+                                onClick={handleStartRecording}
+                                disabled={isLoading || isRecording || !hasCameraPermission}
+                            >
+                               <Camera className="mr-2 h-4 w-4" />
+                               Record Shot
+                            </Button>
+                        ) : (
+                             <Button
+                                size="lg"
+                                variant="destructive"
+                                onClick={handleStopRecording}
+                                disabled={isLoading}
+                            >
+                               <StopCircle className="mr-2 h-4 w-4" />
+                               Stop Recording
+                            </Button>
+                        )}
                          <Button
-                            variant="ghost"
+                            variant="outline"
                             onClick={handleReset}
-                            disabled={isLoading}
+                            disabled={isLoading || isRecording}
                         >
                            <RefreshCw className="mr-2 h-4 w-4" />
-                           Reset to Sample
+                           Reset
                         </Button>
                     </div>
                 </CardContent>
             </Card>
             
-            {isLoading && (
-                 <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary"/>
-                            <p>Analyzing your form, just a moment...</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-             {analysisResult && !isLoading && (
-                <Card className="animate-in fade-in-50">
+            {(isLoading || analysisResult) && (
+                <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                           Analysis Complete 
-                           <Badge variant={analysisResult.analysis.isShotGood ? 'default' : 'destructive'}>
-                            {analysisResult.analysis.isShotGood ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
-                            {analysisResult.analysis.isShotGood ? 'Good Form' : 'Needs Work'}
-                           </Badge>
-                        </CardTitle>
-                        <CardDescription>{analysisResult.analysis.summary}</CardDescription>
+                        <CardTitle>Your Jump Shot Analysis</CardTitle>
+                         {videoUri && <CardDescription>Here's the feedback on your recorded shot.</CardDescription>}
                     </CardHeader>
                     <CardContent className="space-y-4">
-                       {feedbackItems.map(item => (
-                           <Alert key={item.title}>
-                             <item.icon className="h-4 w-4" />
-                             <AlertTitle>{item.title}</AlertTitle>
-                             <AlertDescription>
-                               {item.text}
-                             </AlertDescription>
-                           </Alert>
-                       ))}
+                       {isLoading && (
+                            <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+                                <p>Analyzing your form, just a moment...</p>
+                            </div>
+                        )}
+                        
+                        {analysisResult && !isLoading && (
+                            <div className="animate-in fade-in-50 space-y-4">
+                                 <div className="w-full max-w-md aspect-video rounded-lg overflow-hidden border bg-black mx-auto">
+                                    <video src={videoUri || ''} controls className="w-full h-full" />
+                                </div>
+                                <div className="text-center">
+                                    <Badge variant={analysisResult.analysis.isShotGood ? 'default' : 'destructive'}>
+                                        {analysisResult.analysis.isShotGood ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                                        {analysisResult.analysis.isShotGood ? 'Good Form' : 'Needs Work'}
+                                    </Badge>
+                                </div>
+                                <Alert>
+                                    <Sparkles className="h-4 w-4" />
+                                    <AlertTitle>Coach's Summary</AlertTitle>
+                                    <AlertDescription>
+                                    {analysisResult.analysis.summary}
+                                    </AlertDescription>
+                                </Alert>
+                            
+                               {feedbackItems.map(item => (
+                                   <Alert key={item.title}>
+                                     <item.icon className="h-4 w-4" />
+                                     <AlertTitle>{item.title}</AlertTitle>
+                                     <AlertDescription>
+                                       {item.text}
+                                     </AlertDescription>
+                                   </Alert>
+                               ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             )}
