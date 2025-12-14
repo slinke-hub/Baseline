@@ -13,7 +13,7 @@ import { isSameDay } from 'date-fns';
 import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { WorkoutProgress } from '@/lib/types';
-import { Logo } from '@/components/icons/logo';
+import Image from 'next/image';
 
 export default function WorkoutTrackerPage() {
   const params = useParams();
@@ -141,10 +141,14 @@ export default function WorkoutTrackerPage() {
 
   return (
     <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
-      <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-10">
-        <Logo className="w-[80vw] h-auto max-w-2xl" />
-      </div>
-      <div className="absolute inset-0 bg-black/70 -z-10" />
+      <Image
+        src="/logo-background.png"
+        alt="Baseline background"
+        fill
+        className="object-cover -z-20"
+        priority
+      />
+      <div className="absolute inset-0 bg-black/80 -z-10" />
 
       <div className="relative z-10">
         <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
