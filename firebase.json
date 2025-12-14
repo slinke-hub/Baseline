@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "baseline-a318e",
     "source": ".",
     "ignore": [
       "firebase.json",
