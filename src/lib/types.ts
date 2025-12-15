@@ -1,4 +1,5 @@
 
+
 import { Timestamp } from "firebase/firestore";
 
 export interface AppUser {
@@ -63,3 +64,5 @@ export type ScheduleEvent = {
     workoutId?: string;
     mealId?: string;
 }
+
+    

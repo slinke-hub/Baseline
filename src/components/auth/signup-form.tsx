@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -61,16 +62,12 @@ export function SignupForm() {
 
       const userDocRef = doc(firestore, 'users', user.uid);
       
-      // TEMPORARY: Assign admin role if the email matches.
       const role = values.email === 'monti.training@gmail.com' ? 'admin' : 'client';
 
-      const userData: Omit<AppUser, 'uid'> & { uid: string; createdAt: string; } = {
-        id: user.uid,
-        uid: user.uid,
+      const userData: Omit<AppUser, 'uid'> = {
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
-        createdAt: new Date().toISOString(),
         role: role,
         sessionsCompleted: 0,
         totalSessions: values.totalSessions,
@@ -191,3 +188,5 @@ export function SignupForm() {
     </Card>
   );
 }
+
+    

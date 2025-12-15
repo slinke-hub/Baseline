@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { User as FirebaseUser } from 'firebase/auth';
@@ -35,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userDocRef = doc(firestore, 'users', user.uid);
     const unsubscribe = onSnapshot(userDocRef, (doc) => {
       if (doc.exists()) {
-        setAppUser({ uid: user.uid, ...doc.data() } as AppUser);
+        setAppUser({ ...doc.data(), uid: user.uid } as AppUser);
       } else {
         setAppUser(null);
       }
@@ -49,3 +50,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+    
