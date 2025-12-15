@@ -11,6 +11,11 @@
           "type": "string",
           "description": "Unique identifier for the user profile."
         },
+        "role": {
+            "type": "string",
+            "description": "The user's role in the application.",
+            "enum": ["client", "coach", "admin"]
+        },
         "age": {
           "type": "number",
           "description": "User's age in years."
@@ -38,7 +43,7 @@
         }
       },
       "required": [
-        "id"
+        "id", "role"
       ]
     },
     "Workout": {
@@ -111,10 +116,6 @@
         "timeSpent": {
           "type": "number",
           "description": "Time spent on the workout in minutes."
-        },
-        "shotsTaken": {
-          "type": "number",
-          "description": "Number of shots taken during the workout."
         },
         "isCompleted": {
           "type": "boolean",

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -13,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && (!appUser || appUser.role !== 'admin')) {
+    if (!loading && (!appUser || (appUser.role !== 'admin' && appUser.role !== 'coach'))) {
       router.replace('/login');
     }
   }, [appUser, loading, router]);
@@ -26,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (appUser.role !== 'admin') {
+  if (appUser.role !== 'admin' && appUser.role !== 'coach') {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background p-4">
             <div className="flex flex-col items-center text-center gap-4">

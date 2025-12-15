@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -32,9 +33,10 @@ const formSchema = z.object({
 });
 
 const defaultUsers = [
-    { displayName: 'Admin User', email: 'admin@baseline.dev', password: 'password'},
-    { displayName: 'Stephen Curry', email: 'steph@example.com', password: 'password'},
-    { displayName: 'Zion Williamson', email: 'zion@example.com', password: 'password' },
+    { displayName: 'Admin User', email: 'admin@baseline.dev', password: 'password', role: 'admin' },
+    { displayName: 'Coach Carter', email: 'coach@baseline.dev', password: 'password', role: 'coach' },
+    { displayName: 'Stephen Curry', email: 'steph@example.com', password: 'password', role: 'client' },
+    { displayName: 'Zion Williamson', email: 'zion@example.com', password: 'password', role: 'client' },
 ];
 
 export function SignupForm() {
@@ -42,7 +44,7 @@ export function SignupForm() {
   const { auth, firestore } = useFirebase();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [usersCreated, setUsersCreated] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,12 +56,11 @@ export function SignupForm() {
   });
 
   const createDefaultUsers = useCallback(async () => {
-    if (usersCreated) return;
-    setIsLoading(true);
+    setIsSeeding(true);
 
     for (const defaultUser of defaultUsers) {
         try {
-            await onSubmit(defaultUser, true);
+            await handleSignup(defaultUser, defaultUser.role as AppUser['role'], true);
         } catch (error: any) {
             // We ignore email-already-in-use errors for default users
             if (error.code !== 'auth/email-already-in-use') {
@@ -72,21 +73,20 @@ export function SignupForm() {
         }
     }
     
-    setUsersCreated(true);
-    setIsLoading(false);
+    setIsSeeding(false);
     toast({
         title: 'Default users ready!',
-        description: 'You can now log in as the admin or client user.',
+        description: 'You can now log in with the default accounts.',
     });
-    router.push('/login');
 
-  }, [usersCreated, router, toast]);
+  }, [toast]);
 
   useEffect(() => {
+    // This effect runs once on mount to seed default users.
     createDefaultUsers();
   }, [createDefaultUsers]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>, isDefault: boolean = false) {
+  async function handleSignup(values: z.infer<typeof formSchema>, role: AppUser['role'], isDefault: boolean = false) {
     if (!isDefault) setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
@@ -96,17 +96,15 @@ export function SignupForm() {
         displayName: values.displayName,
       });
 
-      const userRole: AppUser['role'] = values.email.endsWith('@baseline.dev') ? 'admin' : 'client';
-
       const userDocRef = doc(firestore, 'users', user.uid);
-      const userData = {
+      const userData: Omit<AppUser, 'uid'> & { id: string, uid: string, createdAt: string } = {
         id: user.uid,
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
-        role: userRole,
+        role: role,
       };
 
       await setDoc(userDocRef, userData).catch(async (serverError) => {
@@ -142,6 +140,10 @@ export function SignupForm() {
     }
   }
 
+  const onPublicSubmit = (values: z.infer<typeof formSchema>) => {
+    handleSignup(values, 'client');
+  }
+
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
@@ -152,9 +154,14 @@ export function SignupForm() {
         <CardDescription>Enter your details below to create your account.</CardDescription>
       </CardHeader>
       <CardContent>
-        {usersCreated ? (
+        {isSeeding ? (
+            <div className="flex flex-col items-center justify-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className="text-muted-foreground">Setting up default user accounts...</p>
+            </div>
+        ) : (
             <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onPublicSubmit)} className="space-y-4">
                 <FormField
                 control={form.control}
                 name="displayName"
@@ -200,11 +207,6 @@ export function SignupForm() {
                 </Button>
             </form>
             </Form>
-        ) : (
-            <div className="flex flex-col items-center justify-center gap-4">
-                <Loader2 className="h-8 w-8 animate-spin" />
-                <p className="text-muted-foreground">Setting up default user accounts...</p>
-            </div>
         )}
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}

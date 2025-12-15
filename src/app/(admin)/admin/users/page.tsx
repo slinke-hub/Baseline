@@ -24,7 +24,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   Dialog,
@@ -38,41 +37,42 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { AppUser } from '@/lib/types';
 
 
 // Mock user data for demonstration
-const initialUsers = [
-    { id: 'user-1', name: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-10-26' },
-    { id: 'user-2', name: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-10-25' },
-    { id: 'user-3', name: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, plan: 'Free', joined: '2023-10-24' },
-    { id: 'user-4', name: 'Admin User', email: 'admin@baseline.dev', role: 'admin' as const, plan: 'N/A', joined: '2023-10-20' },
-    { id: 'user-5', name: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, plan: 'Pro', joined: '2023-11-01' },
+const initialUsers: AppUser[] = [
+    { uid: 'user-4', id: 'user-4', displayName: 'Admin User', email: 'admin@baseline.dev', role: 'admin' as const, photoURL: '' },
+    { uid: 'user-coach-1', id: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '' },
+    { uid: 'user-1', id: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '' },
+    { uid: 'user-2', id: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '' },
+    { uid: 'user-3', id: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '' },
+    { uid: 'user-5', id: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '' },
 ];
 
-type User = typeof initialUsers[0];
 
 export default function AdminUsersPage() {
     const { toast } = useToast();
     const [users, setUsers] = useState(initialUsers);
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [userToDelete, setUserToDelete] = useState<User | null>(null);
+    const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
+    const [userToDelete, setUserToDelete] = useState<AppUser | null>(null);
 
     const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
-        const role = formData.get('role') as 'admin' | 'client';
+        const role = formData.get('role') as AppUser['role'];
         
-        const newUser: User = {
+        const newUser: AppUser = {
             id: `user-${Date.now()}`,
-            name,
+            uid: `user-${Date.now()}`,
+            displayName: name,
             email,
             role: role || 'client',
-            plan: 'Free',
-            joined: new Date().toISOString().split('T')[0],
+            photoURL: ''
         };
 
         setUsers(currentUsers => [newUser, ...currentUsers]);
@@ -98,9 +98,10 @@ export default function AdminUsersPage() {
         const formData = new FormData(event.currentTarget);
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
+        const role = formData.get('role') as AppUser['role'];
         
         setUsers(currentUsers => currentUsers.map(user => 
-            user.id === selectedUser.id ? { ...user, name, email } : user
+            user.id === selectedUser.id ? { ...user, displayName: name, email, role } : user
         ));
 
         toast({ title: 'User Updated', description: `Updated details for ${name}.` });
@@ -108,9 +109,18 @@ export default function AdminUsersPage() {
         setSelectedUser(null);
     }
 
-    const openEditDialog = (user: User) => {
+    const openEditDialog = (user: AppUser) => {
       setSelectedUser(user);
       setIsEditUserOpen(true);
+    }
+    
+    const getRoleBadge = (role: AppUser['role']) => {
+        switch(role) {
+            case 'admin': return <Badge variant="default">{role}</Badge>;
+            case 'coach': return <Badge className="bg-blue-500 text-white hover:bg-blue-500/80">{role}</Badge>;
+            case 'client': return <Badge variant="secondary">{role}</Badge>;
+            default: return <Badge variant="outline">{role}</Badge>;
+        }
     }
 
     return (
@@ -156,6 +166,7 @@ export default function AdminUsersPage() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="client">Client</SelectItem>
+                                  <SelectItem value="coach">Coach</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                               </Select>
@@ -182,10 +193,10 @@ export default function AdminUsersPage() {
                         <TableBody>
                             {users.map(user => (
                                 <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.name}</TableCell>
+                                    <TableCell className="font-medium">{user.displayName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
-                                    <TableCell><Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role}</Badge></TableCell>
-                                    <TableCell>{user.joined}</TableCell>
+                                    <TableCell>{getRoleBadge(user.role)}</TableCell>
+                                    <TableCell>{(user as any).joined || 'N/A'}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -220,7 +231,7 @@ export default function AdminUsersPage() {
                       <DialogHeader>
                         <DialogTitle>Edit User</DialogTitle>
                         <DialogDescription>
-                          Update the details for {selectedUser?.name}.
+                          Update the details for {selectedUser?.displayName}.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
@@ -228,7 +239,7 @@ export default function AdminUsersPage() {
                           <Label htmlFor="edit-name" className="text-right">
                             Name
                           </Label>
-                          <Input id="edit-name" name="name" defaultValue={selectedUser?.name} className="col-span-3" required/>
+                          <Input id="edit-name" name="name" defaultValue={selectedUser?.displayName} className="col-span-3" required/>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="edit-email" className="text-right">
@@ -236,6 +247,21 @@ export default function AdminUsersPage() {
                           </Label>
                           <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
                         </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="role" className="text-right">
+                                Role
+                              </Label>
+                               <Select name="role" defaultValue={selectedUser?.role}>
+                                <SelectTrigger className="col-span-3" id="role">
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="client">Client</SelectItem>
+                                  <SelectItem value="coach">Coach</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
                       </div>
                       <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
@@ -249,7 +275,7 @@ export default function AdminUsersPage() {
             <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure you want to delete {userToDelete?.name}?</AlertDialogTitle>
+                        <AlertDialogTitle>Are you sure you want to delete {userToDelete?.displayName}?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the user's account and remove their data from our servers.
                         </AlertDialogDescription>

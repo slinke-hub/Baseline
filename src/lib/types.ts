@@ -6,7 +6,7 @@ export interface AppUser {
   email: string;
   displayName: string;
   photoURL: string;
-  role: 'admin' | 'client';
+  role: 'admin' | 'client' | 'coach';
   age?: number;
   height?: number; // in cm
   weight?: number; // in kg
