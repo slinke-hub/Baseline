@@ -67,7 +67,7 @@ export function SignupForm() {
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
-        role: 'client',
+        role: 'admin',
         sessionsCompleted: 0,
         totalSessions: values.totalSessions,
       };
