@@ -15,6 +15,12 @@ import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { WorkoutProgress } from '@/lib/types';
 import Image from 'next/image';
 
+export function generateStaticParams() {
+  return mockWorkouts.map((workout) => ({
+    id: workout.id,
+  }));
+}
+
 export default function WorkoutTrackerPage() {
   const params = useParams();
   const id = params.id as string;
