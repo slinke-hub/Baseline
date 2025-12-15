@@ -42,7 +42,7 @@ import type { AppUser } from '@/lib/types';
 
 // Mock user data for demonstration
 const initialUsers: AppUser[] = [
-    { uid: 'user-4', id: 'user-4', displayName: 'Admin User', email: 'admin@baseline.dev', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0 },
+    { uid: 'user-4', id: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0 },
     { uid: 'user-coach-1', id: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0 },
     { uid: 'user-1', id: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8 },
     { uid: 'user-2', id: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8 },
