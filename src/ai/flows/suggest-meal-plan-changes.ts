@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview This file defines a Genkit flow for suggesting changes to a user's meal plan based on their progress and goals.
  *

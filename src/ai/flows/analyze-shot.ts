@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview An AI flow for analyzing a user's basketball jump shot form from a video.
  *
