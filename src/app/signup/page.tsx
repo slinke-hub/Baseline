@@ -1,9 +1,19 @@
+
 import { SignupForm } from '@/components/auth/signup-form';
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
+    <div
+      className="flex min-h-screen items-center justify-center bg-background p-4 relative"
+      style={{
+        backgroundImage: `url(/logo.png)`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+      }}
+    >
+      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
+      <div className="w-full max-w-md z-10">
         <SignupForm />
       </div>
     </div>
