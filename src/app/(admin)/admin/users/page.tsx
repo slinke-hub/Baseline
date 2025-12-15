@@ -42,12 +42,12 @@ import type { AppUser } from '@/lib/types';
 
 // Mock user data for demonstration
 const initialUsers: AppUser[] = [
-    { uid: 'user-4', id: 'user-4', displayName: 'Admin User', email: 'admin@baseline.dev', role: 'admin' as const, photoURL: '' },
-    { uid: 'user-coach-1', id: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '' },
-    { uid: 'user-1', id: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '' },
-    { uid: 'user-2', id: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '' },
-    { uid: 'user-3', id: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '' },
-    { uid: 'user-5', id: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '' },
+    { uid: 'user-4', id: 'user-4', displayName: 'Admin User', email: 'admin@baseline.dev', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0 },
+    { uid: 'user-coach-1', id: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0 },
+    { uid: 'user-1', id: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8 },
+    { uid: 'user-2', id: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8 },
+    { uid: 'user-3', id: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 1, totalSessions: 12 },
+    { uid: 'user-5', id: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 8, totalSessions: 8 },
 ];
 
 
@@ -72,7 +72,9 @@ export default function AdminUsersPage() {
             displayName: name,
             email,
             role: role || 'client',
-            photoURL: ''
+            photoURL: '',
+            sessionsCompleted: 0,
+            totalSessions: 8,
         };
 
         setUsers(currentUsers => [newUser, ...currentUsers]);
@@ -99,9 +101,10 @@ export default function AdminUsersPage() {
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         const role = formData.get('role') as AppUser['role'];
-        
+        const totalSessions = formData.get('totalSessions') as string;
+
         setUsers(currentUsers => currentUsers.map(user => 
-            user.id === selectedUser.id ? { ...user, displayName: name, email, role } : user
+            user.id === selectedUser.id ? { ...user, displayName: name, email, role, totalSessions: parseInt(totalSessions, 10) || user.totalSessions } : user
         ));
 
         toast({ title: 'User Updated', description: `Updated details for ${name}.` });
@@ -186,7 +189,7 @@ export default function AdminUsersPage() {
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Role</TableHead>
-                                <TableHead>Joined</TableHead>
+                                <TableHead>Monthly Sessions</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -196,7 +199,7 @@ export default function AdminUsersPage() {
                                     <TableCell className="font-medium">{user.displayName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{getRoleBadge(user.role)}</TableCell>
-                                    <TableCell>{(user as any).joined || 'N/A'}</TableCell>
+                                    <TableCell>{user.role === 'client' ? `${user.sessionsCompleted} / ${user.totalSessions}` : 'N/A'}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -261,7 +264,15 @@ export default function AdminUsersPage() {
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                               </Select>
+                        </div>
+                         {selectedUser?.role === 'client' && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="totalSessions" className="text-right">
+                                Total Sessions
+                              </Label>
+                              <Input id="totalSessions" name="totalSessions" type="number" defaultValue={selectedUser?.totalSessions} className="col-span-3" required/>
                             </div>
+                         )}
                       </div>
                       <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
@@ -291,3 +302,5 @@ export default function AdminUsersPage() {
         </>
     )
 }
+
+    
