@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/ai-coach', icon: Camera, label: 'AI Coach'},
   { href: '/schedule', icon: Calendar, label: 'Schedule' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
@@ -18,7 +17,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-sm">
-      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 items-center justify-around px-4">
+      <div className="mx-auto grid h-16 max-w-lg grid-cols-4 items-center justify-around px-4">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
