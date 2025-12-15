@@ -30,6 +30,7 @@ const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  totalSessions: z.coerce.number().min(1, 'You must select at least 1 session.').max(30, 'Please contact us for plans with more than 30 sessions.'),
 });
 
 export function SignupForm() {
@@ -44,6 +45,7 @@ export function SignupForm() {
       displayName: '',
       email: '',
       password: '',
+      totalSessions: 8,
     },
   });
 
@@ -67,7 +69,7 @@ export function SignupForm() {
         createdAt: new Date().toISOString(),
         role: 'client',
         sessionsCompleted: 0,
-        totalSessions: 8,
+        totalSessions: values.totalSessions,
       };
 
       await setDoc(userDocRef, userData).catch(async (serverError) => {
@@ -149,6 +151,19 @@ export function SignupForm() {
                       <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" />
                   </FormControl>
                   <FormMessage />
+                  </FormItem>
+              )}
+              />
+              <FormField
+              control={form.control}
+              name="totalSessions"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Monthly Sessions</FormLabel>
+                  <FormControl>
+                      <Input type="number" {...field} />
+                  </FormControl>
+                   <FormMessage />
                   </FormItem>
               )}
               />
