@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,19 +32,11 @@ const formSchema = z.object({
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
-const defaultUsers = [
-    { displayName: 'Admin User', email: 'admin@baseline.dev', password: 'password', role: 'admin' },
-    { displayName: 'Coach Carter', email: 'coach@baseline.dev', password: 'password', role: 'coach' },
-    { displayName: 'Stephen Curry', email: 'steph@example.com', password: 'password', role: 'client' },
-    { displayName: 'Zion Williamson', email: 'zion@example.com', password: 'password', role: 'client' },
-];
-
 export function SignupForm() {
   const router = useRouter();
   const { auth, firestore } = useFirebase();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,39 +47,8 @@ export function SignupForm() {
     },
   });
 
-  const createDefaultUsers = useCallback(async () => {
-    setIsSeeding(true);
-
-    for (const defaultUser of defaultUsers) {
-        try {
-            await handleSignup(defaultUser, defaultUser.role as AppUser['role'], true);
-        } catch (error: any) {
-            // We ignore email-already-in-use errors for default users
-            if (error.code !== 'auth/email-already-in-use') {
-                 toast({
-                    title: `Failed to create ${defaultUser.displayName}`,
-                    description: error.message || 'An unknown error occurred.',
-                    variant: 'destructive',
-                });
-            }
-        }
-    }
-    
-    setIsSeeding(false);
-    toast({
-        title: 'Default users ready!',
-        description: 'You can now log in with the default accounts.',
-    });
-
-  }, [toast]);
-
-  useEffect(() => {
-    // This effect runs once on mount to seed default users.
-    createDefaultUsers();
-  }, [createDefaultUsers]);
-
-  async function handleSignup(values: z.infer<typeof formSchema>, role: AppUser['role'], isDefault: boolean = false) {
-    if (!isDefault) setIsLoading(true);
+  async function handleSignup(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
@@ -97,14 +58,14 @@ export function SignupForm() {
       });
 
       const userDocRef = doc(firestore, 'users', user.uid);
-      const userData: Omit<AppUser, 'uid'> & { id: string, uid: string, createdAt: string } = {
+      const userData: Omit<AppUser, 'uid' | 'role'> & { id: string; uid: string; createdAt: string; role: 'client' } = {
         id: user.uid,
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
-        role: role,
+        role: 'client',
       };
 
       await setDoc(userDocRef, userData).catch(async (serverError) => {
@@ -117,31 +78,25 @@ export function SignupForm() {
         throw new Error("Firestore permission denied.");
       });
       
-      if (!isDefault) {
-        router.push('/login');
-      }
-    } catch (error: any) {
-      if (!isDefault) {
-          let errorMessage = 'An unexpected error occurred.';
-          if (error.code === 'auth/email-already-in-use') {
-            errorMessage = 'This email is already in use. Please log in or use a different email.';
-          }
-          toast({
-            title: 'Sign Up Failed',
-            description: errorMessage,
-            variant: 'destructive',
-          });
-      } else {
-        // re-throw for the batch creator to handle
-        throw error;
-      }
-    } finally {
-      if (!isDefault) setIsLoading(false);
-    }
-  }
+      router.push('/login');
+      toast({
+        title: 'Account Created!',
+        description: "You can now sign in with your new credentials.",
+      });
 
-  const onPublicSubmit = (values: z.infer<typeof formSchema>) => {
-    handleSignup(values, 'client');
+    } catch (error: any) {
+      let errorMessage = 'An unexpected error occurred.';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already in use. Please log in or use a different email.';
+      }
+      toast({
+        title: 'Sign Up Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -154,60 +109,53 @@ export function SignupForm() {
         <CardDescription>Enter your details below to create your account.</CardDescription>
       </CardHeader>
       <CardContent>
-        {isSeeding ? (
-            <div className="flex flex-col items-center justify-center gap-4">
-                <Loader2 className="h-8 w-8 animate-spin" />
-                <p className="text-muted-foreground">Setting up default user accounts...</p>
-            </div>
-        ) : (
-            <Form {...form}>
-            <form onSubmit={form.handleSubmit(onPublicSubmit)} className="space-y-4">
-                <FormField
-                control={form.control}
-                name="displayName"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                        <Input placeholder="Michael Jordan" {...field} autoComplete="name" />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                        <Input placeholder="name@example.com" {...field} autoComplete="email" />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign Up
-                </Button>
-            </form>
-            </Form>
-        )}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSignup)} className="space-y-4">
+              <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                      <Input placeholder="Michael Jordan" {...field} autoComplete="name" />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+              <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                      <Input placeholder="name@example.com" {...field} autoComplete="email" />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+              <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} autoComplete="new-password" />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+              <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sign Up
+              </Button>
+          </form>
+        </Form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
