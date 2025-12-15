@@ -60,6 +60,10 @@ export function SignupForm() {
       });
 
       const userDocRef = doc(firestore, 'users', user.uid);
+      
+      // TEMPORARY: Assign admin role if the email matches.
+      const role = values.email === 'monti.training@gmail.com' ? 'admin' : 'client';
+
       const userData: Omit<AppUser, 'uid'> & { uid: string; createdAt: string; } = {
         id: user.uid,
         uid: user.uid,
@@ -67,7 +71,7 @@ export function SignupForm() {
         email: values.email,
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
-        role: 'admin',
+        role: role,
         sessionsCompleted: 0,
         totalSessions: values.totalSessions,
       };
@@ -79,7 +83,8 @@ export function SignupForm() {
             requestResourceData: userData,
         });
         errorEmitter.emit('permission-error', permissionError);
-        throw new Error("Firestore permission denied.");
+        // Also re-throw to be caught by the outer try-catch
+        throw new Error("Firestore permission denied during user creation.");
       });
       
       router.push('/login');
@@ -89,9 +94,12 @@ export function SignupForm() {
       });
 
     } catch (error: any) {
+      console.error("Signup Error:", error);
       let errorMessage = 'An unexpected error occurred.';
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already in use. Please log in or use a different email.';
+      } else if (error.message?.includes("Firestore permission denied")) {
+        errorMessage = "There was a problem setting up your user profile. Please check security rules.";
       }
       toast({
         title: 'Sign Up Failed',
