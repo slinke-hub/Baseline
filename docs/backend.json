@@ -40,6 +40,14 @@
           "type": "string",
           "description": "URL of the user's profile photo stored in Firebase Storage.",
           "format": "uri"
+        },
+        "sessionsCompleted": {
+            "type": "number",
+            "description": "Number of sessions the client has completed this month."
+        },
+        "totalSessions": {
+            "type": "number",
+            "description": "Total number of sessions allocated to the client for the month."
         }
       },
       "required": [

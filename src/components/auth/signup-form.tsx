@@ -58,7 +58,7 @@ export function SignupForm() {
       });
 
       const userDocRef = doc(firestore, 'users', user.uid);
-      const userData: Omit<AppUser, 'uid' | 'role'> & { id: string; uid: string; createdAt: string; role: 'client' } = {
+      const userData: Omit<AppUser, 'uid'> & { uid: string; createdAt: string; } = {
         id: user.uid,
         uid: user.uid,
         displayName: values.displayName,
@@ -66,6 +66,8 @@ export function SignupForm() {
         photoURL: user.photoURL || '',
         createdAt: new Date().toISOString(),
         role: 'client',
+        sessionsCompleted: 0,
+        totalSessions: 8,
       };
 
       await setDoc(userDocRef, userData).catch(async (serverError) => {

@@ -12,6 +12,8 @@ export interface AppUser {
   weight?: number; // in kg
   position?: 'PG' | 'SG' | 'SF' | 'PF' | 'C';
   experienceLevel?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Pro';
+  sessionsCompleted?: number;
+  totalSessions?: number;
 }
 
 export type WorkoutCategory = 'Shooting' | 'Ball Handling' | 'Defense' | 'Conditioning' | 'Vertical Jump';
