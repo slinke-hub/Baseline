@@ -225,6 +225,36 @@
         "userId",
         "mealId"
       ]
+    },
+    "Location": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Location",
+        "type": "object",
+        "description": "Represents a user-submitted basketball court location.",
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "Unique identifier for the location."
+            },
+            "name": {
+                "type": "string",
+                "description": "The name of the court or location."
+            },
+            "address": {
+                "type": "string",
+                "description": "The physical address of the location."
+            },
+            "photoUrl": {
+                "type": "string",
+                "description": "URL of the user-submitted photo of the court.",
+                "format": "uri"
+            },
+            "creatorId": {
+                "type": "string",
+                "description": "The UID of the user who submitted this location."
+            }
+        },
+        "required": ["id", "name", "address", "photoUrl", "creatorId"]
     }
   },
   "auth": {
@@ -322,8 +352,26 @@
             }
           ]
         }
+      },
+      {
+        "path": "/locations/{locationId}",
+        "definition": {
+            "entityName": "Location",
+            "schema": {
+                "$ref": "#/backend/entities/Location"
+            },
+            "description": "Stores user-submitted court locations. Readable by all, writable by authenticated users.",
+            "params": [
+                {
+                    "name": "locationId",
+                    "description": "The unique identifier of the location."
+                }
+            ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts and meals is maintained in top-level `/workouts` and `/meals` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management. This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, and locations is maintained in top-level `/workouts`, `/meals`, and `/locations` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management, or allowing authenticated users to contribute (as with locations). This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
   }
 }
+
+    

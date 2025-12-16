@@ -13,11 +13,13 @@
  *   - /users/{userId}/mealPlans/{mealPlanId}: Contains a user's private meal plans.
  * - /workouts/{workoutId}: A read-only collection of available workouts, writable only by backend processes (e.g., an admin SDK).
  * - /meals/{mealId}: A read-only collection of available meals, writable only by backend processes (e.g., an admin SDK).
+ * - /locations/{locationId}: A collection of user-submitted courts. Readable by all, writable by authenticated users for their own submissions.
  *
  * # Key Security Decisions
  * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security, ensuring only the authenticated owner can access it.
  * - **No User Listing**: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy.
  * - **Read-Only Public Content**: The `/workouts` and `/meals` collections are readable by any authenticated user to allow browsing of content. All client-side write operations are disabled.
+ * - **Community-Sourced Locations**: Authenticated users can create new locations and can only modify or delete locations they created.
  * - **Default Deny**: Any operation not explicitly granted is denied.
  *
  * # Denormalization for Authorization
@@ -124,5 +126,20 @@ service cloud.firestore {
       allow list: if isSignedIn();
       allow create, update, delete: if isAdmin(); // Allow admins to manage meals
     }
+
+    /**
+     * @description Controls access to the community-sourced collection of court locations.
+     * @path /locations/{locationId}
+     * @principle Allows any signed-in user to read. Allows users to create new locations
+     *            and manage only the ones they've created.
+     */
+    match /locations/{locationId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid || isAdmin();
+    }
   }
 }
+
+    
