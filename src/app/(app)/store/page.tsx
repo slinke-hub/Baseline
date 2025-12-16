@@ -40,7 +40,7 @@ function ProductCard({ product }: { product: Product }) {
                 <Star className="h-5 w-5 text-yellow-400"/>
                 <span className="font-bold">{product.priceXp.toLocaleString()} XP</span>
             </div>
-            <Badge variant="secondary">${product.priceCash}</Badge>
+            <Badge variant="secondary">${product.priceCash.toFixed(2)}</Badge>
         </div>
       </Link>
     </Card>
