@@ -28,7 +28,7 @@ function WorkoutsContent() {
         backgroundAttachment: 'fixed',
       }}
     >
-      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm -z-10" />
+      <div className="absolute inset-0 bg-background/90 backdrop-blur-md -z-10" />
       <div className="relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Workouts</h1>
