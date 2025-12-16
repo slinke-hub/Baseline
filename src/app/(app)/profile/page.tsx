@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { User, Edit, AtSign, Cake, Ruler, Weight, Medal, MapPin } from 'lucide-react';
+import { User, Edit, AtSign, Cake, Ruler, Weight, Medal, MapPin, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   };
 
   const profileItems = [
+    { icon: Star, label: 'Experience Points', value: appUser?.xp ? `${appUser.xp} XP` : '0 XP' },
     { icon: AtSign, label: 'Email', value: appUser?.email },
     { icon: Cake, label: 'Age', value: appUser?.age ? `${appUser.age} years old` : 'Not set' },
     { icon: Ruler, label: 'Height', value: appUser?.height ? `${appUser.height} cm` : 'Not set' },

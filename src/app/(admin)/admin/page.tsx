@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone } from 'lucide-react';
+import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mockWorkouts, mockMeals } from '@/lib/mock-data';
 import { useState, useEffect } from 'react';
@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { format } from 'date-fns';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 // Mock user data for demonstration
 const mockUsers = [
@@ -30,9 +32,10 @@ export default function AdminDashboardPage() {
     const { toast } = useToast();
     const [newAnnouncement, setNewAnnouncement] = useState('');
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [xpForCourtsEnabled, setXpForCourtsEnabled] = useState(true);
 
     useEffect(() => {
-      // Initialize announcements on the client to avoid hydration errors
+      // In a real app, this initial state would be fetched from Firestore
       const initialAnnouncements = [
           { id: 1, author: 'Admin', text: 'Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.', date: new Date() },
           { id: 2, author: 'Admin', text: 'New "Vertical Jump" workouts have been added! Check them out in the workouts section.', date: new Date(new Date().setDate(new Date().getDate() - 1)) },
@@ -53,6 +56,15 @@ export default function AdminDashboardPage() {
         setAnnouncements([announcement, ...announcements]);
         setNewAnnouncement('');
         toast({ title: "Announcement Posted", description: "Your announcement is now visible to all clients." });
+    }
+    
+    const handleFeatureToggle = (enabled: boolean) => {
+        setXpForCourtsEnabled(enabled);
+        // In a real app, this would update the setting in Firestore
+        toast({
+            title: "Feature Updated",
+            description: `XP for new courts has been ${enabled ? 'enabled' : 'disabled'}.`
+        });
     }
 
   return (
@@ -91,8 +103,8 @@ export default function AdminDashboardPage() {
               </CardContent>
           </Card>
       </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> Post an Announcement</CardTitle>
                     <CardDescription>This message will be broadcast to all client dashboards.</CardDescription>
@@ -126,6 +138,23 @@ export default function AdminDashboardPage() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="lg:col-span-3">
+                <CardHeader>
+                    <CardTitle>Feature Flags</CardTitle>
+                    <CardDescription>Enable or disable experimental features.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                        <Label htmlFor="xp-for-courts" className="flex flex-col space-y-1">
+                            <span className="flex items-center gap-2 font-semibold"><Gift className="h-4 w-4" />XP for New Courts</span>
+                            <span className="font-normal leading-snug text-muted-foreground">
+                                Reward users with 50 XP for submitting a new court location.
+                            </span>
+                        </Label>
+                        <Switch id="xp-for-courts" checked={xpForCourtsEnabled} onCheckedChange={handleFeatureToggle} />
                     </div>
                 </CardContent>
             </Card>

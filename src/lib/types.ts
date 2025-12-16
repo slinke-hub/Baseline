@@ -14,6 +14,7 @@ export interface AppUser {
   experienceLevel?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Pro';
   sessionsCompleted?: number;
   totalSessions?: number;
+  xp?: number;
 }
 
 export type WorkoutCategory = 'Shooting' | 'Ball Handling' | 'Defense' | 'Conditioning' | 'Vertical Jump';

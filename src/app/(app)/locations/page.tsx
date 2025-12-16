@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2 } from 'lucide-react';
+import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -34,7 +34,7 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, updateDoc, increment } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/hooks/use-auth';
 import type { Location } from '@/lib/types';
@@ -46,6 +46,10 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+// This would be fetched from Firestore in a real app
+const isXpForCourtsEnabled = true; // Mocking the admin feature flag
+const XP_REWARD_FOR_COURT = 50;
 
 export default function LocationsPage() {
     const { toast } = useToast();
@@ -93,8 +97,22 @@ export default function LocationsPage() {
                 photoUrl: photoUrl,
                 creatorId: user.uid,
             });
+            
+            let toastDescription = "Thanks for contributing to the community.";
+            if (isXpForCourtsEnabled) {
+                const userDocRef = doc(firestore, 'users', user.uid);
+                await updateDoc(userDocRef, {
+                    xp: increment(XP_REWARD_FOR_COURT)
+                });
+                toastDescription = `You've earned ${XP_REWARD_FOR_COURT} XP for adding a new court!`;
+            }
 
-            toast({ title: "Court Added!", description: "Thanks for contributing to the community." });
+
+            toast({ 
+                title: "Court Added!", 
+                description: toastDescription,
+            });
+
             setAddFormOpen(false);
             form.reset();
             setPhotoPreview(null);
@@ -249,5 +267,3 @@ export default function LocationsPage() {
         </div>
     );
 }
-
-    

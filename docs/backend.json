@@ -48,6 +48,10 @@
         "totalSessions": {
             "type": "number",
             "description": "Total number of sessions allocated to the client for the month."
+        },
+        "xp": {
+            "type": "number",
+            "description": "Experience points earned by the user."
         }
       },
       "required": [
