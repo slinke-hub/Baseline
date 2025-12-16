@@ -3,13 +3,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, ClipboardList, User, Calendar, MapPin } from 'lucide-react';
+import { Home, Dumbbell, User, Calendar, MapPin, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/locations', icon: MapPin, label: 'Courts' },
+  { href: '/ball-is-life', icon: Flame, label: 'Live' },
   { href: '/schedule', icon: Calendar, label: 'Schedule' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
@@ -40,5 +40,4 @@ export function BottomNav() {
     </nav>
   );
 }
-
     

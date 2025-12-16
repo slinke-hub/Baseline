@@ -72,4 +72,13 @@ export interface Location {
     creatorId: string;
 }
 
+export interface BallIsLifePost {
+    id: string;
+    creatorId: string;
+    creatorName: string;
+    creatorPhotoUrl: string;
+    selfieUrl: string;
+    location: string;
+    createdAt: Timestamp;
+}
     

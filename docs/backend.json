@@ -255,6 +255,22 @@
             }
         },
         "required": ["id", "name", "address", "photoUrl", "creatorId"]
+    },
+    "BallIsLifePost": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "BallIsLifePost",
+        "type": "object",
+        "description": "Represents a 'Ball is Life' post with a selfie and location.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the post." },
+            "creatorId": { "type": "string", "description": "The UID of the user who created the post." },
+            "creatorName": { "type": "string", "description": "The display name of the creator." },
+            "creatorPhotoUrl": { "type": "string", "description": "The profile photo URL of the creator." },
+            "selfieUrl": { "type": "string", "description": "URL of the selfie photo stored in Firebase Storage.", "format": "uri" },
+            "location": { "type": "string", "description": "The location where the user is playing." },
+            "createdAt": { "type": "string", "description": "Timestamp when the post was created.", "format": "date-time" }
+        },
+        "required": ["id", "creatorId", "creatorName", "selfieUrl", "location", "createdAt"]
     }
   },
   "auth": {
@@ -368,10 +384,25 @@
                 }
             ]
         }
+      },
+      {
+        "path": "/ballIsLife/{postId}",
+        "definition": {
+            "entityName": "BallIsLifePost",
+            "schema": {
+                "$ref": "#/backend/entities/BallIsLifePost"
+            },
+            "description": "Stores user-generated 'Ball is Life' posts. Readable by all, writable by authenticated users.",
+            "params": [
+                {
+                    "name": "postId",
+                    "description": "The unique identifier of the post."
+                }
+            ]
+        }
       }
     ],
     "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, and locations is maintained in top-level `/workouts`, `/meals`, and `/locations` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management, or allowing authenticated users to contribute (as with locations). This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
   }
 }
-
     

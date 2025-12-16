@@ -14,12 +14,13 @@
  * - /workouts/{workoutId}: A read-only collection of available workouts, writable only by backend processes (e.g., an admin SDK).
  * - /meals/{mealId}: A read-only collection of available meals, writable only by backend processes (e.g., an admin SDK).
  * - /locations/{locationId}: A collection of user-submitted courts. Readable by all, writable by authenticated users for their own submissions.
+ * - /ballIsLife/{postId}: A collection for real-time user posts. Readable by all, writable only by the post creator.
  *
  * # Key Security Decisions
  * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security, ensuring only the authenticated owner can access it.
  * - **No User Listing**: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy.
  * - **Read-Only Public Content**: The `/workouts` and `/meals` collections are readable by any authenticated user to allow browsing of content. All client-side write operations are disabled.
- * - **Community-Sourced Locations**: Authenticated users can create new locations and can only modify or delete locations they created.
+ * - **Community-Sourced Content**: Authenticated users can create new locations and "Ball is Life" posts, but can only modify or delete their own contributions.
  * - **Default Deny**: Any operation not explicitly granted is denied.
  *
  * # Denormalization for Authorization
@@ -139,7 +140,19 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid || isAdmin();
     }
+    
+    /**
+     * @description Controls access to the "Ball is Life" posts.
+     * @path /ballIsLife/{postId}
+     * @principle Allows any signed-in user to read. Allows users to create new posts
+     *            and manage only the ones they've created.
+     */
+    match /ballIsLife/{postId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid || isAdmin();
+    }
   }
 }
-
     
