@@ -248,15 +248,18 @@ export default function LocationsPage() {
                             </div>
                         </CardHeader>
                         <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
-                                <CardTitle className="text-lg flex-grow pr-2">{location.name}</CardTitle>
-                                <Button asChild variant="outline" size="icon">
-                                    <Link href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`} target="_blank">
-                                        <MapPin className="h-5 w-5 text-primary" />
-                                    </Link>
-                                </Button>
-                            </div>
-                            <CardDescription className="mt-1">{location.address}</CardDescription>
+                            <CardTitle className="text-lg">{location.name}</CardTitle>
+                            <CardDescription className="mt-1">
+                                <Link
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                                >
+                                    <MapPin className="h-4 w-4 shrink-0" />
+                                    <span className="truncate">{location.address}</span>
+                                </Link>
+                            </CardDescription>
                         </CardContent>
                     </Card>
                 ))}
