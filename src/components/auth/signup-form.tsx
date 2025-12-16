@@ -63,7 +63,7 @@ export function SignupForm() {
       
       const role = values.email === 'monti.training@gmail.com' ? 'admin' : 'client';
 
-      const userData: AppUser = {
+      const userData: Omit<AppUser, 'id'> = {
         uid: user.uid,
         displayName: values.displayName,
         email: values.email,
