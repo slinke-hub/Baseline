@@ -4,7 +4,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2, Gift } from 'lucide-react';
+import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -38,6 +38,7 @@ import { collection, addDoc, deleteDoc, doc, updateDoc, increment } from 'fireba
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/hooks/use-auth';
 import type { Location } from '@/lib/types';
+import Link from 'next/link';
 
 const formSchema = z.object({
     name: z.string().min(3, "Court name must be at least 3 characters."),
@@ -247,10 +248,14 @@ export default function LocationsPage() {
                             </div>
                         </CardHeader>
                         <CardContent className="p-4">
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <MapPin className="h-5 w-5 text-primary" />
-                                {location.name}
-                            </CardTitle>
+                            <div className="flex justify-between items-start">
+                                <CardTitle className="text-lg flex-grow pr-2">{location.name}</CardTitle>
+                                <Button asChild variant="outline" size="icon">
+                                    <Link href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`} target="_blank">
+                                        <MapPin className="h-5 w-5 text-primary" />
+                                    </Link>
+                                </Button>
+                            </div>
                             <CardDescription className="mt-1">{location.address}</CardDescription>
                         </CardContent>
                     </Card>
