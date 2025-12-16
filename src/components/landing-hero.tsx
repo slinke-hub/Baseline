@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -54,49 +55,47 @@ export function LandingHero() {
   );
 
   return (
-    <div className="flex h-screen w-full flex-col">
-      <header className="absolute top-0 left-0 right-0 p-4">
-        <Logo className="h-24 w-full max-w-sm" />
-      </header>
-      <div className="flex flex-1">
-        <div className="flex w-full flex-col items-center justify-center space-y-8 p-8 text-center md:w-1/2 md:text-left md:items-start">
-          <div className="typing-container">
-            <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-              Become a better
-              <span className="animated-text-gradient ml-4">
-                {`${words[index].substring(0, subIndex)}${
-                  subIndex === words[index].length ? '' : ''
-                }`}
-                <span className="input-cursor"></span>
-              </span>
-            </h1>
+    <div
+      className="flex h-screen w-full flex-col"
+      style={{
+        backgroundImage: `url(/logo.png)`,
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '512px',
+      }}
+    >
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
+      <div className="relative z-10 flex h-full flex-col">
+        <header className="p-4">
+          <Logo className="h-24 w-full max-w-sm" />
+        </header>
+        <div className="flex flex-1">
+          <div className="flex w-full flex-col items-center justify-center space-y-8 p-8 text-center">
+            <div className="typing-container">
+              <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+                Become a better
+                <span className="animated-text-gradient ml-4">
+                  {`${words[index].substring(0, subIndex)}${
+                    subIndex === words[index].length ? '' : ''
+                  }`}
+                  <span className="input-cursor"></span>
+                </span>
+              </h1>
+            </div>
+            <p className="max-w-md text-lg text-muted-foreground">
+              Unlock your potential with personalized training programs, progress
+              tracking, and expert-designed meal plans. Stop guessing, start
+              improving.
+            </p>
+            <div className="flex w-full max-w-sm flex-col space-y-2 md:max-w-xs">
+              <Button asChild size="lg">
+                <Link href="/signup">Get Started for Free</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/login">I Already Have an Account</Link>
+              </Button>
+            </div>
           </div>
-          <p className="max-w-md text-lg text-muted-foreground">
-            Unlock your potential with personalized training programs, progress
-            tracking, and expert-designed meal plans. Stop guessing, start
-            improving.
-          </p>
-          <div className="flex w-full max-w-sm flex-col space-y-2 md:max-w-xs">
-            <Button asChild size="lg">
-              <Link href="/signup">Get Started for Free</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/login">I Already Have an Account</Link>
-            </Button>
-          </div>
-        </div>
-        <div className="relative hidden md:block md:w-1/2">
-          {heroImage && (
-            <Image
-              src={heroImage.imageUrl}
-              alt="Basketball player training"
-              fill
-              className="object-cover"
-              priority
-              data-ai-hint={heroImage.imageHint}
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-transparent"></div>
         </div>
       </div>
     </div>
