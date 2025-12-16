@@ -1,0 +1,143 @@
+
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, TrendingUp, Calculator } from 'lucide-react';
+import Link from 'next/link';
+
+const formSchema = z.object({
+  height: z.preprocess(
+    (a) => parseFloat(z.string().parse(a)),
+    z.number().positive('Height must be a positive number.')
+  ),
+  weight: z.preprocess(
+    (a) => parseFloat(z.string().parse(a)),
+    z.number().positive('Weight must be a positive number.')
+  ),
+});
+
+type BmiResult = {
+  value: number;
+  category: string;
+  suggestion: string;
+  color: string;
+};
+
+export function BmiCalculatorWidget() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [bmiResult, setBmiResult] = useState<BmiResult | null>(null);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+        height: undefined,
+        weight: undefined,
+    }
+  });
+
+  function getBmiCategory(bmi: number): Omit<BmiResult, 'value'> {
+    if (bmi < 18.5) {
+      return { category: 'Underweight', suggestion: 'Focus on strength training and a calorie surplus to build mass and power.', color: 'text-blue-400' };
+    } else if (bmi >= 18.5 && bmi < 24.9) {
+      return { category: 'Normal weight', suggestion: 'You are at a healthy weight. Maintain a balanced training regimen focusing on skill and conditioning.', color: 'text-green-400' };
+    } else if (bmi >= 25 && bmi < 29.9) {
+      return { category: 'Overweight', suggestion: 'Incorporate more conditioning and cardio workouts to improve stamina and agility on the court.', color: 'text-yellow-400' };
+    } else {
+      return { category: 'Obesity', suggestion: 'Prioritize high-intensity conditioning and consult a nutritionist to optimize your diet for fat loss and muscle retention.', color: 'text-red-400' };
+    }
+  }
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    const heightInMeters = values.height / 100;
+    const bmi = values.weight / (heightInMeters * heightInMeters);
+    const result = getBmiCategory(bmi);
+    setTimeout(() => {
+        setBmiResult({ value: parseFloat(bmi.toFixed(1)), ...result });
+        setIsLoading(false);
+    }, 500);
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>BMI Calculator</CardTitle>
+        <CardDescription>Quickly check your Body Mass Index.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {bmiResult ? (
+             <div className="text-center space-y-4">
+                <p className="text-sm text-muted-foreground">Your BMI is</p>
+                <p className={`text-6xl font-bold ${bmiResult.color}`}>{bmiResult.value}</p>
+                <p className={`text-xl font-semibold ${bmiResult.color}`}>{bmiResult.category}</p>
+                 <div className="flex justify-center gap-2">
+                    <Button variant="outline" onClick={() => setBmiResult(null)}>Recalculate</Button>
+                    <Button asChild><Link href="/bmi-calculator">View Details</Link></Button>
+                 </div>
+            </div>
+        ) : (
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                    control={form.control}
+                    name="height"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Height (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="188" {...field} value={field.value ?? ''} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="weight"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Weight (kg)</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="85" {...field} value={field.value ?? ''} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                    <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Calculating...
+                    </>
+                ) : (
+                    <>
+                    <Calculator className="mr-2 h-4 w-4" />
+                    Calculate BMI
+                    </>
+                )}
+                </Button>
+            </form>
+            </Form>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+

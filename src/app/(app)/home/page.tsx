@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Progress } from "@/components/ui/progress";
 import placeholderData from '@/lib/placeholder-images.json';
 import { mockWorkouts } from '@/lib/mock-data';
+import { BmiCalculatorWidget } from '@/components/bmi-calculator-widget';
 
 const workoutCategories = [
   { name: 'Shooting', icon: <Droplet className="h-8 w-8 text-white" />, href: '/workouts?category=Shooting', imageId: 'cat-shooting' },
@@ -105,28 +106,31 @@ export default function HomePage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Weekly Progress</CardTitle>
-          <CardDescription>You're doing great, keep up the hard work!</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {progressStats.map(stat => (
-            <div key={stat.label}>
-              <div className="mb-1 flex justify-between text-sm font-medium">
-                <span>{stat.label}</span>
-                <span className="text-muted-foreground">{stat.value} / {stat.goal}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Weekly Progress</CardTitle>
+            <CardDescription>You're doing great, keep up the hard work!</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {progressStats.map(stat => (
+              <div key={stat.label}>
+                <div className="mb-1 flex justify-between text-sm font-medium">
+                  <span>{stat.label}</span>
+                  <span className="text-muted-foreground">{stat.value} / {stat.goal}</span>
+                </div>
+                <Progress value={(stat.value / stat.goal) * 100} valueBuffer={(stat.dailyValue / stat.goal) * 100} className="h-2"/>
               </div>
-              <Progress value={(stat.value / stat.goal) * 100} valueBuffer={(stat.dailyValue / stat.goal) * 100} className="h-2"/>
-            </div>
-          ))}
-          <Button asChild variant="outline" className="mt-4 w-full">
-             <Link href="/progress" className="flex w-full items-center justify-center">
-                <BarChart className="mr-2 h-4 w-4" /> View Detailed Progress
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+            ))}
+            <Button asChild variant="outline" className="mt-4 w-full">
+               <Link href="/progress" className="flex w-full items-center justify-center">
+                  <BarChart className="mr-2 h-4 w-4" /> View Detailed Progress
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <BmiCalculatorWidget />
+      </div>
     </div>
   );
 }
