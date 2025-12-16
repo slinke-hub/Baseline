@@ -199,7 +199,7 @@ export default function LocationsPage() {
                                                 </div>
                                             </div>
                                         )}
-                                        <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
+                                        <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} required />
                                     </div>
                                 </div>
                                 <DialogFooter>
@@ -275,3 +275,5 @@ export default function LocationsPage() {
         </div>
     );
 }
+
+    
