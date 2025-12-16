@@ -206,7 +206,7 @@ export default function LocationsPage() {
                                             <FormItem>
                                                 <Label>Address</Label>
                                                 <div className="flex gap-2">
-                                                    <FormControl><Input placeholder="Click the button to get location" {...field} readOnly /></FormControl>
+                                                    <FormControl><Input placeholder="Click the button to get location" {...field} /></FormControl>
                                                     <Button type="button" variant="outline" size="icon" onClick={handleGetLocation} disabled={isLocating}>
                                                         {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
                                                     </Button>
