@@ -9,9 +9,11 @@
  *
  * # Data Structure
  * - /users/{userId}: Stores private user profiles and serves as the root for all user-owned subcollections.
+ *   - /users/{userId}/connections/{friendId}: Manages user friendships.
  *   - /users/{userId}/workoutProgress/{workoutProgressId}: Contains a user's private workout history.
  *   - /users/{userId}/mealPlans/{mealPlanId}: Contains a user's private meal plans.
  *   - /users/{userId}/orders/{orderId}: Contains a user's private order history.
+ * - /chats/{chatId}/messages/{messageId}: Stores private messages between two users.
  * - /workouts/{workoutId}: A read-only collection of available workouts, writable only by backend processes (e.g., an admin SDK).
  * - /meals/{mealId}: A read-only collection of available meals, writable only by backend processes (e.g., an admin SDK).
  * - /locations/{locationId}: A collection of user-submitted courts. Readable by all, writable by authenticated users for their own submissions.
@@ -19,14 +21,10 @@
  * - /products/{productId}: A read-only collection of merchandise, writable only by an admin.
  *
  * # Key Security Decisions
- * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security, ensuring only the authenticated owner can access it.
- * - **No User Listing**: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy.
- * - **Read-Only Public Content**: The `/workouts`, `/meals`, and `/products` collections are readable by any authenticated user. All client-side write operations are disabled.
- * - **Community-Sourced Content**: Authenticated users can create new locations and "Ball is Life" posts, but can only modify or delete their own contributions.
+ * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security.
+ * - **Chat Security**: Chats are only accessible to the two participants involved.
+ * - **Connection Security**: Users can manage their own connection documents (send, accept, delete requests).
  * - **Default Deny**: Any operation not explicitly granted is denied.
- *
- * # Denormalization for Authorization
- * The data model is structured to make authorization simple and performant. By nesting user-specific data like `workoutProgress` under the user's document path `/users/{userId}`, we can write fast and simple ownership checks (`isOwner(userId)`) without needing any costly `get()` calls to other documents.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -37,141 +35,72 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Checks if the requesting user's UID matches the document's owner ID.
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Checks if the requesting user has an 'admin' role in their user document.
     function isAdmin() {
+      // Note: This requires a 'role' field in the user's document in the /users collection.
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Ensures a document exists before an update or delete, and confirms ownership.
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+    function isParticipant(chatId) {
+      return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
 
-    // Validates creation of a subcollection document, ensuring the internal userId field
-    // matches the user path, establishing a clear ownership link.
-    function isCreatingOwnedDocument(userId) {
-      return isOwner(userId) && request.resource.data.userId == userId;
-    }
-
-    // Validates updates to a user's subcollection document.
-    // Enforces immutability of the critical userId ownership link.
-    function isUpdatingOwnedDocument(userId) {
-      return isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-    }
-
-    /**
-     * @description Controls access to user profile documents and their private subcollections.
-     * @path /users/{userId}
-     * @principle Restricts all access to a user's own data tree. Admins have special privileges.
-     */
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
-      
-      // TEMPORARILY MODIFIED: Allow any signed-in user to create their own document.
-      allow create: if isSignedIn() && request.resource.data.id == userId;
-      
+      allow get: if isSignedIn(); // Allow reading any user's profile for friend lists
+      allow list: if isSignedIn(); // Allow listing users to find friends
+      allow create: if isOwner(userId); // Allow a user to create their own document
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
 
-      /**
-       * @description Controls access to a user's private workout progress.
-       * @path /users/{userId}/workoutProgress/{workoutProgressId}
-       * @principle Enforces strict ownership for all operations.
-       */
+      match /connections/{friendId} {
+        allow read, delete: if isOwner(userId);
+        // Allow creating/updating a connection if you are the user or the friend
+        allow write: if isOwner(userId) || isOwner(friendId);
+      }
+      
       match /workoutProgress/{workoutProgressId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isCreatingOwnedDocument(userId);
-        allow update: if isUpdatingOwnedDocument(userId);
-        allow delete: if isExistingOwner(userId);
+        allow read, write: if isOwner(userId);
       }
-
-      /**
-       * @description Controls access to a user's private meal plans.
-       * @path /users/{userId}/mealPlans/{mealPlanId}
-       * @principle Enforces strict ownership for all operations.
-       */
+      
       match /mealPlans/{mealPlanId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isCreatingOwnedDocument(userId);
-        allow update: if isUpdatingOwnedDocument(userId);
-        allow delete: if isExistingOwner(userId);
+        allow read, write: if isOwner(userId);
       }
-
-       /**
-       * @description Controls access to a user's private orders.
-       * @path /users/{userId}/orders/{orderId}
-       * @principle Enforces strict ownership for all operations.
-       */
+      
       match /orders/{orderId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isCreatingOwnedDocument(userId);
-        // Do not allow updates/deletes from client to preserve order history
-        allow update, delete: if false; 
+        allow get, list, create: if isOwner(userId);
+        allow update, delete: if false; // Preserve order history
       }
     }
 
-    /**
-     * @description Controls access to the central, public collection of workouts.
-     * @path /workouts/{workoutId}
-     * @principle Provides read access for all signed-in users, but restricts all writes.
-     *            Writes should be handled by a trusted backend with admin privileges.
-     */
+    match /chats/{chatId}/messages/{messageId} {
+      allow read, write: if isParticipant(chatId);
+    }
+
     match /workouts/{workoutId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create, update, delete: if isAdmin(); // Allow admins to manage workouts
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
     }
 
-    /**
-     * @description Controls access to the central, public collection of meals.
-     * @path /meals/{mealId}
-     * @principle Provides read access for all signed-in users, but restricts all writes.
-     *            Writes should be handled by a trusted backend with admin privileges.
-     */
     match /meals/{mealId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create, update, delete: if isAdmin(); // Allow admins to manage meals
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
     }
 
-    /**
-     * @description Controls access to the community-sourced collection of court locations.
-     * @path /locations/{locationId}
-     * @principle Allows any signed-in user to read. Allows users to create new locations
-     *            and manage only the ones they've created.
-     */
     match /locations/{locationId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
+      allow get, list: if isSignedIn();
       allow create: if isSignedIn();
       allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
     }
     
-    /**
-     * @description Controls access to the "Ball is Life" posts.
-     * @path /ballIsLife/{postId}
-     * @principle Allows any signed-in user to read. Allows users to create new posts
-     *            and manage only the ones they've created.
-     */
     match /ballIsLife/{postId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
       allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
     }
 
-    /**
-     * @description Controls access to the central product catalog for merchandise.
-     * @path /products/{productId}
-     * @principle Read-only for all clients, writable only by admins.
-     */
     match /products/{productId} {
       allow get, list: if isSignedIn();
       allow create, update, delete: if isAdmin();

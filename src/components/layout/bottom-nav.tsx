@@ -3,13 +3,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, User, ShoppingCart, Flame } from 'lucide-react';
+import { Home, Dumbbell, User, ShoppingCart, Flame, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/ball-is-life', icon: Flame, label: 'Live' },
+  { href: '/friends', icon: Users, label: 'Friends' },
   { href: '/store', icon: ShoppingCart, label: 'Store' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
@@ -40,4 +40,3 @@ export function BottomNav() {
     </nav>
   );
 }
-    

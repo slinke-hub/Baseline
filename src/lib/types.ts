@@ -103,6 +103,16 @@ export interface UserOrder {
   status: 'Pending' | 'Shipped' | 'Delivered';
   createdAt: Timestamp;
 }
-    
 
-    
+export interface Connection {
+    status: 'pending' | 'accepted';
+    initiator: string; // UID of the user who sent the request
+}
+
+export interface ChatMessage {
+    id?: string;
+    text: string;
+    senderId: string;
+    receiverId: string;
+    createdAt: Timestamp;
+}

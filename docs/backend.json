@@ -7,9 +7,9 @@
       "type": "object",
       "description": "Represents a user's profile within the Baseline application.",
       "properties": {
-        "id": {
+        "uid": {
           "type": "string",
-          "description": "Unique identifier for the user profile."
+          "description": "Unique identifier for the user profile, same as Firebase Auth UID."
         },
         "role": {
             "type": "string",
@@ -55,8 +55,38 @@
         }
       },
       "required": [
-        "id", "role", "totalSessions"
+        "uid", "role", "totalSessions"
       ]
+    },
+    "Connection": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Connection",
+        "type": "object",
+        "description": "Represents a friendship link between two users.",
+        "properties": {
+            "status": {
+                "type": "string",
+                "enum": ["pending", "accepted"]
+            },
+            "initiator": {
+                "type": "string",
+                "description": "The UID of the user who initiated the connection."
+            }
+        },
+        "required": ["status", "initiator"]
+    },
+    "ChatMessage": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "ChatMessage",
+        "type": "object",
+        "description": "Represents a single message in a private chat.",
+        "properties": {
+            "text": { "type": "string" },
+            "senderId": { "type": "string" },
+            "receiverId": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["text", "senderId", "receiverId", "createdAt"]
     },
     "Workout": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -337,6 +367,18 @@
           ]
         }
       },
+       {
+        "path": "/users/{userId}/connections/{friendId}",
+        "definition": {
+          "entityName": "Connection",
+          "schema": { "$ref": "#/backend/entities/Connection" },
+          "description": "Stores a user's connections (friends). Writable by the user and the friend to establish connection.",
+          "params": [
+            { "name": "userId", "description": "The user's UID." },
+            { "name": "friendId", "description": "The friend's UID." }
+          ]
+        }
+      },
       {
         "path": "/users/{userId}/workoutProgress/{workoutProgressId}",
         "definition": {
@@ -374,6 +416,18 @@
               "name": "mealPlanId",
               "description": "The unique identifier of the meal plan."
             }
+          ]
+        }
+      },
+       {
+        "path": "/chats/{chatId}/messages/{messageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": { "$ref": "#/backend/entities/ChatMessage" },
+          "description": "Stores messages for a private chat between two users.",
+          "params": [
+            { "name": "chatId", "description": "A composite key of the two user UIDs, sorted alphabetically and joined by an underscore." },
+            { "name": "messageId", "description": "The unique ID of the message." }
           ]
         }
       },
@@ -468,6 +522,3 @@
     "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, and locations is maintained in top-level `/workouts`, `/meals`, and `/locations` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management, or allowing authenticated users to contribute (as with locations). This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
   }
 }
-    
-
-    

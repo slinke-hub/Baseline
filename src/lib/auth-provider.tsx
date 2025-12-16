@@ -38,7 +38,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (doc.exists()) {
         setAppUser({ ...doc.data(), uid: user.uid } as AppUser);
       } else {
-        setAppUser(null);
+        // If the user doc doesn't exist, create a temporary one from auth
+        // This can happen during signup before the doc is created
+        setAppUser({
+            uid: user.uid,
+            displayName: user.displayName || 'New User',
+            email: user.email || '',
+            photoURL: user.photoURL || '',
+            role: 'client',
+        });
       }
       setLoading(false);
     });
@@ -50,5 +58,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-    

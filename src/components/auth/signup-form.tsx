@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState } from 'react';
@@ -64,13 +63,15 @@ export function SignupForm() {
       
       const role = values.email === 'monti.training@gmail.com' ? 'admin' : 'client';
 
-      const userData: Omit<AppUser, 'uid'> = {
+      const userData: AppUser = {
+        uid: user.uid,
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
         role: role,
         sessionsCompleted: 0,
         totalSessions: values.totalSessions,
+        xp: 0,
       };
 
       await setDoc(userDocRef, userData).catch(async (serverError) => {
@@ -188,5 +189,3 @@ export function SignupForm() {
     </Card>
   );
 }
-
-    

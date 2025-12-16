@@ -42,12 +42,12 @@ import type { AppUser } from '@/lib/types';
 
 // Mock user data for demonstration
 const initialUsers: AppUser[] = [
-    { uid: 'user-4', id: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
-    { uid: 'user-coach-1', id: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
-    { uid: 'user-1', id: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8, xp: 1250 },
-    { uid: 'user-2', id: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8, xp: 2300 },
-    { uid: 'user-3', id: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 1, totalSessions: 12, xp: 800 },
-    { uid: 'user-5', id: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 8, totalSessions: 8, xp: 3000 },
+    { uid: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
+    { uid: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
+    { uid: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8, xp: 1250 },
+    { uid: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8, xp: 2300 },
+    { uid: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 1, totalSessions: 12, xp: 800 },
+    { uid: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 8, totalSessions: 8, xp: 3000 },
 ];
 
 
@@ -67,7 +67,6 @@ export default function AdminUsersPage() {
         const role = formData.get('role') as AppUser['role'];
         
         const newUser: AppUser = {
-            id: `user-${Date.now()}`,
             uid: `user-${Date.now()}`,
             displayName: name,
             email,
@@ -86,7 +85,7 @@ export default function AdminUsersPage() {
     
     const handleDeleteUser = () => {
         if (!userToDelete) return;
-        setUsers(currentUsers => currentUsers.filter(user => user.id !== userToDelete.id));
+        setUsers(currentUsers => currentUsers.filter(user => user.uid !== userToDelete.uid));
         toast({
             title: "User Deleted",
             description: "The user has been removed from the list.",
@@ -106,7 +105,7 @@ export default function AdminUsersPage() {
         const xp = formData.get('xp') as string;
 
         setUsers(currentUsers => currentUsers.map(user => 
-            user.id === selectedUser.id ? { ...user, displayName: name, email, role, totalSessions: parseInt(totalSessions, 10) || user.totalSessions, xp: parseInt(xp, 10) || user.xp } : user
+            user.uid === selectedUser.uid ? { ...user, displayName: name, email, role, totalSessions: parseInt(totalSessions, 10) || user.totalSessions, xp: parseInt(xp, 10) || user.xp } : user
         ));
 
         toast({ title: 'User Updated', description: `Updated details for ${name}.` });
@@ -198,7 +197,7 @@ export default function AdminUsersPage() {
                         </TableHeader>
                         <TableBody>
                             {users.map(user => (
-                                <TableRow key={user.id}>
+                                <TableRow key={user.uid}>
                                     <TableCell className="font-medium">{user.displayName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{getRoleBadge(user.role)}</TableCell>
@@ -218,7 +217,7 @@ export default function AdminUsersPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem asChild>
-                                                    <Link href={`/admin/schedule?userId=${user.id}`}>
+                                                    <Link href={`/admin/schedule?userId=${user.uid}`}>
                                                         <Eye className="mr-2 h-4 w-4" />View Schedule
                                                     </Link>
                                                 </DropdownMenuItem>
