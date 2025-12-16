@@ -25,7 +25,7 @@ function WorkoutsContent() {
       </div>
 
       <Tabs defaultValue={defaultValue} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto bg-card/20 backdrop-blur-sm">
           {categories.map(category => (
             <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
           ))}
@@ -34,7 +34,7 @@ function WorkoutsContent() {
           <TabsContent key={category} value={category}>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {mockWorkouts.filter(w => w.category === category).map((workout: Workout) => (
-                <WorkoutCard key={workout.id} workout={workout} />
+                <WorkoutCard key={workout.id} workout={workout} transparent />
               ))}
             </div>
           </TabsContent>
@@ -47,7 +47,7 @@ function WorkoutsContent() {
 function WorkoutsPageContainer({ children }: { children: React.ReactNode }) {
     return (
         <div
-            className="relative"
+            className="relative min-h-screen"
         >
             <div
                 className="absolute inset-0 -z-10 h-full w-full bg-background"
