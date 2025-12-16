@@ -47,35 +47,40 @@ export default function HomePage() {
             <p className="text-muted-foreground">{latestAnnouncement}</p>
         </CardContent>
       </Card>
-
-      <Card className="overflow-hidden">
-        <div className="grid md:grid-cols-2">
-          <div className="p-6 md:p-8">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Today's Focus</h2>
-            <p className="mt-1 text-2xl font-bold">{todaysWorkout.title}</p>
-            <p className="mt-2 text-muted-foreground">{todaysWorkout.description}</p>
-            <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
-                <span>{todaysWorkout.difficulty} Difficulty</span>
-                <span>•</span>
-                <span>{todaysWorkout.duration} Mins</span>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="overflow-hidden lg:col-span-1">
+          <div className="grid md:grid-cols-2">
+            <div className="p-6 md:p-8">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Today's Focus</h2>
+              <p className="mt-1 text-2xl font-bold">{todaysWorkout.title}</p>
+              <p className="mt-2 text-muted-foreground">{todaysWorkout.description}</p>
+              <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
+                  <span>{todaysWorkout.difficulty} Difficulty</span>
+                  <span>•</span>
+                  <span>{todaysWorkout.duration} Mins</span>
+              </div>
+              <Button asChild size="lg" className="mt-6">
+                <Link href={`/workouts/track/${todaysWorkout.id}`}>Start Workout</Link>
+              </Button>
             </div>
-            <Button asChild size="lg" className="mt-6">
-              <Link href={`/workouts/track/${todaysWorkout.id}`}>Start Workout</Link>
-            </Button>
+            {TodaysWorkoutImage && (
+              <div className="relative h-48 md:h-auto min-h-[200px]">
+                <Image
+                  src={TodaysWorkoutImage.imageUrl}
+                  alt={todaysWorkout.title}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={TodaysWorkoutImage.imageHint}
+                />
+              </div>
+            )}
           </div>
-          {TodaysWorkoutImage && (
-            <div className="relative h-48 md:h-auto min-h-[200px]">
-              <Image
-                src={TodaysWorkoutImage.imageUrl}
-                alt={todaysWorkout.title}
-                fill
-                className="object-cover"
-                data-ai-hint={TodaysWorkoutImage.imageHint}
-              />
-            </div>
-          )}
+        </Card>
+        <div className="lg:col-span-1">
+          <BmiCalculatorWidget />
         </div>
-      </Card>
+      </div>
       
       <div>
         <h2 className="mb-4 text-2xl font-bold">Explore Workouts</h2>
@@ -106,31 +111,28 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Weekly Progress</CardTitle>
-            <CardDescription>You're doing great, keep up the hard work!</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {progressStats.map(stat => (
-              <div key={stat.label}>
-                <div className="mb-1 flex justify-between text-sm font-medium">
-                  <span>{stat.label}</span>
-                  <span className="text-muted-foreground">{stat.value} / {stat.goal}</span>
-                </div>
-                <Progress value={(stat.value / stat.goal) * 100} valueBuffer={(stat.dailyValue / stat.goal) * 100} className="h-2"/>
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Weekly Progress</CardTitle>
+          <CardDescription>You're doing great, keep up the hard work!</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {progressStats.map(stat => (
+            <div key={stat.label}>
+              <div className="mb-1 flex justify-between text-sm font-medium">
+                <span>{stat.label}</span>
+                <span className="text-muted-foreground">{stat.value} / {stat.goal}</span>
               </div>
-            ))}
-            <Button asChild variant="outline" className="mt-4 w-full">
-               <Link href="/progress" className="flex w-full items-center justify-center">
-                  <BarChart className="mr-2 h-4 w-4" /> View Detailed Progress
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <BmiCalculatorWidget />
-      </div>
+              <Progress value={(stat.value / stat.goal) * 100} valueBuffer={(stat.dailyValue / stat.goal) * 100} className="h-2"/>
+            </div>
+          ))}
+          <Button asChild variant="outline" className="mt-4 w-full">
+             <Link href="/progress" className="flex w-full items-center justify-center">
+                <BarChart className="mr-2 h-4 w-4" /> View Detailed Progress
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
