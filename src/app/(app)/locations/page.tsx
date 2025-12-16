@@ -4,7 +4,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2, Link as LinkIcon } from 'lucide-react';
+import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
