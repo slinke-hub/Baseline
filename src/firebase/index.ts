@@ -1,3 +1,4 @@
+
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
@@ -11,15 +12,13 @@ let firestore: Firestore;
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 function getFirebase() {
-  if (!firebaseApp) {
-    if (getApps().length) {
-      firebaseApp = getApp();
-    } else {
-      firebaseApp = initializeApp(firebaseConfig);
-    }
-    auth = getAuth(firebaseApp);
-    firestore = getFirestore(firebaseApp);
+  if (getApps().length) {
+    firebaseApp = getApp();
+  } else {
+    firebaseApp = initializeApp(firebaseConfig);
   }
+  auth = getAuth(firebaseApp);
+  firestore = getFirestore(firebaseApp);
 
   return { firebaseApp, auth, firestore };
 }
