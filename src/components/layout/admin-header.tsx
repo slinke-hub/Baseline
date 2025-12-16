@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, MoreVertical, User, NotebookPen } from 'lucide-react';
+import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, MoreVertical, User, NotebookPen, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ const adminNavItems = [
   { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals' },
+  { href: '/admin/products', icon: ShoppingCart, label: 'Products' },
   { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
   { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
   { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
