@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,10 +8,11 @@ import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, where, Unsubscribe, DocumentData } from 'firebase/firestore';
 import type { AppUser, Connection } from '@/lib/types';
-import { Loader2, UserPlus, UserCheck, Clock } from 'lucide-react';
+import { Loader2, UserPlus, UserCheck, Clock, Smile } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
 
 const getInitials = (name?: string | null) => {
     if (!name) return 'U';
@@ -52,7 +52,7 @@ function UserCard({ otherUser, connections, onAdd, onAccept, onCancel }: {
             </Avatar>
             <div className="ml-4 flex-grow">
                 <p className="font-bold">{otherUser.displayName}</p>
-                <p className="text-sm text-muted-foreground">{otherUser.role}</p>
+                <p className="text-sm text-muted-foreground">{otherUser.email}</p>
             </div>
             {renderButton()}
         </Card>
@@ -134,6 +134,7 @@ export default function FriendsPage() {
 
     const [connections, setConnections] = useState<{ [key: string]: Connection }>({});
     const [isLoadingConnections, setIsLoadingConnections] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (!user) return;
@@ -175,7 +176,13 @@ export default function FriendsPage() {
         toast({ title: 'Request Cancelled.' });
     };
 
-    const filteredUsers = allUsers?.filter(u => u.uid !== user?.uid);
+    const filteredUsers = allUsers
+        ?.filter(u => u.uid !== user?.uid)
+        .filter(u => {
+            if (searchTerm.trim() === '') return true;
+            const term = searchTerm.toLowerCase();
+            return u.displayName.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
+        });
     const isLoading = isLoadingUsers || isLoadingConnections;
 
     return (
@@ -198,6 +205,17 @@ export default function FriendsPage() {
                         <CardHeader>
                             <CardTitle>All Users</CardTitle>
                             <CardDescription>Find and add other players.</CardDescription>
+                            <div className="flex w-full max-w-sm items-center space-x-2 pt-4">
+                                <Input 
+                                    type="text" 
+                                    placeholder="Search by name or email..." 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <Button type="submit">
+                                    <Smile className="mr-2 h-4 w-4" /> Find me
+                                </Button>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {isLoading ? (
