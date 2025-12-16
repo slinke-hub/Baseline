@@ -4,7 +4,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2 } from 'lucide-react';
+import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2, LocateFixed } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -42,13 +42,12 @@ import Link from 'next/link';
 
 const formSchema = z.object({
     name: z.string().min(3, "Court name must be at least 3 characters."),
-    address: z.string().min(10, "Address seems too short."),
+    address: z.string().min(10, "Please provide a valid location."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-// This would be fetched from Firestore in a real app
-const isXpForCourtsEnabled = true; // Mocking the admin feature flag
+const isXpForCourtsEnabled = true;
 const XP_REWARD_FOR_COURT = 50;
 
 export default function LocationsPage() {
@@ -61,6 +60,7 @@ export default function LocationsPage() {
     
     const [isAddFormOpen, setAddFormOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
     const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,6 +79,28 @@ export default function LocationsPage() {
         }
     };
     
+    const handleGetLocation = () => {
+        if (!navigator.geolocation) {
+            toast({ title: "Geolocation not supported", description: "Your browser doesn't support location services.", variant: "destructive" });
+            return;
+        }
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                // Simple reverse geocoding mock. In a real app, use a service like Google Maps Geocoding API.
+                const address = `Approx. location near lat: ${latitude.toFixed(4)}, lon: ${longitude.toFixed(4)}`;
+                form.setValue('address', address);
+                toast({ title: "Location Found!", description: "Address has been filled in." });
+                setIsLocating(false);
+            },
+            () => {
+                toast({ title: "Location Error", description: "Unable to retrieve your location. Please grant permission or try again.", variant: "destructive" });
+                setIsLocating(false);
+            }
+        );
+    };
+
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
         if (!user) {
             toast({ title: "Authentication Error", description: "You must be logged in to add a court.", variant: "destructive" });
@@ -183,7 +205,12 @@ export default function LocationsPage() {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <Label>Address</Label>
-                                                <FormControl><Input placeholder="123 Main St, Anytown, USA" {...field} /></FormControl>
+                                                <div className="flex gap-2">
+                                                    <FormControl><Input placeholder="Click the button to get location" {...field} readOnly /></FormControl>
+                                                    <Button type="button" variant="outline" size="icon" onClick={handleGetLocation} disabled={isLocating}>
+                                                        {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+                                                    </Button>
+                                                </div>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -282,5 +309,3 @@ export default function LocationsPage() {
         </div>
     );
 }
-
-    
