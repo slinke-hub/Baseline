@@ -8,9 +8,9 @@ export default function LoginPage() {
       className="flex min-h-screen items-center justify-center bg-background p-4 relative"
       style={{
         backgroundImage: `url(/logo.png)`,
-        backgroundPosition: 'center',
+        backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
+        backgroundSize: '512px',
       }}
     >
       <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
