@@ -142,7 +142,7 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
         backgroundSize: 'contain',
       }}
     >
-      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
 
       <div className="relative z-10">
         <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">

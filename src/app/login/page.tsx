@@ -13,7 +13,7 @@ export default function LoginPage() {
         backgroundSize: '512px',
       }}
     >
-      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
       <div className="w-full max-w-md z-10">
         <Suspense fallback={<div>Loading...</div>}>
           <LoginForm />
