@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Loader2, Image as ImageIcon, MapPin, Trash2, Gift } from 'lucide-react';
@@ -42,7 +42,6 @@ import type { Location } from '@/lib/types';
 const formSchema = z.object({
     name: z.string().min(3, "Court name must be at least 3 characters."),
     address: z.string().min(10, "Address seems too short."),
-    photo: z.any().refine(file => file instanceof FileList && file.length > 0, "A photo of the court is required."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -62,6 +61,7 @@ export default function LocationsPage() {
     const [isAddFormOpen, setAddFormOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -82,9 +82,15 @@ export default function LocationsPage() {
             toast({ title: "Authentication Error", description: "You must be logged in to add a court.", variant: "destructive" });
             return;
         }
+
+        const photoFile = fileInputRef.current?.files?.[0];
+        if (!photoFile) {
+            toast({ title: "Photo Required", description: "Please select a photo of the court.", variant: "destructive" });
+            return;
+        }
+
         setIsSubmitting(true);
         try {
-            const photoFile = data.photo[0];
             const storage = getStorage(firebaseApp);
             const photoRef = ref(storage, `court-photos/${user.uid}/${Date.now()}_${photoFile.name}`);
 
@@ -116,6 +122,9 @@ export default function LocationsPage() {
             setAddFormOpen(false);
             form.reset();
             setPhotoPreview(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
         } catch (error) {
             console.error("Error adding location:", error);
             toast({ title: "Submission Failed", description: "Could not save the new court location. Please try again.", variant: 'destructive' });
@@ -175,31 +184,22 @@ export default function LocationsPage() {
                                             </FormItem>
                                         )}
                                     />
-                                    <FormField
-                                        control={form.control}
-                                        name="photo"
-                                        render={({ field: { onChange, value, ...rest } }) => (
-                                            <FormItem>
-                                                <Label>Court Photo</Label>
-                                                {photoPreview ? (
-                                                    <div className="mt-2 aspect-video w-full relative">
-                                                        <Image src={photoPreview} alt="Court preview" fill className="rounded-md object-cover" />
-                                                    </div>
-                                                ) : (
-                                                    <div className="mt-2 flex justify-center items-center h-32 w-full border-2 border-dashed rounded-md">
-                                                        <div className="text-center text-muted-foreground">
-                                                            <ImageIcon className="mx-auto h-8 w-8" />
-                                                            <p>Photo Preview</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                <FormControl>
-                                                    <Input type="file" accept="image/*" {...rest} onChange={e => { onChange(e.target.files); handleFileChange(e); }} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
+                                    <div className="space-y-2">
+                                        <Label>Court Photo</Label>
+                                        {photoPreview ? (
+                                            <div className="mt-2 aspect-video w-full relative">
+                                                <Image src={photoPreview} alt="Court preview" fill className="rounded-md object-cover" />
+                                            </div>
+                                        ) : (
+                                            <div className="mt-2 flex justify-center items-center h-32 w-full border-2 border-dashed rounded-md">
+                                                <div className="text-center text-muted-foreground">
+                                                    <ImageIcon className="mx-auto h-8 w-8" />
+                                                    <p>Photo Preview</p>
+                                                </div>
+                                            </div>
                                         )}
-                                    />
+                                        <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
+                                    </div>
                                 </div>
                                 <DialogFooter>
                                     <Button type="submit" disabled={isSubmitting}>
