@@ -69,7 +69,7 @@ export interface Location {
     id: string;
     name: string;
     address: string;
-    photoUrl: string;
+    photoUrls: string[];
     creatorId: string;
 }
 
@@ -103,4 +103,6 @@ export interface UserOrder {
   status: 'Pending' | 'Shipped' | 'Delivered';
   createdAt: Timestamp;
 }
+    
+
     

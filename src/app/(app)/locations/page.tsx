@@ -61,7 +61,7 @@ export default function LocationsPage() {
     
     const [isAddFormOpen, setAddFormOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const form = useForm<FormValues>({
@@ -70,11 +70,12 @@ export default function LocationsPage() {
     });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setPhotoPreview(URL.createObjectURL(file));
+        const files = e.target.files;
+        if (files) {
+            const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
+            setPhotoPreviews(newPreviews);
         } else {
-            setPhotoPreview(null);
+            setPhotoPreviews([]);
         }
     };
     
@@ -84,24 +85,26 @@ export default function LocationsPage() {
             return;
         }
 
-        const photoFile = fileInputRef.current?.files?.[0];
-        if (!photoFile) {
-            toast({ title: "Photo Required", description: "Please select a photo of the court.", variant: "destructive" });
-            return;
-        }
-
+        const photoFiles = fileInputRef.current?.files;
+        
         setIsSubmitting(true);
         try {
-            const storage = getStorage(firebaseApp);
-            const photoRef = ref(storage, `court-photos/${user.uid}/${Date.now()}_${photoFile.name}`);
+            const photoUrls: string[] = [];
+            if(photoFiles && photoFiles.length > 0){
+                const storage = getStorage(firebaseApp);
+                for(const file of Array.from(photoFiles)) {
+                    const photoRef = ref(storage, `court-photos/${user.uid}/${Date.now()}_${file.name}`);
+                    const snapshot = await uploadBytes(photoRef, file);
+                    const photoUrl = await getDownloadURL(snapshot.ref);
+                    photoUrls.push(photoUrl);
+                }
+            }
 
-            const snapshot = await uploadBytes(photoRef, photoFile);
-            const photoUrl = await getDownloadURL(snapshot.ref);
 
             await addDoc(collection(firestore, 'locations'), {
                 name: data.name,
                 address: data.address,
-                photoUrl: photoUrl,
+                photoUrls: photoUrls,
                 creatorId: user.uid,
             });
             
@@ -122,7 +125,7 @@ export default function LocationsPage() {
 
             setAddFormOpen(false);
             form.reset();
-            setPhotoPreview(null);
+            setPhotoPreviews([]);
             if (fileInputRef.current) {
                 fileInputRef.current.value = "";
             }
@@ -186,10 +189,14 @@ export default function LocationsPage() {
                                         )}
                                     />
                                     <div className="space-y-2">
-                                        <Label>Court Photo</Label>
-                                        {photoPreview ? (
-                                            <div className="mt-2 aspect-video w-full relative">
-                                                <Image src={photoPreview} alt="Court preview" fill className="rounded-md object-cover" />
+                                        <Label>Court Photos (Optional)</Label>
+                                        {photoPreviews.length > 0 ? (
+                                            <div className="mt-2 grid grid-cols-2 gap-2">
+                                                {photoPreviews.map((preview, index) => (
+                                                    <div key={index} className="relative aspect-video w-full">
+                                                        <Image src={preview} alt={`Court preview ${index + 1}`} fill className="rounded-md object-cover" />
+                                                    </div>
+                                                ))}
                                             </div>
                                         ) : (
                                             <div className="mt-2 flex justify-center items-center h-32 w-full border-2 border-dashed rounded-md">
@@ -199,7 +206,7 @@ export default function LocationsPage() {
                                                 </div>
                                             </div>
                                         )}
-                                        <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
+                                        <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} multiple />
                                     </div>
                                 </div>
                                 <DialogFooter>
@@ -225,7 +232,7 @@ export default function LocationsPage() {
                     <Card key={location.id} className="overflow-hidden group">
                         <CardHeader className="p-0">
                             <div className="relative aspect-video w-full">
-                                <Image src={location.photoUrl} alt={location.name} fill className="object-cover" />
+                                <Image src={(location.photoUrls && location.photoUrls[0]) || 'https://picsum.photos/seed/1/600/400'} alt={location.name} fill className="object-cover" />
                                 {user?.uid === location.creatorId && (
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
@@ -275,3 +282,5 @@ export default function LocationsPage() {
         </div>
     );
 }
+
+    
