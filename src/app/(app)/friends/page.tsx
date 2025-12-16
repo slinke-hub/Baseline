@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, where, Unsubscribe, DocumentData } from 'firebase/firestore';
 import type { AppUser, Connection } from '@/lib/types';
-import { Loader2, UserPlus, UserCheck, Clock, Smile } from 'lucide-react';
+import { Loader2, UserPlus, UserCheck, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
@@ -213,7 +213,7 @@ export default function FriendsPage() {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                                 <Button type="submit">
-                                    <Smile className="mr-2 h-4 w-4" /> Find me
+                                    <span className="mr-2">😊</span> Find me
                                 </Button>
                             </div>
                         </CardHeader>
