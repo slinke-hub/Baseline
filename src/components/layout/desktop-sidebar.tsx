@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Flame } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Flame, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -92,6 +92,10 @@ export function DesktopSidebar() {
                       <div className="flex flex-col overflow-hidden text-left">
                         <span className="truncate font-medium text-foreground">{appUser?.displayName || 'User'}</span>
                         <span className="truncate text-xs text-muted-foreground">{appUser?.email}</span>
+                        <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-400" />
+                            <span className="text-xs text-muted-foreground font-bold">{appUser?.xp || 0} XP</span>
+                        </div>
                       </div>
                   </Link>
                 </TooltipTrigger>
