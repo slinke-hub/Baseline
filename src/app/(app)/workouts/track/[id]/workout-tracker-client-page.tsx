@@ -134,15 +134,15 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
   }
 
   return (
-    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
-      <Image
-        src="/logo-background.png"
-        alt="Baseline background"
-        fill
-        className="object-cover -z-20"
-        priority
-      />
-      <div className="absolute inset-0 bg-black/80 -z-10" />
+    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8"
+      style={{
+        backgroundImage: `url(/logo.png)`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm -z-10" />
 
       <div className="relative z-10">
         <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
