@@ -145,7 +145,7 @@ export const mockProducts: Product[] = [
     name: 'Baseline Performance Tee',
     description: 'Lightweight, breathable fabric to keep you cool and dry during intense training sessions. Features the official Baseline logo.',
     imageId: 'merch-tee',
-    priceXp: 1500,
+    priceXp: 50,
     priceCash: 25,
   },
   {
@@ -169,7 +169,15 @@ export const mockProducts: Product[] = [
     name: 'Baseline Water Bottle',
     description: 'Stay hydrated with this 32oz insulated water bottle. Keeps your drinks cold for hours. BPA-free with a non-slip grip.',
     imageId: 'merch-bottle',
-    priceXp: 750,
-    priceCash: 15,
+    priceXp: 100,
+    priceCash: 30,
+  },
+  {
+    id: 'prod-5',
+    name: 'Baseline Pro Hat',
+    description: 'A classic snapback hat with the official Baseline logo embroidered on the front. Perfect for on and off the court.',
+    imageId: 'merch-hat',
+    priceXp: 30,
+    priceCash: 20,
   },
 ];
