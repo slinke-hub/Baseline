@@ -137,7 +137,7 @@ service cloud.firestore {
     match /locations/{locationId} {
       allow get: if isSignedIn();
       allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
+      allow create: if isSignedIn();
       allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
     }
     
