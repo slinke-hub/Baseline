@@ -1,5 +1,5 @@
 
-import type { Workout, Meal, ScheduleEvent } from '@/lib/types';
+import type { Workout, Meal, ScheduleEvent, Product } from '@/lib/types';
 import { addDays } from 'date-fns';
 
 export const mockWorkouts: Workout[] = [
@@ -137,4 +137,39 @@ export const mockSchedule: ScheduleEvent[] = [
     { id: 'event-8', userId: 'user-3', date: addDays(new Date(), 1), type: 'rest', title: 'Rest Day' },
     { id: 'event-9', userId: 'user-3', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
     { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
+];
+
+export const mockProducts: Product[] = [
+  {
+    id: 'prod-1',
+    name: 'Baseline Performance Tee',
+    description: 'Lightweight, breathable fabric to keep you cool and dry during intense training sessions. Features the official Baseline logo.',
+    imageId: 'merch-tee',
+    priceXp: 1500,
+    priceCash: 25,
+  },
+  {
+    id: 'prod-2',
+    name: 'Baseline Elite Hoodie',
+    description: 'A comfortable and stylish hoodie perfect for pre-game warmups or post-game relaxation. Premium soft-fleece interior.',
+    imageId: 'merch-hoodie',
+    priceXp: 3000,
+    priceCash: 50,
+  },
+  {
+    id: 'prod-3',
+    name: 'Baseline Pro Reversible Jersey',
+    description: 'Game-ready reversible jersey. One side features the classic Baseline blue, the other a crisp white. Made with moisture-wicking material.',
+    imageId: 'merch-jersey',
+    priceXp: 2500,
+    priceCash: 40,
+  },
+  {
+    id: 'prod-4',
+    name: 'Baseline Water Bottle',
+    description: 'Stay hydrated with this 32oz insulated water bottle. Keeps your drinks cold for hours. BPA-free with a non-slip grip.',
+    imageId: 'merch-bottle',
+    priceXp: 750,
+    priceCash: 15,
+  },
 ];

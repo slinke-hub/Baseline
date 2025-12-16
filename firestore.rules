@@ -11,15 +11,17 @@
  * - /users/{userId}: Stores private user profiles and serves as the root for all user-owned subcollections.
  *   - /users/{userId}/workoutProgress/{workoutProgressId}: Contains a user's private workout history.
  *   - /users/{userId}/mealPlans/{mealPlanId}: Contains a user's private meal plans.
+ *   - /users/{userId}/orders/{orderId}: Contains a user's private order history.
  * - /workouts/{workoutId}: A read-only collection of available workouts, writable only by backend processes (e.g., an admin SDK).
  * - /meals/{mealId}: A read-only collection of available meals, writable only by backend processes (e.g., an admin SDK).
  * - /locations/{locationId}: A collection of user-submitted courts. Readable by all, writable by authenticated users for their own submissions.
  * - /ballIsLife/{postId}: A collection for real-time user posts. Readable by all, writable only by the post creator.
+ * - /products/{productId}: A read-only collection of merchandise, writable only by an admin.
  *
  * # Key Security Decisions
  * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security, ensuring only the authenticated owner can access it.
  * - **No User Listing**: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy.
- * - **Read-Only Public Content**: The `/workouts` and `/meals` collections are readable by any authenticated user to allow browsing of content. All client-side write operations are disabled.
+ * - **Read-Only Public Content**: The `/workouts`, `/meals`, and `/products` collections are readable by any authenticated user. All client-side write operations are disabled.
  * - **Community-Sourced Content**: Authenticated users can create new locations and "Ball is Life" posts, but can only modify or delete their own contributions.
  * - **Default Deny**: Any operation not explicitly granted is denied.
  *
@@ -102,6 +104,18 @@ service cloud.firestore {
         allow update: if isUpdatingOwnedDocument(userId);
         allow delete: if isExistingOwner(userId);
       }
+
+       /**
+       * @description Controls access to a user's private orders.
+       * @path /users/{userId}/orders/{orderId}
+       * @principle Enforces strict ownership for all operations.
+       */
+      match /orders/{orderId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isCreatingOwnedDocument(userId);
+        // Do not allow updates/deletes from client to preserve order history
+        allow update, delete: if false; 
+      }
     }
 
     /**
@@ -148,10 +162,19 @@ service cloud.firestore {
      *            and manage only the ones they've created.
      */
     match /ballIsLife/{postId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
+      allow get, list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
       allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+    }
+
+    /**
+     * @description Controls access to the central product catalog for merchandise.
+     * @path /products/{productId}
+     * @principle Read-only for all clients, writable only by admins.
+     */
+    match /products/{productId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
     }
   }
 }

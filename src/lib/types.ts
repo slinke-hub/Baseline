@@ -82,4 +82,25 @@ export interface BallIsLifePost {
     location: string;
     createdAt: Timestamp;
 }
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  imageId: string;
+  priceXp: number;
+  priceCash: number;
+}
+
+export interface UserOrder {
+  id: string;
+  userId: string;
+  productId: string;
+  productName: string;
+  productImageId: string;
+  paymentMethod: 'xp' | 'cod';
+  amountPaid: number;
+  status: 'Pending' | 'Shipped' | 'Delivered';
+  createdAt: Timestamp;
+}
     

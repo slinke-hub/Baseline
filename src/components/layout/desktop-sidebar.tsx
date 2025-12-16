@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Flame, Star } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Flame, Star, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ const mainNavItems = [
   { href: '/locations', icon: MapPin, label: 'Courts' },
   { href: '/progress', icon: BarChart, label: 'Progress' },
   { href: '/bmi-calculator', icon: Calculator, label: 'BMI Calculator' },
+  { href: '/store', icon: ShoppingCart, label: 'Store' },
 ];
 
 export function DesktopSidebar() {

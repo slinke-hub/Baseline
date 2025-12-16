@@ -101,6 +101,30 @@
       "description": "Greek yogurt with nuts.",
       "imageUrl": "https://images.unsplash.com/photo-1593198232414-72431a1cc506?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxncmVlayUyMHlvZ3VydHxlbnwwfHx8fDE3NjQ4NjQyODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "greek yogurt"
+    },
+    {
+      "id": "merch-tee",
+      "description": "A branded t-shirt on a hanger.",
+      "imageUrl": "https://images.unsplash.com/photo-1657364890927-5dd04b231a6d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0LXNoaXJ0JTIwbW9ja3VwfGVufDB8fHx8MTc2NTkxOTEyM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "t-shirt mockup"
+    },
+    {
+      "id": "merch-hoodie",
+      "description": "A branded hoodie on a hanger.",
+      "imageUrl": "https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxob29kaWUlMjBtb2NrdXB8ZW58MHx8fHwxNzY1OTE5MTIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hoodie mockup"
+    },
+    {
+      "id": "merch-jersey",
+      "description": "A branded basketball jersey.",
+      "imageUrl": "https://images.unsplash.com/photo-1548846081-783981a9cdd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxqZXJzZXklMjBtb2NrdXB8ZW58MHx8fHwxNzY1OTE5MTIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "jersey mockup"
+    },
+    {
+      "id": "merch-bottle",
+      "description": "A branded water bottle.",
+      "imageUrl": "https://images.unsplash.com/photo-1605608800690-9e496dfdac1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3YXRlciUyMGJvdHRsZXxlbnwwfHx8fDE3NjU4Mjg1NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "water bottle"
     }
   ]
 }
