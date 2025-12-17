@@ -102,7 +102,7 @@ export interface UserOrder {
   productImageId: string;
   paymentMethod: 'xp' | 'cod';
   amountPaid: number;
-  status: 'Pending' | 'Shipped' | 'Delivered';
+  status: 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
   createdAt: Timestamp;
 }
 

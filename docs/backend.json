@@ -342,7 +342,7 @@
         "productImageId": { "type": "string", "description": "The image ID of the product." },
         "paymentMethod": { "type": "string", "enum": ["xp", "cod"], "description": "The payment method used for the order." },
         "amountPaid": { "type": "number", "description": "The amount paid (in XP or cash)." },
-        "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered"], "description": "The status of the order." },
+        "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered", "Canceled"], "description": "The status of the order." },
         "createdAt": { "type": "string", "description": "Timestamp when the order was placed.", "format": "date-time" }
       },
       "required": ["id", "userId", "productId", "paymentMethod", "status", "createdAt"]
