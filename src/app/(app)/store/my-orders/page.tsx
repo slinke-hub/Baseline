@@ -13,6 +13,70 @@ import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+function OrderList({ orders, statusFilter }: { orders: UserOrder[], statusFilter: 'active' | 'delivered' | 'canceled' }) {
+
+    const filteredOrders = orders.filter(order => {
+        if (statusFilter === 'active') return order.status === 'Pending' || order.status === 'Shipped';
+        if (statusFilter === 'delivered') return order.status === 'Delivered';
+        if (statusFilter === 'canceled') return order.status === 'Canceled';
+        return false;
+    });
+
+    if (filteredOrders.length === 0) {
+        return (
+            <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-lg">
+                <Package className="h-12 w-12 mx-auto mb-4" />
+                <h3 className="font-semibold">No {statusFilter} orders</h3>
+                <p className="text-sm">Your orders in this category will appear here.</p>
+                {statusFilter === 'active' && (
+                    <Button asChild variant="link" className="mt-2">
+                        <Link href="/store">Go to Store</Link>
+                    </Button>
+                )}
+            </div>
+        )
+    }
+
+    return (
+        <div className="space-y-4">
+            {filteredOrders.map(order => {
+                const productImage = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
+                return (
+                <div key={order.id} className="flex flex-col sm:flex-row items-center gap-4 border p-4 rounded-lg">
+                    {productImage && (
+                        <Image 
+                            src={productImage.imageUrl} 
+                            alt={order.productName}
+                            width={80}
+                            height={80}
+                            className="rounded-md object-cover aspect-square"
+                        />
+                    )}
+                    <div className="flex-1 text-center sm:text-left">
+                        <p className="font-bold">{order.productName}</p>
+                        <p className="text-sm text-muted-foreground">
+                            Ordered on {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                        {order.paymentMethod === 'xp' ? <Star className="h-4 w-4 text-yellow-400" /> : '$'}
+                        {order.amountPaid.toLocaleString()} {order.paymentMethod === 'xp' ? 'XP' : ''}
+                    </div>
+                    <Badge 
+                        className={
+                            order.status === 'Delivered' ? 'bg-green-500 text-white' : 
+                            order.status === 'Shipped' ? 'bg-blue-500 text-white' : ''
+                        }
+                    >
+                        {order.status}
+                    </Badge>
+                </div>
+            )})}
+        </div>
+    )
+}
 
 export default function MyOrdersPage() {
     const { firestore } = useFirebase();
@@ -47,44 +111,25 @@ export default function MyOrdersPage() {
                         <div className="flex justify-center items-center h-40">
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
-                    ) : orders && orders.length > 0 ? (
-                        <div className="space-y-4">
-                            {orders.map(order => {
-                                const productImage = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
-                                return (
-                                <div key={order.id} className="flex flex-col sm:flex-row items-center gap-4 border p-4 rounded-lg">
-                                    {productImage && (
-                                        <Image 
-                                            src={productImage.imageUrl} 
-                                            alt={order.productName}
-                                            width={80}
-                                            height={80}
-                                            className="rounded-md object-cover aspect-square"
-                                        />
-                                    )}
-                                    <div className="flex-1 text-center sm:text-left">
-                                        <p className="font-bold">{order.productName}</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Ordered on {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm font-semibold">
-                                        {order.paymentMethod === 'xp' ? <Star className="h-4 w-4 text-yellow-400" /> : '$'}
-                                        {order.amountPaid.toLocaleString()} {order.paymentMethod === 'xp' ? 'XP' : ''}
-                                    </div>
-                                    <Badge 
-                                        className={
-                                            order.status === 'Delivered' ? 'bg-green-500 text-white' : 
-                                            order.status === 'Shipped' ? 'bg-blue-500 text-white' : ''
-                                        }
-                                    >
-                                        {order.status}
-                                    </Badge>
-                                </div>
-                            )})}
-                        </div>
+                    ) : orders ? (
+                        <Tabs defaultValue="active">
+                            <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="active">Active</TabsTrigger>
+                                <TabsTrigger value="delivered">Delivered</TabsTrigger>
+                                <TabsTrigger value="canceled">Canceled</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="active" className="mt-4">
+                                <OrderList orders={orders} statusFilter="active" />
+                            </TabsContent>
+                            <TabsContent value="delivered" className="mt-4">
+                                <OrderList orders={orders} statusFilter="delivered" />
+                            </TabsContent>
+                            <TabsContent value="canceled" className="mt-4">
+                                <OrderList orders={orders} statusFilter="canceled" />
+                            </TabsContent>
+                        </Tabs>
                     ) : (
-                        <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-lg">
+                         <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-lg">
                             <Package className="h-12 w-12 mx-auto mb-4" />
                             <h3 className="font-semibold">No Orders Yet</h3>
                             <p className="text-sm">Your purchased items will appear here.</p>
