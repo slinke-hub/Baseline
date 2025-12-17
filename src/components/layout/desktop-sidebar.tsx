@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users, Star, Flame, ShoppingCart } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ import { useFirebase } from '@/firebase';
 
 const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home', color: 'text-sky-400' },
-  { href: '/friends', icon: Users, label: 'Friends', color: 'text-amber-400' },
+  { href: '/friends', icon: FriendsIcon, label: 'Friends', color: 'text-amber-400' },
   { href: '/ball-is-life', icon: Flame, label: 'Ball is Life', color: 'text-orange-500' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
   { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meal Planner', color: 'text-teal-400' },
@@ -58,12 +58,12 @@ export function DesktopSidebar() {
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card/95 bg-transparent text-white backdrop-blur-lg md:flex">
       <div className="flex h-20 items-center justify-center border-b px-6">
-        <Link href="/home" className="flex items-center gap-2">
-          <Logo className="h-20 w-[512px]" />
+        <Link href="/home">
+          <Logo className="h-20 w-40" />
         </Link>
       </div>
 
-      <div className="p-4 border-b">
+       <div className="p-4 border-b">
          <DropdownMenu>
             <DropdownMenuTrigger asChild>
                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-all hover:bg-accent/50">
@@ -110,26 +110,25 @@ export function DesktopSidebar() {
         </DropdownMenu>
       </div>
       
-      <nav className="flex-1 p-4">
-        <div className="space-y-1">
-           {mainNavItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              return (
-                  <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-base',
-                      isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                  )}
-                  >
-                  <item.icon className={cn("h-5 w-5", !isActive && item.color)} />
-                  <span>{item.label}</span>
-                  </Link>
-              );
-          })}
-        </div>
+      <nav className="flex-1 space-y-2 p-4">
+        {mainNavItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+                <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-sm',
+                    isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                )}
+                >
+                <item.icon className={cn("h-5 w-5", !isActive && item.color)} />
+                <span>{item.label}</span>
+                </Link>
+            );
+        })}
       </nav>
+
     </aside>
   );
 }

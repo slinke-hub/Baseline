@@ -56,30 +56,30 @@ export function AdminHeader() {
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <Link href="/admin" className="flex items-center gap-2">
-          <Logo className="h-14 w-[512px]" />
+          <Logo className="h-14 w-32" />
         </Link>
       </div>
 
-      <nav className="hidden items-center gap-2 md:flex">
+      <nav className="hidden items-center gap-1 md:flex">
          {adminNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-                <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all',
-                    isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                )}
-                >
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
-                </Link>
+                <Button key={item.href} asChild variant={isActive ? 'default' : 'ghost'} size="sm">
+                    <Link
+                    href={item.href}
+                    className={cn(
+                        'flex items-center gap-2',
+                    )}
+                    >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                    </Link>
+                </Button>
             );
         })}
       </nav>
       
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
