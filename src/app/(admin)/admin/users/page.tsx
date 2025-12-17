@@ -44,10 +44,11 @@ import type { AppUser } from '@/lib/types';
 const initialUsers: AppUser[] = [
     { uid: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 9999 },
     { uid: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
-    { uid: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8, xp: 1250 },
-    { uid: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8, xp: 2300 },
-    { uid: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 1, totalSessions: 12, xp: 800 },
-    { uid: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 8, totalSessions: 8, xp: 3000 },
+    { uid: 'user-seller-1', displayName: 'Delivery Dan', email: 'seller@baseline.dev', role: 'seller' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
+    { uid: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8, xp: 1250, address: '123 Main St, Akron, OH' },
+    { uid: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8, xp: 2300, address: '456 High St, Charlotte, NC' },
+    { uid: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 1, totalSessions: 12, xp: 800, address: '789 Slim Ave, Washington, DC' },
+    { uid: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 8, totalSessions: 8, xp: 3000, address: '901 Pelican Way, New Orleans, LA' },
 ];
 
 
@@ -129,6 +130,7 @@ export default function AdminUsersPage() {
         switch(role) {
             case 'admin': return <Badge variant="default">{role}</Badge>;
             case 'coach': return <Badge className="bg-blue-500 text-white hover:bg-blue-500/80">{role}</Badge>;
+            case 'seller': return <Badge className="bg-orange-500 text-white hover:bg-orange-500/80">{role}</Badge>;
             case 'client': return <Badge variant="secondary">{role}</Badge>;
             default: return <Badge variant="outline">{role}</Badge>;
         }
@@ -178,6 +180,7 @@ export default function AdminUsersPage() {
                                 <SelectContent>
                                   <SelectItem value="client">Client</SelectItem>
                                   <SelectItem value="coach">Coach</SelectItem>
+                                  <SelectItem value="seller">Seller</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                               </Select>
@@ -276,6 +279,7 @@ export default function AdminUsersPage() {
                                 <SelectContent>
                                   <SelectItem value="client">Client</SelectItem>
                                   <SelectItem value="coach">Coach</SelectItem>
+                                  <SelectItem value="seller">Seller</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                               </Select>

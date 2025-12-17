@@ -14,7 +14,7 @@
         "role": {
             "type": "string",
             "description": "The user's role in the application.",
-            "enum": ["client", "coach", "admin"]
+            "enum": ["client", "coach", "admin", "seller"]
         },
         "age": {
           "type": "number",
@@ -52,6 +52,10 @@
         "xp": {
             "type": "number",
             "description": "Experience points earned by the user."
+        },
+        "address": {
+          "type": "string",
+          "description": "The user's primary shipping address."
         }
       },
       "required": [
@@ -320,9 +324,10 @@
         "description": { "type": "string", "description": "A detailed description of the product." },
         "imageId": { "type": "string", "description": "The ID for the product's image in placeholder-images.json" },
         "priceXp": { "type": "number", "description": "The price of the product in XP points." },
-        "priceCash": { "type": "number", "description": "The cash price of the product." }
+        "priceCash": { "type": "number", "description": "The cash price of the product." },
+        "stock": { "type": "number", "description": "The number of items currently in stock." }
       },
-      "required": ["id", "name", "imageId", "priceXp", "priceCash"]
+      "required": ["id", "name", "imageId", "priceXp", "priceCash", "stock"]
     },
     "UserOrder": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -511,7 +516,7 @@
         "definition": {
           "entityName": "UserOrder",
           "schema": { "$ref": "#/backend/entities/UserOrder" },
-          "description": "Stores a user's order history. Writable only by the user.",
+          "description": "Stores a user's order history. Writable only by the user, readable by admins/sellers.",
           "params": [
             { "name": "userId", "description": "The unique identifier of the user." },
             { "name": "orderId", "description": "The unique identifier of the order." }

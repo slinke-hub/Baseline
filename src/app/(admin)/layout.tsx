@@ -13,8 +13,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { appUser, loading } = useAuth();
   const router = useRouter();
 
+  const allowedRoles = ['admin', 'coach', 'seller'];
+
   useEffect(() => {
-    if (!loading && (!appUser || (appUser.role !== 'admin' && appUser.role !== 'coach'))) {
+    if (!loading && (!appUser || !allowedRoles.includes(appUser.role))) {
       router.replace('/login');
     }
   }, [appUser, loading, router]);
@@ -27,7 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (appUser.role !== 'admin' && appUser.role !== 'coach') {
+  if (!allowedRoles.includes(appUser.role)) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background p-4">
             <div className="flex flex-col items-center text-center gap-4">

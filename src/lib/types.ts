@@ -6,7 +6,7 @@ export interface AppUser {
   email: string;
   displayName: string;
   photoURL: string;
-  role: 'admin' | 'client' | 'coach';
+  role: 'admin' | 'client' | 'coach' | 'seller';
   age?: number;
   height?: number; // in cm
   weight?: number; // in kg
@@ -15,6 +15,7 @@ export interface AppUser {
   sessionsCompleted?: number;
   totalSessions?: number;
   xp?: number;
+  address?: string;
 }
 
 export type WorkoutCategory = 'Shooting' | 'Ball Handling' | 'Defense' | 'Conditioning' | 'Vertical Jump';
@@ -90,6 +91,7 @@ export interface Product {
   imageId: string;
   priceXp: number;
   priceCash: number;
+  stock: number;
 }
 
 export interface UserOrder {

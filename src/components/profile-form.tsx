@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -24,6 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { useFirebase } from '@/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Textarea } from './ui/textarea';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Name is too short.'),
@@ -32,6 +34,7 @@ const profileSchema = z.object({
   weight: z.coerce.number().optional(),
   position: z.enum(['PG', 'SG', 'SF', 'PF', 'C']).optional(),
   experienceLevel: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Pro']).optional(),
+  address: z.string().optional(),
 });
 
 export function ProfileForm() {
@@ -58,6 +61,7 @@ export function ProfileForm() {
       weight: undefined,
       position: undefined,
       experienceLevel: undefined,
+      address: '',
     },
   });
   
@@ -70,6 +74,7 @@ export function ProfileForm() {
         weight: appUser.weight || undefined,
         position: appUser.position || undefined,
         experienceLevel: appUser.experienceLevel || undefined,
+        address: appUser.address || '',
       })
     }
   }, [appUser, form]);
@@ -161,6 +166,10 @@ export function ProfileForm() {
 
             <FormField control={form.control} name="displayName" render={({ field }) => (
                 <FormItem><FormLabel>Display Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )}/>
+
+             <FormField control={form.control} name="address" render={({ field }) => (
+                <FormItem><FormLabel>Shipping Address</FormLabel><FormControl><Textarea placeholder="123 Main St..." {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

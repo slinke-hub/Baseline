@@ -147,6 +147,7 @@ export const mockProducts: Product[] = [
     imageId: 'merch-hat',
     priceXp: 30,
     priceCash: 20,
+    stock: 100,
   },
   {
     id: 'prod-shirt',
@@ -155,6 +156,7 @@ export const mockProducts: Product[] = [
     imageId: 'merch-tee',
     priceXp: 50,
     priceCash: 25,
+    stock: 50,
   },
   {
     id: 'prod-bottle',
@@ -163,6 +165,7 @@ export const mockProducts: Product[] = [
     imageId: 'merch-bottle',
     priceXp: 100,
     priceCash: 30,
+    stock: 75,
   },
   {
     id: 'prod-2',
@@ -171,6 +174,7 @@ export const mockProducts: Product[] = [
     imageId: 'merch-hoodie',
     priceXp: 3000,
     priceCash: 50,
+    stock: 25,
   },
   {
     id: 'prod-3',
@@ -179,7 +183,6 @@ export const mockProducts: Product[] = [
     imageId: 'merch-jersey',
     priceXp: 2500,
     priceCash: 40,
+    stock: 30,
   },
 ];
-
-    
