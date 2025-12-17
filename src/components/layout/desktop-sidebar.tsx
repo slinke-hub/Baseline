@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users, Star, ShoppingCart } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users, Star, ShoppingCart, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import { useFirebase } from '@/firebase';
 const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/friends', icon: Users, label: 'Friends' },
+  { href: '/ball-is-life', icon: Camera, label: 'Ball is Life' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meal Planner' },
   { href: '/my-sessions', icon: ClipboardList, label: 'My Sessions' },
