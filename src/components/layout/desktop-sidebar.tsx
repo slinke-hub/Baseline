@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users, Star, ShoppingCart, Flame } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users, Star, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -15,11 +15,13 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useFirebase } from '@/firebase';
 
 const mainNavItems = [
@@ -55,13 +57,60 @@ export function DesktopSidebar() {
 
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card/95 bg-transparent text-white backdrop-blur-lg md:flex">
-      <div className="flex h-20 items-center justify-center px-6">
+      <div className="flex h-20 items-center justify-center border-b px-6">
         <Link href="/home" className="flex items-center gap-2">
           <Logo className="h-20 w-[512px]" />
         </Link>
       </div>
+
+      <div className="p-4 border-b">
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                 <button className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-all hover:bg-accent/50">
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage src={appUser?.photoURL} alt={appUser?.displayName || 'User'} />
+                        <AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col overflow-hidden">
+                        <span className="truncate font-medium text-foreground">{appUser?.displayName || 'User'}</span>
+                        <span className="truncate text-xs text-muted-foreground">{appUser?.email}</span>
+                        <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-400" />
+                            <span className="text-xs text-muted-foreground font-bold">{appUser?.xp || 0} XP</span>
+                        </div>
+                    </div>
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{appUser?.displayName}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{appUser?.email}</p>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                 <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>View Profile</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="/settings">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       
-      <nav className="flex flex-1 flex-col justify-between p-4">
+      <nav className="flex-1 p-4">
         <div className="space-y-1">
            {mainNavItems.map((item) => {
               const isActive = pathname.startsWith(item.href);
@@ -79,52 +128,6 @@ export function DesktopSidebar() {
                   </Link>
               );
           })}
-        </div>
-        
-        <div>
-          <TooltipProvider>
-            <div className="space-y-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link href="/profile" className="flex w-full items-center gap-3 rounded-lg px-3 py-3 transition-all hover:bg-accent/50">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={appUser?.photoURL} alt={appUser?.displayName || 'User'} />
-                        <AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col overflow-hidden text-left">
-                        <span className="truncate font-medium text-foreground">{appUser?.displayName || 'User'}</span>
-                        <span className="truncate text-xs text-muted-foreground">{appUser?.email}</span>
-                        <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 text-yellow-400" />
-                            <span className="text-xs text-muted-foreground font-bold">{appUser?.xp || 0} XP</span>
-                        </div>
-                      </div>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">View Profile</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                  <TooltipTrigger asChild>
-                      <Link href="/settings" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-muted-foreground hover:bg-accent/50 hover:text-foreground', pathname.startsWith('/settings') && 'bg-accent/50 text-foreground')}>
-                          <Settings className="h-5 w-5" />
-                          <span>Settings</span>
-                      </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">Settings</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-start gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground" onClick={handleLogout}>
-                    <LogOut className="h-5 w-5" />
-                    <span>Log Out</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Log Out</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
         </div>
       </nav>
     </aside>
