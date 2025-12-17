@@ -1,74 +1,58 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2, ShoppingCart, Star } from 'lucide-react';
+import { Loader2, ShoppingCart, Star, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { mockProducts } from '@/lib/mock-data';
 import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
 import type { Product } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from '@/components/ui/sheet';
+import { ProductCard } from '@/components/product-card';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
-function ProductCard({ product }: { product: Product }) {
-  const productImage = placeholderData.placeholderImages.find(p => p.id === product.imageId);
-  const { toast } = useToast();
-
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent link navigation
-    toast({
-        title: "Added to Cart!",
-        description: `${product.name} has been added to your cart.`,
-    });
-    // In a real app, you would add logic here to update the cart state.
-  };
-
-  return (
-    <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-        <Link href={`/store/${product.id}`} className="flex flex-col h-full">
-            {productImage && (
-            <div className="relative h-64 w-full">
-                <Image
-                src={productImage.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                data-ai-hint={productImage.imageHint}
-                />
-            </div>
-            )}
-            <CardHeader>
-                <CardTitle>{product.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1">
-                <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-            </CardContent>
-        </Link>
-        <div className="p-6 pt-0">
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-400"/>
-                    <span className="font-bold">{product.priceXp.toLocaleString()} XP</span>
-                </div>
-                <Badge variant="secondary">${product.priceCash.toFixed(2)}</Badge>
-            </div>
-            <Button className="w-full" onClick={handleAddToCart}>
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
-            </Button>
-        </div>
-    </Card>
-  );
-}
+type CartItem = {
+    product: Product;
+    quantity: number;
+};
 
 export default function StorePage() {
   const { appUser, loading } = useAuth();
+  const { toast } = useToast();
   // In a real app, products would be fetched from Firestore
   const products = mockProducts;
+  const [cart, setCart] = useState<CartItem[]>([]);
+
+  const handleAddToCart = (product: Product, quantity: number) => {
+    setCart(prevCart => {
+        const existingItem = prevCart.find(item => item.product.id === product.id);
+        if (existingItem) {
+            return prevCart.map(item =>
+                item.product.id === product.id
+                    ? { ...item, quantity: item.quantity + quantity }
+                    : item
+            );
+        }
+        return [...prevCart, { product, quantity }];
+    });
+    toast({
+      title: "Added to Cart",
+      description: `${quantity} x ${product.name} has been added.`
+    })
+  };
+  
+  const handleRemoveFromCart = (productId: string) => {
+      setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+  };
+
+  const totalItemsInCart = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartSubtotal = cart.reduce((total, item) => total + item.product.priceXp * item.quantity, 0);
 
   if (loading) {
     return (
@@ -96,7 +80,9 @@ export default function StorePage() {
             <Sheet>
               <SheetTrigger asChild>
                 <Button>
-                  <ShoppingCart className="mr-2" /> Cart
+                  <ShoppingCart className="mr-2" /> 
+                  Cart 
+                  {totalItemsInCart > 0 && <Badge className="ml-2">{totalItemsInCart}</Badge>}
                 </Button>
               </SheetTrigger>
               <SheetContent>
@@ -106,11 +92,46 @@ export default function StorePage() {
                     Review items before checkout. (This is a demo)
                   </SheetDescription>
                 </SheetHeader>
-                <div className="py-8 text-center text-muted-foreground">
-                  <p>Your cart is empty.</p>
+                <div className="py-8">
+                  {cart.length > 0 ? (
+                    <div className="space-y-4">
+                      {cart.map(item => {
+                          const productImage = placeholderData.placeholderImages.find(p => p.id === item.product.imageId);
+                          return (
+                            <div key={item.product.id} className="flex gap-4">
+                                <Image
+                                    src={productImage?.imageUrl || ''}
+                                    alt={item.product.name}
+                                    width={64}
+                                    height={64}
+                                    className="rounded-md object-cover"
+                                />
+                                <div className="flex-1">
+                                    <p className="font-semibold">{item.product.name}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {item.quantity} x {item.product.priceXp.toLocaleString()} XP
+                                    </p>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => handleRemoveFromCart(item.product.id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            </div>
+                          )
+                      })}
+                      <Separator />
+                       <div className="flex justify-between font-semibold">
+                           <span>Subtotal</span>
+                           <span className="flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400"/> {cartSubtotal.toLocaleString()} XP</span>
+                       </div>
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                        <p>Your cart is empty.</p>
+                    </div>
+                  )}
                 </div>
                 <SheetFooter>
-                  <Button disabled className="w-full">Checkout</Button>
+                  <Button disabled={cart.length === 0} className="w-full">Checkout</Button>
                 </SheetFooter>
               </SheetContent>
             </Sheet>
@@ -120,7 +141,7 @@ export default function StorePage() {
       {products.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map(product => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
             ))}
         </div>
       ) : (
