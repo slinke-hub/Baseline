@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -11,38 +10,55 @@ import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
 import type { Product } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 function ProductCard({ product }: { product: Product }) {
   const productImage = placeholderData.placeholderImages.find(p => p.id === product.imageId);
+  const { toast } = useToast();
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent link navigation
+    toast({
+        title: "Added to Cart!",
+        description: `${product.name} has been added to your cart.`,
+    });
+    // In a real app, you would add logic here to update the cart state.
+  };
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-      <Link href={`/store/${product.id}`} className="flex flex-col h-full">
-        {productImage && (
-          <div className="relative h-64 w-full">
-            <Image
-              src={productImage.imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover"
-              data-ai-hint={productImage.imageHint}
-            />
-          </div>
-        )}
-        <CardHeader>
-          <CardTitle>{product.name}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1">
-          <p className="text-sm text-muted-foreground">{product.description}</p>
-        </CardContent>
-        <div className="p-6 pt-0 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-400"/>
-                <span className="font-bold">{product.priceXp.toLocaleString()} XP</span>
+        <Link href={`/store/${product.id}`} className="flex flex-col h-full">
+            {productImage && (
+            <div className="relative h-64 w-full">
+                <Image
+                src={productImage.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                data-ai-hint={productImage.imageHint}
+                />
             </div>
-            <Badge variant="secondary">${product.priceCash.toFixed(2)}</Badge>
+            )}
+            <CardHeader>
+                <CardTitle>{product.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1">
+                <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+            </CardContent>
+        </Link>
+        <div className="p-6 pt-0">
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-400"/>
+                    <span className="font-bold">{product.priceXp.toLocaleString()} XP</span>
+                </div>
+                <Badge variant="secondary">${product.priceCash.toFixed(2)}</Badge>
+            </div>
+            <Button className="w-full" onClick={handleAddToCart}>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Add to Cart
+            </Button>
         </div>
-      </Link>
     </Card>
   );
 }
