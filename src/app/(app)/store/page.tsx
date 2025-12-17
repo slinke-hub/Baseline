@@ -34,10 +34,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, increment, writeBatch } from 'firebase/firestore';
 
 
 type CartItem = {
@@ -50,10 +49,10 @@ export default function StorePage() {
   const { firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
-  // In a real app, products would be fetched from Firestore
   const products = mockProducts;
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showCodAlert, setShowCodAlert] = useState(false);
 
   const handleAddToCart = (product: Product, quantity: number) => {
     setCart(prevCart => {
@@ -77,6 +76,53 @@ export default function StorePage() {
     setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
   };
   
+  const processOrder = async (paymentMethod: 'xp' | 'cod') => {
+    if (!user) return;
+    setIsCheckingOut(true);
+    
+    const totalXpCost = cart.reduce((acc, item) => acc + item.product.priceXp * item.quantity, 0);
+    const totalCashCost = cart.reduce((acc, item) => acc + item.product.priceCash * item.quantity, 0);
+    
+    try {
+        const batch = writeBatch(firestore);
+        
+        cart.forEach(item => {
+            const orderRef = doc(collection(firestore, 'users', user.uid, 'orders'));
+            const orderData: Omit<UserOrder, 'id' | 'createdAt'> = {
+                userId: user.uid,
+                productId: item.product.id,
+                productName: item.product.name,
+                productImageId: item.product.imageId,
+                paymentMethod: paymentMethod,
+                amountPaid: paymentMethod === 'xp' ? item.product.priceXp * item.quantity : item.product.priceCash * item.quantity,
+                status: 'Pending',
+            };
+            batch.set(orderRef, { ...orderData, createdAt: serverTimestamp() });
+        });
+
+        if (paymentMethod === 'xp') {
+            const userDocRef = doc(firestore, 'users', user.uid);
+            batch.update(userDocRef, { xp: increment(-totalXpCost) });
+        }
+        
+        await batch.commit();
+        
+        setCart([]);
+        toast({
+            title: "Checkout Successful!",
+            description: `Your order has been placed.`,
+        });
+        router.push('/store/my-orders');
+
+    } catch (e) {
+        console.error("Checkout failed:", e);
+        toast({ title: "Checkout Failed", description: "There was an error processing your order. Please try again.", variant: 'destructive' });
+    } finally {
+        setIsCheckingOut(false);
+        setShowCodAlert(false);
+    }
+  }
+
   const handleCheckout = async () => {
       if (!user || !appUser) {
           toast({ title: "Not Logged In", description: "You must be logged in to checkout.", variant: 'destructive' });
@@ -87,64 +133,18 @@ export default function StorePage() {
           return;
       }
 
-      setIsCheckingOut(true);
+      const totalXpCost = cart.reduce((acc, item) => acc + item.product.priceXp * item.quantity, 0);
 
-      const totalCost = cart.reduce((acc, item) => acc + item.product.priceXp * item.quantity, 0);
-
-      if ((appUser.xp || 0) < totalCost) {
-          toast({ title: "Insufficient XP", description: `You need ${totalCost.toLocaleString()} XP but only have ${(appUser.xp || 0).toLocaleString()}.`, variant: 'destructive' });
-          setIsCheckingOut(false);
-          return;
-      }
-
-      try {
-          // Create an order for each item in the cart
-          const orderPromises = cart.map(item => {
-              const orderData: Omit<UserOrder, 'id' | 'createdAt'> = {
-                  userId: user.uid,
-                  productId: item.product.id,
-                  productName: item.product.name,
-                  productImageId: item.product.imageId,
-                  paymentMethod: 'xp', // Assuming XP payment for this flow
-                  amountPaid: item.product.priceXp * item.quantity,
-                  status: 'Pending',
-              };
-              const ordersColRef = collection(firestore, 'users', user.uid, 'orders');
-              return addDoc(ordersColRef, { ...orderData, createdAt: serverTimestamp() }).catch(serverError => {
-                  const permissionError = new FirestorePermissionError({
-                      path: ordersColRef.path,
-                      operation: 'create',
-                      requestResourceData: orderData,
-                  });
-                  errorEmitter.emit('permission-error', permissionError);
-                  throw new Error(`Firestore permission denied while creating order for ${item.product.name}.`);
-              });
-          });
-
-          await Promise.all(orderPromises);
-
-          // Deduct XP
-          const userDocRef = doc(firestore, 'users', user.uid);
-          await updateDoc(userDocRef, {
-              xp: increment(-totalCost)
-          });
-          
-          setCart([]);
-          toast({
-              title: "Checkout Successful!",
-              description: `Your order has been placed. You spent ${totalCost.toLocaleString()} XP.`,
-          });
-          router.push('/store/my-orders');
-      } catch (e) {
-          console.error("Checkout failed:", e);
-          toast({ title: "Checkout Failed", description: "There was an error processing your order. Please try again.", variant: 'destructive' });
-      } finally {
-          setIsCheckingOut(false);
+      if ((appUser.xp || 0) < totalXpCost) {
+          setShowCodAlert(true);
+      } else {
+          await processOrder('xp');
       }
   };
 
   const totalItemsInCart = cart.reduce((total, item) => total + item.quantity, 0);
-  const cartSubtotal = cart.reduce((total, item) => total + item.product.priceXp * item.quantity, 0);
+  const cartSubtotalXP = cart.reduce((total, item) => total + item.product.priceXp * item.quantity, 0);
+  const cartSubtotalCash = cart.reduce((total, item) => total + item.product.priceCash * item.quantity, 0);
 
   if (loading) {
     return (
@@ -213,7 +213,7 @@ export default function StorePage() {
                     <Separator />
                     <div className="flex justify-between font-semibold">
                       <span>Subtotal</span>
-                      <span className="flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400" /> {cartSubtotal.toLocaleString()} XP</span>
+                      <span className="flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400" /> {cartSubtotalXP.toLocaleString()} XP</span>
                     </div>
                   </div>
                 ) : (
@@ -223,23 +223,21 @@ export default function StorePage() {
                 )}
               </div>
               <SheetFooter>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button disabled={cart.length === 0 || isCheckingOut} className="w-full">
+                <AlertDialog open={showCodAlert} onOpenChange={setShowCodAlert}>
+                    <Button onClick={handleCheckout} disabled={cart.length === 0 || isCheckingOut} className="w-full">
                        {isCheckingOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Star className="mr-2 h-4 w-4" />}
-                      Checkout with XP
+                      Checkout
                     </Button>
-                  </AlertDialogTrigger>
                    <AlertDialogContent>
                       <AlertDialogHeader>
-                          <AlertDialogTitle>Confirm Checkout</AlertDialogTitle>
+                          <AlertDialogTitle>Insufficient XP</AlertDialogTitle>
                           <AlertDialogDescription>
-                              This will spend a total of <span className="font-bold text-foreground">{cartSubtotal.toLocaleString()}</span> XP. Are you sure you want to proceed?
+                              You don't have enough XP to complete this purchase. Would you like to proceed with Cash on Delivery for ${cartSubtotalCash.toFixed(2)} instead?
                           </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleCheckout}>Confirm Purchase</AlertDialogAction>
+                          <AlertDialogAction onClick={() => processOrder('cod')}>Pay with Cash</AlertDialogAction>
                       </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
