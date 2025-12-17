@@ -123,7 +123,10 @@ export default function HomePage() {
                 <span>{stat.label}</span>
                 <span className="text-muted-foreground">{stat.value} / {stat.goal}</span>
               </div>
-              <Progress value={(stat.value / stat.goal) * 100} valueBuffer={(stat.dailyValue / stat.goal) * 100} className="h-2"/>
+               <div className="relative h-2 w-full">
+                  <Progress value={(stat.value / stat.goal) * 100} className="absolute h-2 w-full bg-primary/50" />
+                  <Progress value={(stat.dailyValue / stat.goal) * 100} className="absolute h-2 w-full" />
+              </div>
             </div>
           ))}
           <Button asChild variant="outline" className="mt-4 w-full">
