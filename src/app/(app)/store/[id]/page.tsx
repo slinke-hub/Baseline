@@ -28,6 +28,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+export async function generateStaticParams() {
+  return mockProducts.map((product) => ({
+    id: product.id,
+  }));
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
