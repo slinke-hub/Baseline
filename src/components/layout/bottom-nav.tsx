@@ -3,13 +3,36 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, User, ShoppingCart, Camera } from 'lucide-react';
+import { Home, Dumbbell, User, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const BasketballFlameIcon = ({ className }: { className?: string }) => (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" />
+      <path d="M12 12a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" />
+      <path d="M12 12c-3 0-5.5 2.5-5.5 5.5S9 23 12 23s5.5-2.5 5.5-5.5" />
+      <path d="M12 12c3 0 5.5-2.5 5.5-5.5S15 1 12 1s-5.5 2.5-5.5 5.5" />
+      <path d="M2 12h20" />
+      <path d="M12 2v20" />
+      <path d="M15.5 15.5c-2-2-2.5-4-1-6" />
+      <path d="M8.5 8.5c2 2 2.5 4 1 6" />
+      <path d="M10 19a3.5 3.5 0 0 1-3-5.5c.5-1 1.5-2 3-2s2.5 1 3 2c.5 1 .5 3-1 4.5" />
+      <path d="M12 22c-2.5 0-4.5-2-4.5-4.5" />
+    </svg>
+  );
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/ball-is-life', icon: Camera, label: 'Ball is Life' },
+  { href: '/ball-is-life', icon: BasketballFlameIcon, label: 'Ball is Life' },
   { href: '/store', icon: ShoppingCart, label: 'Store' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
