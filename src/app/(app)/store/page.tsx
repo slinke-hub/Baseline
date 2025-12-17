@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import placeholderData from '@/lib/placeholder-images.json';
 import type { Product } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetDescription } from '@/components/ui/sheet';
 
 function ProductCard({ product }: { product: Product }) {
   const productImage = placeholderData.placeholderImages.find(p => p.id === product.imageId);
@@ -88,9 +90,30 @@ export default function StorePage() {
                 <p className="text-sm text-muted-foreground">Your Balance</p>
                 <p className="font-bold flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400" /> {appUser?.xp?.toLocaleString() || 0} XP</p>
             </div>
-            <Button asChild>
+            <Button asChild variant="outline">
                 <Link href="/store/my-orders">My Orders</Link>
             </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button>
+                  <ShoppingCart className="mr-2" /> Cart
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Your Cart</SheetTitle>
+                  <SheetDescription>
+                    Review items before checkout. (This is a demo)
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="py-8 text-center text-muted-foreground">
+                  <p>Your cart is empty.</p>
+                </div>
+                <SheetFooter>
+                  <Button disabled className="w-full">Checkout</Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
         </div>
       </div>
       
