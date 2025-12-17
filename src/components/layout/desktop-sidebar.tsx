@@ -46,18 +46,18 @@ const BasketballFlameIcon = ({ className }: { className?: string }) => (
   );
 
 const mainNavItems = [
-  { href: '/home', icon: Home, label: 'Home' },
-  { href: '/friends', icon: Users, label: 'Friends' },
-  { href: '/ball-is-life', icon: BasketballFlameIcon, label: 'Ball is Life' },
-  { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meal Planner' },
-  { href: '/my-sessions', icon: ClipboardList, label: 'My Sessions' },
-  { href: '/schedule', icon: Calendar, label: 'Schedule'},
-  { href: '/chat', icon: MessageSquare, label: 'Chat'},
-  { href: '/locations', icon: MapPin, label: 'Courts' },
-  { href: '/progress', icon: BarChart, label: 'Progress' },
-  { href: '/bmi-calculator', icon: Calculator, label: 'BMI Calculator' },
-  { href: '/store', icon: ShoppingCart, label: 'Store' },
+  { href: '/home', icon: Home, label: 'Home', color: 'text-sky-400' },
+  { href: '/friends', icon: Users, label: 'Friends', color: 'text-amber-400' },
+  { href: '/ball-is-life', icon: BasketballFlameIcon, label: 'Ball is Life', color: 'text-orange-500' },
+  { href: '/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
+  { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meal Planner', color: 'text-teal-400' },
+  { href: '/my-sessions', icon: ClipboardList, label: 'My Sessions', color: 'text-cyan-400' },
+  { href: '/schedule', icon: Calendar, label: 'Schedule', color: 'text-blue-400' },
+  { href: '/chat', icon: MessageSquare, label: 'Chat', color: 'text-green-400' },
+  { href: '/locations', icon: MapPin, label: 'Courts', color: 'text-rose-400' },
+  { href: '/progress', icon: BarChart, label: 'Progress', color: 'text-violet-400' },
+  { href: '/bmi-calculator', icon: Calculator, label: 'BMI Calculator', color: 'text-lime-400' },
+  { href: '/store', icon: ShoppingCart, label: 'Store', color: 'text-pink-400' },
 ];
 
 export function DesktopSidebar() {
@@ -97,7 +97,7 @@ export function DesktopSidebar() {
                       isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                   )}
                   >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className={cn("h-5 w-5", !isActive && item.color)} />
                   <span>{item.label}</span>
                   </Link>
               );
