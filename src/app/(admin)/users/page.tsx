@@ -42,7 +42,7 @@ import type { AppUser } from '@/lib/types';
 
 // Mock user data for demonstration
 const initialUsers: AppUser[] = [
-    { uid: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
+    { uid: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 9999 },
     { uid: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
     { uid: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8, xp: 1250 },
     { uid: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8, xp: 2300 },
@@ -105,7 +105,14 @@ export default function AdminUsersPage() {
         const xp = formData.get('xp') as string;
 
         setUsers(currentUsers => currentUsers.map(user => 
-            user.uid === selectedUser.uid ? { ...user, displayName: name, email, role, totalSessions: parseInt(totalSessions, 10) || user.totalSessions, xp: parseInt(xp, 10) || user.xp } : user
+            user.uid === selectedUser.uid ? { 
+                ...user, 
+                displayName: name, 
+                email, 
+                role, 
+                totalSessions: parseInt(totalSessions, 10) || user.totalSessions, 
+                xp: parseInt(xp, 10) || 0
+            } : user
         ));
 
         toast({ title: 'User Updated', description: `Updated details for ${name}.` });
@@ -273,6 +280,12 @@ export default function AdminUsersPage() {
                                 </SelectContent>
                               </Select>
                         </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="xp" className="text-right">
+                                XP Points
+                            </Label>
+                            <Input id="xp" name="xp" type="number" defaultValue={selectedUser?.xp || 0} className="col-span-3" required/>
+                        </div>
                          {selectedUser?.role === 'client' && (
                             <>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -280,12 +293,6 @@ export default function AdminUsersPage() {
                                     Total Sessions
                                 </Label>
                                 <Input id="totalSessions" name="totalSessions" type="number" defaultValue={selectedUser?.totalSessions} className="col-span-3" required/>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="xp" className="text-right">
-                                    XP Points
-                                </Label>
-                                <Input id="xp" name="xp" type="number" defaultValue={selectedUser?.xp} className="col-span-3" required/>
                                 </div>
                             </>
                          )}

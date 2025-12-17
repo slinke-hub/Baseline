@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Trash2, Edit, MoreVertical, Eye } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -102,9 +102,17 @@ export default function AdminUsersPage() {
         const email = formData.get('email') as string;
         const role = formData.get('role') as AppUser['role'];
         const totalSessions = formData.get('totalSessions') as string;
+        const xp = formData.get('xp') as string;
 
         setUsers(currentUsers => currentUsers.map(user => 
-            user.uid === selectedUser.uid ? { ...user, displayName: name, email, role, totalSessions: parseInt(totalSessions, 10) || user.totalSessions } : user
+            user.uid === selectedUser.uid ? { 
+                ...user, 
+                displayName: name, 
+                email, 
+                role, 
+                totalSessions: parseInt(totalSessions, 10) || user.totalSessions,
+                xp: parseInt(xp, 10) || 0,
+             } : user
         ));
 
         toast({ title: 'User Updated', description: `Updated details for ${name}.` });
@@ -189,6 +197,7 @@ export default function AdminUsersPage() {
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Role</TableHead>
+                                <TableHead>XP</TableHead>
                                 <TableHead>Monthly Sessions</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -199,6 +208,12 @@ export default function AdminUsersPage() {
                                     <TableCell className="font-medium">{user.displayName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{getRoleBadge(user.role)}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-1">
+                                            <Star className="h-4 w-4 text-yellow-400" />
+                                            {user.xp?.toLocaleString() || 0}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>{user.role === 'client' ? `${user.sessionsCompleted} / ${user.totalSessions}` : 'N/A'}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
@@ -265,6 +280,12 @@ export default function AdminUsersPage() {
                                 </SelectContent>
                               </Select>
                         </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="xp" className="text-right">
+                            XP Points
+                          </Label>
+                          <Input id="xp" name="xp" type="number" defaultValue={selectedUser?.xp || 0} className="col-span-3" required/>
+                        </div>
                          {selectedUser?.role === 'client' && (
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="totalSessions" className="text-right">
@@ -302,5 +323,3 @@ export default function AdminUsersPage() {
         </>
     )
 }
-
-    
