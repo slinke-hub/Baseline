@@ -129,6 +129,24 @@ export default function BallIsLifePage() {
       }
     }
   };
+  
+  const getCurrentLocation = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            return reject("Geolocation is not supported.");
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                // In a real app, use a reverse geocoding service. Here we mock it.
+                resolve(`Court near lat: ${latitude.toFixed(4)}, lon: ${longitude.toFixed(4)}`);
+            },
+            () => {
+                return reject("Unable to retrieve your location.");
+            }
+        );
+    });
+  };
 
   const handlePost = async () => {
     if (!capturedImage || !user || !appUser) {
@@ -138,6 +156,8 @@ export default function BallIsLifePage() {
     setIsSubmitting(true);
 
     try {
+      const location = await getCurrentLocation();
+
       const storage = getStorage(firebaseApp);
       const selfieRef = ref(storage, `ball-is-life/${user.uid}/${Date.now()}.jpg`);
       
@@ -149,7 +169,7 @@ export default function BallIsLifePage() {
         creatorName: appUser.displayName || "Anonymous",
         creatorPhotoUrl: appUser.photoURL || '',
         selfieUrl,
-        location: "Current Location (Mocked)", // Replace with real geolocation later
+        location,
       };
       
       const postsColRef = collection(firestore, 'ballIsLife');
@@ -175,9 +195,10 @@ export default function BallIsLifePage() {
       setCapturedImage(null);
     } catch (error) {
       console.error("Error posting:", error);
+      const errorMessage = typeof error === 'string' ? error : 'Could not share your post. Please try again.';
       toast({
         title: 'Post Failed',
-        description: 'Could not share your post. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
