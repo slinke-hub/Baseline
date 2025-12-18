@@ -3,15 +3,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, User, ShoppingCart, Flame } from 'lucide-react';
+import { Home, Dumbbell, User, ShoppingCart, Flame, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MoreMenuSheet } from './more-menu-sheet';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/ball-is-life', icon: Flame, label: 'Ball is Life' },
   { href: '/store', icon: ShoppingCart, label: 'Store' },
-  { href: '/profile', icon: User, label: 'Profile' },
 ];
 
 export function BottomNav() {
@@ -36,6 +36,7 @@ export function BottomNav() {
             </Link>
           );
         })}
+        <MoreMenuSheet />
       </div>
     </nav>
   );

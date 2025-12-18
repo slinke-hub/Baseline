@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useFirebase } from '@/firebase';
 
-const mainNavItems = [
+export const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home', color: 'text-sky-400' },
   { href: '/friends', icon: FriendsIcon, label: 'Friends', color: 'text-amber-400' },
   { href: '/ball-is-life', icon: Flame, label: 'Ball is Life', color: 'text-orange-500' },
@@ -37,6 +37,8 @@ const mainNavItems = [
   { href: '/progress', icon: BarChart, label: 'Progress', color: 'text-violet-400' },
   { href: '/bmi-calculator', icon: Calculator, label: 'BMI Calculator', color: 'text-lime-400' },
   { href: '/store', icon: ShoppingCart, label: 'Store', color: 'text-pink-400' },
+  { href: '/profile', icon: User, label: 'Profile', color: 'text-indigo-400' },
+  { href: '/settings', icon: Settings, label: 'Settings', color: 'text-gray-400' },
 ];
 
 export function DesktopSidebar() {
@@ -113,6 +115,9 @@ export function DesktopSidebar() {
       <nav className="flex-1 space-y-2 p-4">
         {mainNavItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
+            // Exclude settings from main nav list
+            if (item.href === '/settings' || item.href === '/profile') return null;
+
             return (
                 <Link
                 key={item.href}
