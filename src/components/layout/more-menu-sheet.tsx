@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -16,7 +17,7 @@ import { usePathname } from 'next/navigation';
 
 export function MoreMenuSheet() {
   const pathname = usePathname();
-  const excludedItems = ['/profile', '/settings'];
+  const excludedItems = ['/profile', '/settings', '/home', '/workouts', '/ball-is-life', '/store'];
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -45,7 +46,7 @@ export function MoreMenuSheet() {
                     : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                 )}
               >
-                <item.icon className={cn('h-6 w-6', !isActive && item.color)} />
+                <item.icon className={cn('h-6 w-6', item.color)} />
                 <span className="text-xs font-semibold">{item.label}</span>
               </Link>
             );

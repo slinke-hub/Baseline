@@ -3,16 +3,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, User, ShoppingCart, Flame, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MoreMenuSheet } from './more-menu-sheet';
+import { mainNavItems } from './desktop-sidebar';
 
-const navItems = [
-  { href: '/home', icon: Home, label: 'Home' },
-  { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/ball-is-life', icon: Flame, label: 'Ball is Life' },
-  { href: '/store', icon: ShoppingCart, label: 'Store' },
-];
+const navItems = mainNavItems.filter(item => ['/home', '/workouts', '/ball-is-life', '/store'].includes(item.href));
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -31,7 +26,7 @@ export function BottomNav() {
                 isActive ? 'text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className={cn("h-5 w-5", isActive ? 'text-primary' : item.color)} />
               <span>{item.label}</span>
             </Link>
           );

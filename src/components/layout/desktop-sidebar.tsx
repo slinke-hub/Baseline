@@ -127,7 +127,7 @@ export function DesktopSidebar() {
                     isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                 )}
                 >
-                <item.icon className={cn("h-5 w-5", !isActive && item.color)} />
+                <item.icon className={cn("h-5 w-5", item.color)} />
                 <span>{item.label}</span>
                 </Link>
             );
