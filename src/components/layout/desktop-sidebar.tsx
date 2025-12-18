@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
-import { Button } from '@/components/ui/button';
 import { useAuth as useAppAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
 import {
@@ -23,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useFirebase } from '@/firebase';
+import { ScrollArea } from '../ui/scroll-area';
 
 export const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home', color: 'text-sky-400' },
@@ -112,27 +112,29 @@ export function DesktopSidebar() {
         </DropdownMenu>
       </div>
       
-      <nav className="flex-1 space-y-2 p-4">
-        {mainNavItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            // Exclude settings from main nav list
-            if (item.href === '/settings' || item.href === '/profile') return null;
+      <ScrollArea className="flex-1">
+        <nav className="space-y-2 p-4">
+            {mainNavItems.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                // Exclude settings from main nav list
+                if (item.href === '/settings' || item.href === '/profile') return null;
 
-            return (
-                <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-sm',
-                    isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                )}
-                >
-                <item.icon className={cn("h-5 w-5", item.color)} />
-                <span>{item.label}</span>
-                </Link>
-            );
-        })}
-      </nav>
+                return (
+                    <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-sm',
+                        isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                    )}
+                    >
+                    <item.icon className={cn("h-5 w-5", isActive ? '' : item.color)} />
+                    <span>{item.label}</span>
+                    </Link>
+                );
+            })}
+        </nav>
+      </ScrollArea>
 
     </aside>
   );
