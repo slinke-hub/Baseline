@@ -16,6 +16,7 @@ import { usePathname } from 'next/navigation';
 
 export function MoreMenuSheet() {
   const pathname = usePathname();
+  const excludedItems = ['/profile', '/settings'];
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -29,7 +30,9 @@ export function MoreMenuSheet() {
           <SheetTitle>More</SheetTitle>
         </SheetHeader>
         <div className="grid grid-cols-3 gap-4 py-4">
-          {mainNavItems.map(item => {
+          {mainNavItems
+            .filter(item => !excludedItems.includes(item.href))
+            .map(item => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link
