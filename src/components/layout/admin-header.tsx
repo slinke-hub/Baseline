@@ -24,6 +24,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ScrollArea } from '../ui/scroll-area';
 
 
 const adminNavItems = [
@@ -66,25 +67,29 @@ export function AdminHeader() {
                     <span className="sr-only">Open navigation menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent side="left" className="flex flex-col">
                 <nav className="grid gap-2 text-lg font-medium">
                     <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
                         <Logo className="h-14 w-32" />
                     </Link>
-                    {adminNavItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
-                                pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                            )}
-                        >
-                            <item.icon className="h-5 w-5" />
-                            {item.label}
-                        </Link>
-                    ))}
                 </nav>
+                <ScrollArea className="flex-1">
+                    <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+                        {adminNavItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(
+                                    'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
+                                     pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                                )}
+                            >
+                                <item.icon className="h-5 w-5" />
+                                {item.label}
+                            </Link>
+                        ))}
+                    </nav>
+                </ScrollArea>
             </SheetContent>
         </Sheet>
 
@@ -94,25 +99,6 @@ export function AdminHeader() {
             </Link>
         </div>
       </div>
-
-      <nav className="hidden items-center gap-1 md:flex">
-         {adminNavItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            return (
-                <Button key={item.href} asChild variant={isActive ? 'default' : 'ghost'} size="sm">
-                    <Link
-                    href={item.href}
-                    className={cn(
-                        'flex items-center gap-2',
-                    )}
-                    >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                    </Link>
-                </Button>
-            );
-        })}
-      </nav>
       
       <div className="flex items-center gap-2">
         <DropdownMenu>
