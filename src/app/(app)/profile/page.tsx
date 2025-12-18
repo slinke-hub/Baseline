@@ -32,28 +32,28 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Profile</h1>
         <p className="text-muted-foreground">View and manage your personal information.</p>
       </div>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20 border-2 border-primary">
+        <CardHeader className="flex flex-col items-center sm:flex-row sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-primary">
               <AvatarImage src={appUser?.photoURL} alt={appUser?.displayName || 'User'} />
               <AvatarFallback className="text-3xl">{getInitials(appUser?.displayName)}</AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-2xl">{appUser?.displayName}</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">{appUser?.displayName}</CardTitle>
               {appUser?.position && appUser?.experienceLevel && (
-                 <div className="flex items-center gap-2 mt-1">
+                 <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
                     <Badge variant="secondary">{appUser.position}</Badge>
                     <Badge variant="outline">{appUser.experienceLevel}</Badge>
                  </div>
               )}
             </div>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/profile/edit"><Edit className="mr-2 h-4 w-4" /> Edit Profile</Link>
           </Button>
         </CardHeader>
