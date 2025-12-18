@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, MoreVertical, User, NotebookPen, ShoppingCart, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, User, NotebookPen, ShoppingCart, Package, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
@@ -18,37 +18,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 
 const adminNavItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/users', icon: Users, label: 'Users' },
+  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
   { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals' },
+  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
   { href: '/admin/products', icon: ShoppingCart, label: 'Products' },
   { href: '/admin/orders', icon: Package, label: 'Orders' },
-  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
-  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
   { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
   { href: '/admin/locations', icon: MapPin, label: 'Locations' },
 ];
 
-const mobileAdminNavItems = [
-  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
-  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
-  { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
-  { href: '/admin/locations', icon: MapPin, label: 'Locations' },
-  { href: '/admin/products', icon: ShoppingCart, label: 'Products' },
-]
 
 export function AdminHeader() {
   const pathname = usePathname();
   const { auth } = useFirebase();
   const router = useRouter();
   const { appUser } = useAuth();
-  const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -63,14 +59,45 @@ export function AdminHeader() {
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin" className="flex items-center gap-2">
-          <Logo className="h-14 w-32" />
-        </Link>
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="md:hidden">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open navigation menu</span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+                <nav className="grid gap-2 text-lg font-medium">
+                    <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
+                        <Logo className="h-14 w-32" />
+                    </Link>
+                    {adminNavItems.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={cn(
+                                'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
+                                pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                            )}
+                        >
+                            <item.icon className="h-5 w-5" />
+                            {item.label}
+                        </Link>
+                    ))}
+                </nav>
+            </SheetContent>
+        </Sheet>
+
+        <div className="hidden md:flex items-center gap-4">
+            <Link href="/admin">
+                <Logo className="h-14 w-32" />
+            </Link>
+        </div>
       </div>
 
       <nav className="hidden items-center gap-1 md:flex">
          {adminNavItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname.startsWith(item.href);
             return (
                 <Button key={item.href} asChild variant={isActive ? 'default' : 'ghost'} size="sm">
                     <Link
@@ -115,23 +142,8 @@ export function AdminHeader() {
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                 </DropdownMenuItem>
-                 {isMobile && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>More</DropdownMenuLabel>
-                     {mobileAdminNavItems.map((item) => (
-                      <DropdownMenuItem key={item.href} asChild>
-                        <Link href={item.href}>
-                          <item.icon className="mr-2 h-4 w-4" />
-                          {item.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </>
-                )}
             </DropdownMenuContent>
         </DropdownMenu>
-
       </div>
     </header>
   );

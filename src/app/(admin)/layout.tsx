@@ -8,13 +8,11 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AdminHeader } from '@/components/layout/admin-header';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { AdminBottomNav } from '@/components/layout/admin-bottom-nav';
+import { AdminSidebar } from '@/components/layout/admin-sidebar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { appUser, loading } = useAuth();
   const router = useRouter();
-  const isMobile = useIsMobile();
 
   const allowedRoles = ['admin', 'coach', 'seller'];
 
@@ -48,10 +46,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <AdminHeader />
-      <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${isMobile ? 'pb-20' : ''}`}>{children}</main>
-      {isMobile && <AdminBottomNav />}
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <AdminSidebar />
+      <div className="flex flex-col">
+        <AdminHeader />
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
