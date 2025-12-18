@@ -22,7 +22,7 @@ export default function EntryPage() {
 
     if (user && appUser) {
       // If user is already logged in and we have their profile
-      if (appUser.role === 'admin') {
+      if (appUser.role === 'admin' || appUser.role === 'coach' || appUser.role === 'seller') {
         router.replace('/admin');
       } else {
         router.replace('/home');
@@ -32,7 +32,7 @@ export default function EntryPage() {
       setAuthAttempted(true);
       signInWithEmailAndPassword(auth, 'monti.training@gmail.com', 'password')
         .then(() => {
-          // The onAuthStateChanged listener will handle the redirect
+          // The onAuthStateChanged listener in the AuthProvider will handle the redirect
         })
         .catch(() => {
           // If admin login fails (e.g., user not created), go to onboarding
