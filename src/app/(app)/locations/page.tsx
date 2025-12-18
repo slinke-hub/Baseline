@@ -40,6 +40,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/hooks/use-auth';
 import type { Location } from '@/lib/types';
 import Link from 'next/link';
+import { resizeImage } from '@/lib/image-resizer';
 
 const formSchema = z.object({
     name: z.string().min(3, "Court name must be at least 3 characters."),
@@ -63,7 +64,7 @@ export default function LocationsPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
     const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [photoFiles, setPhotoFiles] = useState<FileList | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -73,9 +74,11 @@ export default function LocationsPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files) {
+            setPhotoFiles(files);
             const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
             setPhotoPreviews(newPreviews);
         } else {
+            setPhotoFiles(null);
             setPhotoPreviews([]);
         }
     };
@@ -107,8 +110,6 @@ export default function LocationsPage() {
             toast({ title: "Authentication Error", description: "You must be logged in to add a court.", variant: "destructive" });
             return;
         }
-
-        const photoFiles = fileInputRef.current?.files;
         
         setIsSubmitting(true);
         try {
@@ -116,8 +117,9 @@ export default function LocationsPage() {
             if(photoFiles && photoFiles.length > 0){
                 const storage = getStorage(firebaseApp);
                 for(const file of Array.from(photoFiles)) {
+                    const resizedImageBlob = await resizeImage(file, 800, 600);
                     const photoRef = ref(storage, `court-photos/${user.uid}/${Date.now()}_${file.name}`);
-                    const snapshot = await uploadBytes(photoRef, file);
+                    const snapshot = await uploadBytes(photoRef, resizedImageBlob);
                     const photoUrl = await getDownloadURL(snapshot.ref);
                     photoUrls.push(photoUrl);
                 }
@@ -149,9 +151,7 @@ export default function LocationsPage() {
             setAddFormOpen(false);
             form.reset();
             setPhotoPreviews([]);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
+            setPhotoFiles(null);
         } catch (error) {
             console.error("Error adding location:", error);
             toast({ title: "Submission Failed", description: "Could not save the new court location. Please try again.", variant: 'destructive' });
@@ -234,7 +234,7 @@ export default function LocationsPage() {
                                                 </div>
                                             </div>
                                         )}
-                                        <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} multiple />
+                                        <Input type="file" accept="image/*" onChange={handleFileChange} multiple />
                                     </div>
                                 </div>
                                 <DialogFooter>
@@ -310,3 +310,5 @@ export default function LocationsPage() {
         </div>
     );
 }
+
+    
