@@ -35,6 +35,14 @@ const adminNavItems = [
   { href: '/admin/locations', icon: MapPin, label: 'Locations' },
 ];
 
+const mobileAdminNavItems = [
+  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
+  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
+  { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
+  { href: '/admin/locations', icon: MapPin, label: 'Locations' },
+  { href: '/admin/products', icon: ShoppingCart, label: 'Products' },
+]
+
 export function AdminHeader() {
   const pathname = usePathname();
   const { auth } = useFirebase();
@@ -107,25 +115,23 @@ export function AdminHeader() {
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                 </DropdownMenuItem>
+                 {isMobile && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>More</DropdownMenuLabel>
+                     {mobileAdminNavItems.map((item) => (
+                      <DropdownMenuItem key={item.href} asChild>
+                        <Link href={item.href}>
+                          <item.icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
 
-        {isMobile && (
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {adminNavItems.map((item) => (
-                <DropdownMenuItem key={item.href} asChild>
-                  <Link href={item.href}>{item.label}</Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
       </div>
     </header>
   );
