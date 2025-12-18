@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useFirebase } from '@/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Textarea } from './ui/textarea';
+import { resizeImage } from '@/lib/image-resizer';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Name is too short.'),
@@ -79,40 +80,42 @@ export function ProfileForm() {
     }
   }, [appUser, form]);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0] && user) {
       const file = e.target.files[0];
       const previousPhoto = photoPreview;
-      setPhotoPreview(URL.createObjectURL(file));
-      setIsUploading(true);
-
-      const storage = getStorage(firebaseApp);
-      const storageRef = ref(storage, `profile-photos/${user.uid}`);
       
-      uploadBytes(storageRef, file)
-        .then(snapshot => getDownloadURL(snapshot.ref))
-        .then(photoURL => {
-          const userDocRef = doc(firestore, 'users', user.uid);
-          return updateDoc(userDocRef, { photoURL });
-        })
-        .then(() => {
-          toast({
-            title: 'Photo Updated',
-            description: 'Your new profile photo has been saved.',
-          });
-        })
-        .catch(error => {
-          console.error("Photo upload failed:", error);
-          toast({
-            title: 'Upload Failed',
-            description: 'Could not upload your new photo. Please try again.',
-            variant: 'destructive',
-          });
-          setPhotoPreview(previousPhoto); // Revert on failure
-        })
-        .finally(() => {
-          setIsUploading(false);
+      setIsUploading(true);
+      setPhotoPreview(URL.createObjectURL(file)); // Show preview immediately
+
+      try {
+        const resizedImageBlob = await resizeImage(file, 512, 512);
+
+        const storage = getStorage(firebaseApp);
+        const storageRef = ref(storage, `profile-photos/${user.uid}`);
+        
+        const snapshot = await uploadBytes(storageRef, resizedImageBlob);
+        const photoURL = await getDownloadURL(snapshot.ref);
+        
+        const userDocRef = doc(firestore, 'users', user.uid);
+        await updateDoc(userDocRef, { photoURL });
+
+        toast({
+          title: 'Photo Updated',
+          description: 'Your new profile photo has been saved.',
         });
+        setPhotoPreview(photoURL); // Update with final URL
+      } catch (error) {
+        console.error("Photo upload failed:", error);
+        toast({
+          title: 'Upload Failed',
+          description: 'Could not upload your new photo. Please try again.',
+          variant: 'destructive',
+        });
+        setPhotoPreview(previousPhoto); // Revert on failure
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -211,3 +214,5 @@ export function ProfileForm() {
     </Card>
   );
 }
+
+    
