@@ -21,7 +21,8 @@
  * - /products/{productId}: A read-only collection of merchandise, writable only by an admin.
  *
  * # Key Security Decisions
- * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security.
+ * - **Admin Override**: Admins have full read/write access to all data paths.
+ * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security for non-admins.
  * - **Chat Security**: Chats are only accessible to the two participants involved.
  * - **Connection Security**: Users can manage their own connection documents (send, accept, delete requests).
  * - **Default Deny**: Any operation not explicitly granted is denied.
@@ -54,13 +55,18 @@ service cloud.firestore {
     function isParticipant(chatId) {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
+    
+    // Admin has full access to everything.
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
 
     match /users/{userId} {
       allow get: if isSignedIn(); // Allow reading any user's profile for friend lists or by sellers
       allow list: if isSignedIn(); // Allow listing users to find friends
       allow create: if isOwner(userId); // Allow a user to create their own document
-      allow update: if isOwner(userId) || isAdmin();
-      allow delete: if isAdmin();
+      allow update: if isOwner(userId);
+      allow delete: if false;
 
       match /connections/{friendId} {
         allow read, delete: if isOwner(userId);
@@ -90,29 +96,31 @@ service cloud.firestore {
 
     match /workouts/{workoutId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete: if false; // Managed by Admin only
     }
 
     match /meals/{mealId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete: if false; // Managed by Admin only
     }
+
+
 
     match /locations/{locationId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid;
     }
     
     match /ballIsLife/{postId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
-      allow update, delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid;
     }
 
     match /products/{productId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete: if false; // Managed by Admin only
     }
   }
 }
