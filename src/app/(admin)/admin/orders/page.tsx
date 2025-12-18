@@ -7,18 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useCollection } from '@/firebase';
 import { collectionGroup, query, where, doc, updateDoc, getDoc, writeBatch, increment } from 'firebase/firestore';
 import type { UserOrder, AppUser } from '@/lib/types';
-import { Loader2, PackageCheck, Truck, XCircle, Undo2 } from 'lucide-react';
+import { Loader2, PackageCheck, Truck, XCircle, Undo2, Star } from 'lucide-react';
 import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type OrderWithUser = UserOrder & { user?: AppUser };
 type StatusFilter = 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
+type PaymentMethodFilter = 'cod' | 'xp';
 
-function OrdersTable({ statusFilter }: { statusFilter: StatusFilter }) {
+function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilter, paymentMethod: PaymentMethodFilter }) {
     const { toast } = useToast();
     const { firestore } = useFirebase();
 
@@ -27,7 +28,7 @@ function OrdersTable({ statusFilter }: { statusFilter: StatusFilter }) {
 
     const ordersQuery = query(
         collectionGroup(firestore, 'orders'),
-        where('paymentMethod', '==', 'cod'),
+        where('paymentMethod', '==', paymentMethod),
         where('status', '==', statusFilter)
     );
     const { data: fetchedOrders, isLoading: isLoadingOrders } = useCollection<UserOrder>(ordersQuery);
@@ -65,17 +66,17 @@ function OrdersTable({ statusFilter }: { statusFilter: StatusFilter }) {
 
             batch.update(orderDocRef, { status: newStatus });
             
-            if (newStatus === 'Delivered') {
+            if (newStatus === 'Delivered' && order.paymentMethod === 'xp') {
+                // XP was already deducted at time of purchase. Stock should be reduced.
                 batch.update(productDocRef, { stock: increment(-1) });
-            } else if (newStatus === 'Canceled') {
+            } else if (newStatus === 'Delivered' && order.paymentMethod === 'cod') {
+                 // For COD, stock is reduced upon delivery confirmation.
+                batch.update(productDocRef, { stock: increment(-1) });
+            }
+            else if (newStatus === 'Canceled') {
                 // If the order was paid with XP, refund it.
                 if(order.paymentMethod === 'xp') {
                      batch.update(userDocRef, { xp: increment(order.amountPaid) });
-                }
-                // If the order was shipped, it's now back in inventory. If it was pending, it never left.
-                // We only increment if the delivery was not completed.
-                if(order.status !== 'Delivered') {
-                    batch.update(productDocRef, { stock: increment(1) });
                 }
             }
 
@@ -128,7 +129,12 @@ function OrdersTable({ statusFilter }: { statusFilter: StatusFilter }) {
                                     </TableCell>
                                     <TableCell>{order.user?.displayName || 'N/A'}</TableCell>
                                     <TableCell>{order.user?.address || 'N/A'}</TableCell>
-                                    <TableCell>${order.amountPaid.toFixed(2)}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-1">
+                                            {order.paymentMethod === 'xp' ? <Star className="h-4 w-4 text-yellow-400" /> : '$'}
+                                            {order.amountPaid.toLocaleString()}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>{getStatusBadge(order.status)}</TableCell>
                                     <TableCell className="text-right space-x-2">
                                         {order.status === 'Pending' && (
@@ -175,25 +181,61 @@ function OrdersTable({ statusFilter }: { statusFilter: StatusFilter }) {
 
 export default function AdminOrdersPage() {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Cash on Delivery Orders</CardTitle>
-                <CardDescription>Manage and fulfill COD orders.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Tabs defaultValue="Pending">
-                    <TabsList>
-                        <TabsTrigger value="Pending">Pending</TabsTrigger>
-                        <TabsTrigger value="Shipped">Shipped</TabsTrigger>
-                        <TabsTrigger value="Delivered">Delivered</TabsTrigger>
-                        <TabsTrigger value="Canceled">Canceled</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="Pending"><OrdersTable statusFilter="Pending" /></TabsContent>
-                    <TabsContent value="Shipped"><OrdersTable statusFilter="Shipped" /></TabsContent>
-                    <TabsContent value="Delivered"><OrdersTable statusFilter="Delivered" /></TabsContent>
-                    <TabsContent value="Canceled"><OrdersTable statusFilter="Canceled" /></TabsContent>
-                </Tabs>
-            </CardContent>
-        </Card>
+        <Tabs defaultValue="cod">
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Order Management</h1>
+                    <p className="text-muted-foreground">Manage and fulfill all customer orders.</p>
+                </div>
+                <TabsList>
+                    <TabsTrigger value="cod">Cash on Delivery</TabsTrigger>
+                    <TabsTrigger value="xp">XP Orders</TabsTrigger>
+                </TabsList>
+            </div>
+            <TabsContent value="cod">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Cash on Delivery Orders</CardTitle>
+                        <CardDescription>Manage and fulfill COD orders.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="Pending">
+                            <TabsList>
+                                <TabsTrigger value="Pending">Pending</TabsTrigger>
+                                <TabsTrigger value="Shipped">Shipped</TabsTrigger>
+                                <TabsTrigger value="Delivered">Delivered</TabsTrigger>
+                                <TabsTrigger value="Canceled">Canceled</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="Pending"><OrdersTable statusFilter="Pending" paymentMethod="cod" /></TabsContent>
+                            <TabsContent value="Shipped"><OrdersTable statusFilter="Shipped" paymentMethod="cod" /></TabsContent>
+                            <TabsContent value="Delivered"><OrdersTable statusFilter="Delivered" paymentMethod="cod" /></TabsContent>
+                            <TabsContent value="Canceled"><OrdersTable statusFilter="Canceled" paymentMethod="cod" /></TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="xp">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>XP Orders</CardTitle>
+                        <CardDescription>Manage and fulfill orders placed with XP.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="Pending">
+                            <TabsList>
+                                <TabsTrigger value="Pending">Pending</TabsTrigger>
+                                <TabsTrigger value="Shipped">Shipped</TabsTrigger>
+                                <TabsTrigger value="Delivered">Delivered</TabsTrigger>
+                                <TabsTrigger value="Canceled">Canceled</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="Pending"><OrdersTable statusFilter="Pending" paymentMethod="xp" /></TabsContent>
+                            <TabsContent value="Shipped"><OrdersTable statusFilter="Shipped" paymentMethod="xp" /></TabsContent>
+                            <TabsContent value="Delivered"><OrdersTable statusFilter="Delivered" paymentMethod="xp" /></TabsContent>
+                            <TabsContent value="Canceled"><OrdersTable statusFilter="Canceled" paymentMethod="xp" /></TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+        </Tabs>
     )
 }
