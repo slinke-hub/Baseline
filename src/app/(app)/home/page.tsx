@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import placeholderData from '@/lib/placeholder-images.json';
 import { mockWorkouts } from '@/lib/mock-data';
 import { BmiCalculatorWidget } from '@/components/bmi-calculator-widget';
+import { cn } from '@/lib/utils';
 
 const workoutCategories = [
   { name: 'Shooting', icon: <Droplet className="h-8 w-8 text-white" />, href: '/workouts?category=Shooting', imageId: 'cat-shooting' },
@@ -33,7 +34,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8 animate-in fade-in-0 duration-500">
-      <div className="rounded-lg bg-card p-6 animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="rounded-lg bg-card p-6 animate-in fade-in slide-in-from-top-4 duration-700 neon-border">
         <h1 className="text-3xl font-bold tracking-tight">Welcome back, {appUser?.displayName?.split(' ')[0] || 'Player'}!</h1>
         <p className="text-muted-foreground">Ready to crush another session? Let's get it.</p>
       </div>

@@ -121,4 +121,19 @@
       opacity: 0;
     }
   }
+  
+  .neon-border {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 2px hsl(var(--primary)), 0 0 5px hsl(var(--primary) / 0.7), 0 0 8px hsl(var(--primary) / 0.5);
+    animation: neon-flicker 3s infinite alternate;
+  }
+
+  @keyframes neon-flicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+      box-shadow: 0 0 2px hsl(var(--primary)), 0 0 5px hsl(var(--primary) / 0.7), 0 0 8px hsl(var(--primary) / 0.5);
+    }
+    20%, 24%, 55% {
+      box-shadow: none;
+    }
+  }
 }
