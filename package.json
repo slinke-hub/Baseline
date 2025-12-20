@@ -40,7 +40,7 @@
     "embla-carousel-react": "^8.6.0",
     "firebase": "^11.9.1",
     "lucide-react": "^0.417.0",
-    "next": "15.0.7",
+    "next": "latest",
     "patch-package": "^8.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
