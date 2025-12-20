@@ -64,7 +64,7 @@ export default function LocationsPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
     const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
-    const [photoFiles, setPhotoFiles] = useState<FileList | null>(null);
+    const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -74,11 +74,12 @@ export default function LocationsPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files) {
-            setPhotoFiles(files);
-            const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
+            const fileArray = Array.from(files);
+            setPhotoFiles(fileArray);
+            const newPreviews = fileArray.map(file => URL.createObjectURL(file));
             setPhotoPreviews(newPreviews);
         } else {
-            setPhotoFiles(null);
+            setPhotoFiles([]);
             setPhotoPreviews([]);
         }
     };
@@ -114,9 +115,9 @@ export default function LocationsPage() {
         setIsSubmitting(true);
         try {
             const photoUrls: string[] = [];
-            if(photoFiles && photoFiles.length > 0){
+            if(photoFiles.length > 0){
                 const storage = getStorage(firebaseApp);
-                for(const file of Array.from(photoFiles)) {
+                for(const file of photoFiles) {
                     const resizedImageBlob = await resizeImage(file, 800, 600);
                     const photoRef = ref(storage, `court-photos/${user.uid}/${Date.now()}_${file.name}`);
                     const snapshot = await uploadBytes(photoRef, resizedImageBlob);
@@ -151,7 +152,7 @@ export default function LocationsPage() {
             setAddFormOpen(false);
             form.reset();
             setPhotoPreviews([]);
-            setPhotoFiles(null);
+            setPhotoFiles([]);
         } catch (error) {
             console.error("Error adding location:", error);
             toast({ title: "Submission Failed", description: "Could not save the new court location. Please try again.", variant: 'destructive' });

@@ -15,6 +15,7 @@ import type { BallIsLifePost } from '@/lib/types';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import { resizeImage } from '@/lib/image-resizer';
 
 function BallIsLifeFeed() {
     const { firestore } = useFirebase();
@@ -158,6 +159,13 @@ export default function BallIsLifePage() {
     try {
       const location = await getCurrentLocation();
 
+      // Convert data URL to blob for resizing
+      const fetchRes = await fetch(capturedImage);
+      const blob = await fetchRes.blob();
+      const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+      
+      const resizedImageBlob = await resizeImage(file, 800, 600);
+
       const storage = getStorage(firebaseApp);
       const selfieRef = ref(storage, `ball-is-life/${user.uid}/${Date.now()}.jpg`);
       
@@ -229,7 +237,7 @@ export default function BallIsLifePage() {
                     )}
                     <video ref={videoRef} className={`w-full h-full object-cover ${capturedImage ? 'hidden' : ''}`} autoPlay playsInline muted />
                     {capturedImage && (
-                        <Image src={capturedImage} alt="Captured selfie" layout="fill" objectFit="cover" />
+                        <Image src={capturedImage} alt="Captured selfie" fill objectFit="cover" />
                     )}
                 </div>
 
