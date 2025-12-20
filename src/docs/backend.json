@@ -1,0 +1,526 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile within the Baseline application.",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique identifier for the user profile, same as Firebase Auth UID."
+        },
+        "role": {
+            "type": "string",
+            "description": "The user's role in the application.",
+            "enum": ["client", "coach", "admin", "seller"]
+        },
+        "age": {
+          "type": "number",
+          "description": "User's age in years."
+        },
+        "height": {
+          "type": "number",
+          "description": "User's height in centimeters."
+        },
+        "weight": {
+          "type": "number",
+          "description": "User's weight in kilograms."
+        },
+        "position": {
+          "type": "string",
+          "description": "User's basketball playing position (PG, SG, SF, PF, C)."
+        },
+        "experienceLevel": {
+          "type": "string",
+          "description": "User's experience level in basketball (e.g., beginner, intermediate, advanced)."
+        },
+        "profilePhotoUrl": {
+          "type": "string",
+          "description": "URL of the user's profile photo stored in Firebase Storage.",
+          "format": "uri"
+        },
+        "sessionsCompleted": {
+            "type": "number",
+            "description": "Number of sessions the client has completed this month."
+        },
+        "totalSessions": {
+            "type": "number",
+            "description": "Total number of sessions allocated to the client for the month."
+        },
+        "xp": {
+            "type": "number",
+            "description": "Experience points earned by the user."
+        },
+        "address": {
+          "type": "string",
+          "description": "The user's primary shipping address."
+        }
+      },
+      "required": [
+        "uid", "role", "totalSessions"
+      ]
+    },
+    "Connection": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Connection",
+        "type": "object",
+        "description": "Represents a friendship link between two users.",
+        "properties": {
+            "status": {
+                "type": "string",
+                "enum": ["pending", "accepted"]
+            },
+            "initiator": {
+                "type": "string",
+                "description": "The UID of the user who initiated the connection."
+            }
+        },
+        "required": ["status", "initiator"]
+    },
+    "ChatMessage": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "ChatMessage",
+        "type": "object",
+        "description": "Represents a single message in a private chat.",
+        "properties": {
+            "text": { "type": "string" },
+            "senderId": { "type": "string" },
+            "receiverId": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["text", "senderId", "receiverId", "createdAt"]
+    },
+    "Workout": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Workout",
+      "type": "object",
+      "description": "Represents a basketball workout with instructions and details. Can be assigned to users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workout."
+        },
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the admin or coach who created this workout."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the workout."
+        },
+        "difficulty": {
+          "type": "string",
+          "description": "Difficulty level of the workout (e.g., beginner, intermediate, advanced)."
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration of the workout in minutes."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the workout (shooting, ball handling, defense, conditioning, vertical jump)."
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Step-by-step instructions for the workout."
+        },
+        "videoUrl": {
+          "type": "string",
+          "description": "URL of the embedded video demonstrating the workout.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "authorId", "title", "difficulty", "duration", "category", "instructions"
+      ]
+    },
+    "WorkoutProgress": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WorkoutProgress",
+      "type": "object",
+      "description": "Represents a user's progress for a specific workout.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workout progress entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N WorkoutProgress)"
+        },
+        "workoutId": {
+          "type": "string",
+          "description": "Reference to Workout. (Relationship: Workout 1:N WorkoutProgress)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date when the workout was performed.",
+          "format": "date-time"
+        },
+        "timeSpent": {
+          "type": "number",
+          "description": "Time spent on the workout in minutes."
+        },
+        "isCompleted": {
+          "type": "boolean",
+          "description": "Indicates whether the workout was completed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "workoutId"
+      ]
+    },
+    "Meal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Meal",
+      "type": "object",
+      "description": "Represents a meal with ingredients, instructions, and nutritional information. Can be assigned to users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the meal."
+        },
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the admin or coach who created this meal."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the meal."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the meal (Breakfast, Lunch, Dinner, Snacks, Pre-game meals, Post-game meals)."
+        },
+        "ingredients": {
+          "type": "string",
+          "description": "List of ingredients for the meal."
+        },
+        "steps": {
+          "type": "string",
+          "description": "Step-by-step instructions for preparing the meal."
+        },
+        "calories": {
+          "type": "number",
+          "description": "Total calories in the meal."
+        },
+        "protein": {
+          "type": "number",
+          "description": "Amount of protein in the meal (in grams)."
+        },
+        "carbs": {
+          "type": "number",
+          "description": "Amount of carbohydrates in the meal (in grams)."
+        },
+        "fat": {
+          "type": "number",
+          "description": "Amount of fat in the meal (in grams)."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL of the meal photo.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "authorId", "name", "category", "ingredients", "steps", "calories", "protein", "carbs", "fat"
+      ]
+    },
+    "UserMealPlan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserMealPlan",
+      "type": "object",
+      "description": "Represents a user's saved meal plan with editable daily schedules.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user meal plan."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N UserMealPlan)"
+        },
+        "mealId": {
+          "type": "string",
+          "description": "Reference to Meal. (Relationship: Meal 1:N UserMealPlan)"
+        },
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the admin or coach who created this meal plan entry."
+        },
+        "day": {
+          "type": "string",
+          "description": "Day of the week for which the meal is scheduled (e.g., Monday, Tuesday)."
+        },
+        "mealTime": {
+          "type": "string",
+          "description": "Time of day for the meal (e.g., Breakfast, Lunch, Dinner)."
+        }
+      },
+      "required": [
+        "id", "userId", "mealId", "authorId", "day", "mealTime"
+      ]
+    },
+    "Location": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Location",
+        "type": "object",
+        "description": "Represents a user-submitted basketball court location.",
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "Unique identifier for the location."
+            },
+            "name": {
+                "type": "string",
+                "description": "The name of the court or location."
+            },
+            "address": {
+                "type": "string",
+                "description": "The physical address of the location."
+            },
+            "photoUrls": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "description": "URLs of user-submitted photos of the court."
+            },
+            "creatorId": {
+                "type": "string",
+                "description": "The UID of the user who submitted this location."
+            }
+        },
+        "required": ["name", "address", "creatorId"]
+    },
+    "BallIsLifePost": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "BallIsLifePost",
+        "type": "object",
+        "description": "Represents a 'Ball is Life' post with a selfie and location.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the post." },
+            "creatorId": { "type": "string", "description": "The UID of the user who created the post." },
+            "creatorName": { "type": "string", "description": "The display name of the creator." },
+            "creatorPhotoUrl": { "type": "string", "description": "The profile photo URL of the creator." },
+            "selfieUrl": { "type": "string", "description": "URL of the selfie photo stored in Firebase Storage.", "format": "uri" },
+            "location": { "type": "string", "description": "The location where the user is playing." },
+            "createdAt": { "type": "string", "description": "Timestamp when the post was created.", "format": "date-time" }
+        },
+        "required": ["id", "creatorId", "creatorName", "selfieUrl", "location", "createdAt"]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a merchandise item in the Baseline store.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the product." },
+        "name": { "type": "string", "description": "The name of the product." },
+        "description": { "type": "string", "description": "A detailed description of the product." },
+        "imageId": { "type": "string", "description": "The ID for the product's image in placeholder-images.json" },
+        "priceXp": { "type": "number", "description": "The price of the product in XP points." },
+        "priceCash": { "type": "number", "description": "The cash price of the product." },
+        "stock": { "type": "number", "description": "The number of items currently in stock." }
+      },
+      "required": ["name", "description", "imageId", "priceXp", "priceCash", "stock"]
+    },
+    "UserOrder": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserOrder",
+      "type": "object",
+      "description": "Represents a user's order for a product.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the order." },
+        "userId": { "type": "string", "description": "The UID of the user who placed the order." },
+        "productId": { "type": "string", "description": "Reference to the Product." },
+        "productName": { "type": "string", "description": "The name of the product at the time of order." },
+        "productImageId": { "type": "string", "description": "The image ID of the product." },
+        "paymentMethod": { "type": "string", "enum": ["xp", "cod"], "description": "The payment method used for the order." },
+        "amountPaid": { "type": "number", "description": "The amount paid (in XP or cash)." },
+        "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered", "Canceled"], "description": "The status of the order." },
+        "createdAt": { "type": "string", "description": "Timestamp when the order was placed.", "format": "date-time" }
+      },
+      "required": ["id", "userId", "productId", "paymentMethod", "status", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/users/{userId}/connections/{friendId}",
+        "definition": {
+          "entityName": "Connection",
+          "schema": { "$ref": "#/backend/entities/Connection" },
+          "description": "Stores a user's connections (friends). Writable by the user and the friend to establish connection.",
+          "params": [
+            { "name": "userId", "description": "The user's UID." },
+            { "name": "friendId", "description": "The friend's UID." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutProgress/{workoutProgressId}",
+        "definition": {
+          "entityName": "WorkoutProgress",
+          "schema": {
+            "$ref": "#/backend/entities/WorkoutProgress"
+          },
+          "description": "Stores the workout progress of a user. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "workoutProgressId",
+              "description": "The unique identifier of the workout progress entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/mealPlans/{mealPlanId}",
+        "definition": {
+          "entityName": "UserMealPlan",
+          "schema": {
+            "$ref": "#/backend/entities/UserMealPlan"
+          },
+          "description": "Stores the assigned meal plans for all users. Writable by admins/coaches.",
+          "params": [
+            {
+              "name": "mealPlanId",
+              "description": "The unique identifier of the meal plan assignment (e.g., userId_day_mealTime)."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/chats/{chatId}/messages/{messageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": { "$ref": "#/backend/entities/ChatMessage" },
+          "description": "Stores messages for a private chat between two users.",
+          "params": [
+            { "name": "chatId", "description": "A composite key of the two user UIDs, sorted alphabetically and joined by an underscore." },
+            { "name": "messageId", "description": "The unique ID of the message." }
+          ]
+        }
+      },
+      {
+        "path": "/workouts/{workoutId}",
+        "definition": {
+          "entityName": "Workout",
+          "schema": {
+            "$ref": "#/backend/entities/Workout"
+          },
+          "description": "Stores a central library of workout information. This collection should be readable by all users but only writable by admins.",
+          "params": [
+            {
+              "name": "workoutId",
+              "description": "The unique identifier of the workout."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/meals/{mealId}",
+        "definition": {
+          "entityName": "Meal",
+          "schema": {
+            "$ref": "#/backend/entities/Meal"
+          },
+          "description": "Stores a central library of meal information. This collection should be readable by all users but only writable by admins.",
+          "params": [
+            {
+              "name": "mealId",
+              "description": "The unique identifier of the meal."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/locations/{locationId}",
+        "definition": {
+            "entityName": "Location",
+            "schema": {
+                "$ref": "#/backend/entities/Location"
+            },
+            "description": "Stores user-submitted court locations. Readable by all, writable by authenticated users.",
+            "params": [
+                {
+                    "name": "locationId",
+                    "description": "The unique identifier of the location."
+                }
+            ]
+        }
+      },
+      {
+        "path": "/ballIsLife/{postId}",
+        "definition": {
+            "entityName": "BallIsLifePost",
+            "schema": {
+                "$ref": "#/backend/entities/BallIsLifePost"
+            },
+            "description": "Stores user-generated 'Ball is Life' posts. Readable by all, writable by the authenticated post creator.",
+            "params": [
+                {
+                    "name": "postId",
+                    "description": "The unique identifier of the post."
+                }
+            ]
+        }
+      },
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": { "$ref": "#/backend/entities/Product" },
+          "description": "Stores merchandise available in the store. Readable by all, writable only by admins.",
+          "params": [
+            { "name": "productId", "description": "The unique identifier of the product." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}",
+        "definition": {
+          "entityName": "UserOrder",
+          "schema": { "$ref": "#/backend/entities/UserOrder" },
+          "description": "Stores a user's order history. Writable only by the user, readable by admins/sellers.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier of the user." },
+            { "name": "orderId", "description": "The unique identifier of the order." }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, and locations is maintained in top-level `/workouts`, `/meals`, and `/locations` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management, or allowing authenticated users to contribute (as with locations). This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
+  }
+}

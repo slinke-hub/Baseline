@@ -3,11 +3,10 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Trash2, Edit, MoreVertical } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, MoreVertical, Loader2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { mockMeals as initialMeals } from '@/lib/mock-data';
 import type { Meal, MealCategory } from '@/lib/types';
 import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
@@ -27,7 +26,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -35,29 +33,43 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, doc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function AdminMealsPage() {
     const { toast } = useToast();
-    const [meals, setMeals] = useState(initialMeals);
+    const { firestore } = useFirebase();
+    const { appUser } = useAuth();
+
+    const mealsQuery = useMemoFirebase(() => collection(firestore, 'meals'), [firestore]);
+    const { data: meals, isLoading: isLoadingMeals } = useCollection<Meal>(mealsQuery);
+
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
 
     const isEditing = !!selectedMeal;
 
-    const handleDelete = (mealId: string) => {
-        setMeals(current => current.filter(m => m.id !== mealId));
-        toast({ title: "Meal Deleted", description: "The meal has been removed from the list.", variant: "destructive" });
+    const handleDelete = async (mealId: string) => {
+        try {
+            await deleteDoc(doc(firestore, 'meals', mealId));
+            toast({ title: "Meal Deleted", description: "The meal has been removed from the list.", variant: "destructive" });
+        } catch (error) {
+            console.error("Error deleting meal:", error);
+            toast({ title: "Deletion Failed", variant: "destructive" });
+        }
     }
 
-    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (!appUser) return;
+        
         const formData = new FormData(event.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
         const processedValues = {
@@ -68,21 +80,26 @@ export default function AdminMealsPage() {
             fat: parseInt(values.fat),
             ingredients: values.ingredients.split('\n'),
             steps: values.steps.split('\n'),
+            authorId: appUser.uid,
         }
 
-        if (isEditing) {
-            setMeals(current => current.map(m => m.id === selectedMeal.id ? { ...m, ...processedValues } : m));
-            toast({ title: "Meal Updated", description: "The meal has been successfully updated." });
-        } else {
-            const newMeal: Meal = {
-                id: `meal-${Date.now()}`,
-                imageId: `meal-${values.category.toLowerCase().split('-')[0]}-1`,
-                ...processedValues
-            };
-            setMeals(current => [newMeal, ...current]);
-            toast({ title: "Meal Added", description: "The new meal has been created." });
+        try {
+            if (isEditing && selectedMeal) {
+                await updateDoc(doc(firestore, 'meals', selectedMeal.id), processedValues);
+                toast({ title: "Meal Updated", description: "The meal has been successfully updated." });
+            } else {
+                const newMealData = {
+                    ...processedValues,
+                    imageId: `meal-${values.category.toLowerCase().split('-')[0]}-1`,
+                };
+                await addDoc(collection(firestore, 'meals'), newMealData);
+                toast({ title: "Meal Added", description: "The new meal has been created." });
+            }
+            closeForm();
+        } catch (error) {
+            console.error("Error saving meal:", error);
+            toast({ title: "Save Failed", variant: "destructive" });
         }
-        closeForm();
     }
     
     const openForm = (meal?: Meal) => {
@@ -105,57 +122,61 @@ export default function AdminMealsPage() {
                 <Button onClick={() => openForm()}><PlusCircle className="mr-2 h-4 w-4" /> Add Meal</Button>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[80px]">Image</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead>Calories</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {meals.map(meal => {
-                            const image = placeholderData.placeholderImages.find(p => p.id === meal.imageId);
-                            return (
-                                <TableRow key={meal.id}>
-                                    <TableCell>
-                                        {image && <Image src={image.imageUrl} alt={meal.title} width={64} height={64} className="rounded-md object-cover" data-ai-hint={image.imageHint} />}
-                                    </TableCell>
-                                    <TableCell className="font-medium">{meal.title}</TableCell>
-                                    <TableCell><Badge variant="outline">{meal.category}</Badge></TableCell>
-                                    <TableCell>{meal.calories} kcal</TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => openForm(meal)}><Edit className="mr-2 h-4 w-4"/>Edit</DropdownMenuItem>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <div className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
-                                                            <Trash2 className="mr-2 h-4 w-4" />Delete
-                                                        </div>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure you want to delete {meal.title}?</AlertDialogTitle>
-                                                            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDelete(meal.id)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Delete</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
+                {isLoadingMeals ? (
+                    <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[80px]">Image</TableHead>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead>Calories</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {meals?.map(meal => {
+                                const image = placeholderData.placeholderImages.find(p => p.id === meal.imageId);
+                                return (
+                                    <TableRow key={meal.id}>
+                                        <TableCell>
+                                            {image && <Image src={image.imageUrl} alt={meal.title} width={64} height={64} className="rounded-md object-cover" data-ai-hint={image.imageHint} />}
+                                        </TableCell>
+                                        <TableCell className="font-medium">{meal.title}</TableCell>
+                                        <TableCell><Badge variant="outline">{meal.category}</Badge></TableCell>
+                                        <TableCell>{meal.calories} kcal</TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => openForm(meal)}><Edit className="mr-2 h-4 w-4"/>Edit</DropdownMenuItem>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <div className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
+                                                                <Trash2 className="mr-2 h-4 w-4" />Delete
+                                                            </div>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Are you sure you want to delete {meal.title}?</AlertDialogTitle>
+                                                                <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDelete(meal.id)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Delete</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                        </TableBody>
+                    </Table>
+                )}
             </CardContent>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

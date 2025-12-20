@@ -11,11 +11,11 @@
  * - /users/{userId}: Stores private user profiles and serves as the root for all user-owned subcollections.
  *   - /users/{userId}/connections/{friendId}: Manages user friendships.
  *   - /users/{userId}/workoutProgress/{workoutProgressId}: Contains a user's private workout history.
- *   - /users/{userId}/mealPlans/{mealPlanId}: Contains a user's private meal plans.
  *   - /users/{userId}/orders/{orderId}: Contains a user's private order history.
  * - /chats/{chatId}/messages/{messageId}: Stores private messages between two users.
  * - /workouts/{workoutId}: A read-only collection of available workouts, writable only by backend processes (e.g., an admin SDK).
  * - /meals/{mealId}: A read-only collection of available meals, writable only by backend processes (e.g., an admin SDK).
+ * - /mealPlans/{mealPlanId}: Meal plan assignments for users. Writable by admins/coaches.
  * - /locations/{locationId}: A collection of user-submitted courts. Readable by all, writable by authenticated users for their own submissions.
  * - /ballIsLife/{postId}: A collection for real-time user posts. Readable by all, writable only by the post creator.
  * - /products/{productId}: A read-only collection of merchandise, writable only by an admin.
@@ -48,6 +48,10 @@ service cloud.firestore {
       return isSignedIn() && getRole() == 'admin';
     }
     
+    function isCoach() {
+      return isSignedIn() && (getRole() == 'coach' || getRole() == 'admin');
+    }
+    
     function isSeller() {
       return isSignedIn() && (getRole() == 'seller' || getRole() == 'admin');
     }
@@ -66,7 +70,7 @@ service cloud.firestore {
       allow list: if isSignedIn(); // Allow listing users to find friends
       allow create: if isOwner(userId); // Allow a user to create their own document
       allow update: if isOwner(userId);
-      allow delete: if false;
+      allow delete: if isAdmin(); // Only admins can delete user documents
 
       match /connections/{friendId} {
         allow read, delete: if isOwner(userId);
@@ -75,10 +79,6 @@ service cloud.firestore {
       }
       
       match /workoutProgress/{workoutProgressId} {
-        allow read, write: if isOwner(userId);
-      }
-      
-      match /mealPlans/{mealPlanId} {
         allow read, write: if isOwner(userId);
       }
       
@@ -93,23 +93,28 @@ service cloud.firestore {
     match /chats/{chatId}/messages/{messageId} {
       allow read, write: if isParticipant(chatId);
     }
+    
+    match /mealPlans/{mealPlanId} {
+      allow get: if isSignedIn();
+      allow list: if isCoach(); // Admins and coaches can list all plans
+      allow create, update, delete: if isCoach() && request.resource.data.authorId == request.auth.uid; // Only the authoring coach/admin can modify
+    }
 
     match /workouts/{workoutId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if false; // Managed by Admin only
+      allow create, update, delete: if isCoach(); // Managed by Coach or Admin
     }
 
     match /meals/{mealId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if false; // Managed by Admin only
+      allow create, update, delete: if isCoach(); // Managed by Coach or Admin
     }
-
-
 
     match /locations/{locationId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.creatorId == request.auth.uid;
+      allow delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
     }
     
     match /ballIsLife/{postId} {
@@ -120,7 +125,7 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if false; // Managed by Admin only
+      allow create, update, delete: if isAdmin(); // Managed by Admin only
     }
   }
 }
