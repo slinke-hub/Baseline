@@ -72,6 +72,7 @@ export default function HomePage() {
                   fill
                   className="object-cover"
                   data-ai-hint={TodaysWorkoutImage.imageHint}
+                  priority
                 />
               </div>
             )}
