@@ -195,7 +195,7 @@ export default function AdminOrdersPage() {
                 </TabsList>
             </div>
             <TabsContent value="cod">
-                <Card className="neon-border">
+                <Card>
                     <CardHeader>
                         <CardTitle>Cash on Delivery Orders</CardTitle>
                         <CardDescription>Manage and fulfill COD orders.</CardDescription>
@@ -217,7 +217,7 @@ export default function AdminOrdersPage() {
                 </Card>
             </TabsContent>
             <TabsContent value="xp">
-                 <Card className="neon-border">
+                 <Card>
                     <CardHeader>
                         <CardTitle>XP Orders</CardTitle>
                         <CardDescription>Manage and fulfill orders placed with XP.</CardDescription>

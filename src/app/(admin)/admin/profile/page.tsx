@@ -28,7 +28,7 @@ export default function AdminProfilePage() {
         <p className="text-muted-foreground">View and manage your account information.</p>
       </div>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20 border-2 border-primary">

@@ -58,7 +58,7 @@ export default function ClientSchedulePage() {
                 <h1 className="text-3xl font-bold tracking-tight">My Schedule</h1>
                 <p className="text-muted-foreground">Your weekly training and nutrition plan.</p>
             </div>
-            <Card className="neon-border">
+            <Card>
                 <CardContent className="grid md:grid-cols-2 gap-8 p-4 sm:p-6">
                     <div className="flex justify-center">
                         <Calendar

@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc, deleteDoc, onSnapshot, addDoc } from 'firebase/firestore';
 import type { Workout, Meal, ScheduleEvent, AppUser } from '@/lib/types';
 
 
@@ -31,7 +31,7 @@ function ScheduleComponent() {
     const [isFormOpen, setFormOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
 
-    const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+    const usersQuery = useMemoFirebase(() => query(collection(firestore, 'users'), where('role', '==', 'client')), [firestore]);
     const { data: users, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
 
     const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
@@ -43,10 +43,10 @@ function ScheduleComponent() {
     useEffect(() => {
         if (userIdFromParams) {
             setSelectedUser(userIdFromParams);
-        } else if (users && users.length > 0) {
+        } else if (users && users.length > 0 && !selectedUser) {
             setSelectedUser(users[0].uid);
         }
-    }, [userIdFromParams, users]);
+    }, [userIdFromParams, users, selectedUser]);
 
     useEffect(() => {
         if (!selectedUser) return;
@@ -97,8 +97,8 @@ function ScheduleComponent() {
             date: date!,
             type: values.type,
             title: title,
-            workoutId: values.workoutId,
-            mealId: values.mealId,
+            workoutId: values.workoutId || '',
+            mealId: values.mealId || '',
         };
         
         try {
@@ -150,7 +150,7 @@ function ScheduleComponent() {
                 </div>
                 <Button onClick={() => openForm()} disabled={!selectedUser}><PlusCircle className="mr-2 h-4 w-4" /> Add Event</Button>
             </div>
-            <Card className="neon-border">
+            <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>

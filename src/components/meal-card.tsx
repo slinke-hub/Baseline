@@ -15,7 +15,7 @@ export function MealCard({ meal }: MealCardProps) {
   const mealImage = placeholderData.placeholderImages.find(p => p.id === meal.imageId);
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 neon-border">
+    <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
       {mealImage && (
         <div className="relative h-48 w-full">
           <Image

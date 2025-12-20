@@ -6,6 +6,7 @@ import { DesktopSidebar } from '@/components/layout/desktop-sidebar';
 import { MobileHeader } from '@/components/layout/mobile-header';
 import { useAuth } from '@/hooks/use-auth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -35,14 +36,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Mobile layout
         <div className="flex min-h-screen flex-col">
           <MobileHeader />
-          <div className="flex-1 pb-20">{children}</div>
+          <div className="flex-1 pb-20 neon-border m-2 rounded-lg">{children}</div>
           <BottomNav />
         </div>
       ) : (
         // Desktop layout
         <div className="flex">
           <DesktopSidebar />
-          <main className="flex-1 md:pl-64">{children}</main>
+          <main className="flex-1 md:pl-64">
+            <div className="p-4">
+              <div className="neon-border rounded-lg h-[calc(100vh-2rem)] overflow-y-auto">
+                {children}
+              </div>
+            </div>
+          </main>
         </div>
       )}
     </>

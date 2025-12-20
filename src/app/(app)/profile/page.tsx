@@ -36,7 +36,7 @@ export default function ProfilePage() {
         <p className="text-muted-foreground">View and manage your personal information.</p>
       </div>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader className="flex flex-col items-center sm:flex-row sm:justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-primary">

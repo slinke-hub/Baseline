@@ -120,7 +120,7 @@ export default function ClientChatPage() {
                 <h1 className="text-3xl font-bold tracking-tight">Chat</h1>
                 <p className="text-muted-foreground">Talk with your friends.</p>
             </div>
-            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr] neon-border">
+            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr]">
                 <div className="flex flex-col border-r">
                     <CardHeader>
                         <CardTitle>Friends</CardTitle>

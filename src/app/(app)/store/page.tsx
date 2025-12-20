@@ -258,7 +258,7 @@ export default function StorePage() {
           ))}
         </div>
       ) : (
-        <Card className="neon-border">
+        <Card>
           <CardContent className="p-12 text-center text-muted-foreground">
             <ShoppingCart className="h-12 w-12 mx-auto mb-4" />
             <h3 className="text-xl font-semibold">Store Coming Soon</h3>

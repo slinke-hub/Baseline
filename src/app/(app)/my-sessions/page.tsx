@@ -65,7 +65,7 @@ export default function MySessionsPage() {
         <p className="text-muted-foreground">Track your monthly training session attendance.</p>
       </div>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader>
           <CardTitle>Monthly Progress</CardTitle>
           <CardDescription>
@@ -118,7 +118,7 @@ export default function MySessionsPage() {
         </CardContent>
       </Card>
       
-      <Card className="neon-border">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><ClipboardList className="h-5 w-5 text-primary" /> Session Details</CardTitle>
         </CardHeader>

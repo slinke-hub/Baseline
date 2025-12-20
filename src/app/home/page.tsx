@@ -34,12 +34,12 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8 animate-in fade-in-0 duration-500">
-      <div className="rounded-lg bg-card p-6 animate-in fade-in slide-in-from-top-4 duration-700 neon-border">
+      <div className="rounded-lg bg-card p-6 animate-in fade-in slide-in-from-top-4 duration-700">
         <h1 className="text-3xl font-bold tracking-tight">Welcome back, {appUser?.displayName?.split(' ')[0] || 'Player'}!</h1>
         <p className="text-muted-foreground">Ready to crush another session? Let's get it.</p>
       </div>
 
-       <Card className="bg-primary/10 border-primary/20 neon-border">
+       <Card className="bg-primary/10 border-primary/20">
         <CardHeader className="flex-row items-center gap-4 space-y-0">
             <Megaphone className="h-6 w-6 text-primary"/>
             <CardTitle>Coach's Announcement</CardTitle>
@@ -50,7 +50,7 @@ export default function HomePage() {
       </Card>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="overflow-hidden lg:col-span-1 neon-border">
+        <Card className="overflow-hidden lg:col-span-1">
           <div className="grid md:grid-cols-2">
             <div className="p-6 md:p-8">
               <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Today's Focus</h2>
@@ -91,7 +91,7 @@ export default function HomePage() {
             const categoryImage = placeholderData.placeholderImages.find(p => p.id === category.imageId);
             return (
               <Link href={category.href} key={category.name}>
-                <Card className="group relative flex h-48 flex-col justify-end overflow-hidden rounded-lg p-4 text-white transition-transform duration-300 ease-in-out hover:scale-105 neon-border">
+                <Card className="group relative flex h-48 flex-col justify-end overflow-hidden rounded-lg p-4 text-white transition-transform duration-300 ease-in-out hover:scale-105">
                   {categoryImage && (
                     <Image
                       src={categoryImage.imageUrl}
@@ -113,7 +113,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader>
           <CardTitle>Your Weekly Progress</CardTitle>
           <CardDescription>You're doing great, keep up the hard work!</CardDescription>

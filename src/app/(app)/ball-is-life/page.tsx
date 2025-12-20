@@ -27,7 +27,7 @@ function BallIsLifeFeed() {
     }
 
     return (
-        <Card className="neon-border">
+        <Card>
             <CardHeader>
                 <CardTitle>Live Feed</CardTitle>
                 <CardDescription>See who's hooping right now.</CardDescription>
@@ -222,7 +222,7 @@ export default function BallIsLifePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="neon-border">
+        <Card>
             <CardHeader>
                 <CardTitle>Post an Instant Invite</CardTitle>
                 <CardDescription>Snap a selfie to let others know you're playing.</CardDescription>

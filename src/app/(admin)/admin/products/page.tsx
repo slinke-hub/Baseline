@@ -103,7 +103,7 @@ export default function AdminProductsPage() {
     }
 
     return (
-        <Card className="neon-border">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle>Product Management</CardTitle>

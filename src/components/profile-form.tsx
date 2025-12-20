@@ -144,7 +144,7 @@ export function ProfileForm() {
   }
 
   return (
-    <Card className="neon-border">
+    <Card>
       <CardHeader>
         <CardTitle>Edit Your Information</CardTitle>
         <CardDescription>Keep your profile up-to-date.</CardDescription>

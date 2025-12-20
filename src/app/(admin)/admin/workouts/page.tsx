@@ -108,7 +108,7 @@ export default function AdminWorkoutsPage() {
     }
 
     return (
-        <Card className="neon-border">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle>Workout Management</CardTitle>

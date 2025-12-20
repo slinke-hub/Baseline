@@ -44,7 +44,7 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">Manage your app and account settings.</p>
       </div>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader>
           <CardTitle>Preferences</CardTitle>
           <CardDescription>Customize your app experience.</CardDescription>
@@ -80,7 +80,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
           <CardDescription>Manage your account information.</CardDescription>

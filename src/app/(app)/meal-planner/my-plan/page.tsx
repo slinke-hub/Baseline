@@ -11,7 +11,7 @@ export default function MyMealPlanPage() {
         </div>
       </div>
 
-      <Card className="neon-border">
+      <Card>
         <CardHeader>
             <CardTitle>Coming Soon</CardTitle>
             <CardDescription>The full weekly meal plan editor is under construction.</CardDescription>
