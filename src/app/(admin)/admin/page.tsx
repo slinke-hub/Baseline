@@ -103,8 +103,9 @@ export default function AdminDashboardPage() {
               </CardContent>
           </Card>
       </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            <Card className="lg:col-span-2 neon-border">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="lg:col-span-2 space-y-6">
+            <Card className="neon-border">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> Post an Announcement</CardTitle>
                     <CardDescription>This message will be broadcast to all client dashboards.</CardDescription>
@@ -141,7 +142,10 @@ export default function AdminDashboardPage() {
                     </div>
                 </CardContent>
             </Card>
-            <Card className="lg:col-span-3 neon-border">
+        </div>
+
+        <div className="lg:col-span-1">
+            <Card className="neon-border">
                 <CardHeader>
                     <CardTitle>Feature Flags</CardTitle>
                     <CardDescription>Enable or disable experimental features.</CardDescription>
@@ -159,6 +163,7 @@ export default function AdminDashboardPage() {
                 </CardContent>
             </Card>
         </div>
+      </div>
     </div>
   );
 }
