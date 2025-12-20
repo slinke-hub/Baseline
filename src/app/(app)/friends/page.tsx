@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { useNotifications } from '@/hooks/use-notifications';
 
 const getInitials = (name?: string | null) => {
     if (!name) return 'U';
@@ -64,6 +65,7 @@ function FriendRequests() {
     const { user } = useAuth();
     const { firestore } = useFirebase();
     const { toast } = useToast();
+    const { showNotification } = useNotifications();
     const [requests, setRequests] = useState<AppUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -73,6 +75,8 @@ function FriendRequests() {
             collection(firestore, `users/${user.uid}/connections`),
             where('status', '==', 'pending'),
         );
+
+        let isFirstLoad = true;
         const unsubscribe = onSnapshot(q, async (snapshot) => {
             const pendingConnections = snapshot.docs
               .map(d => ({id: d.id, ...d.data() as Connection}))
@@ -82,15 +86,27 @@ function FriendRequests() {
               const userIds = pendingConnections.map(c => c.id);
               const usersQuery = query(collection(firestore, 'users'), where('uid', 'in', userIds));
               const usersSnapshot = await getDocs(usersQuery);
-              setRequests(usersSnapshot.docs.map(d => d.data() as AppUser));
+              const newRequests = usersSnapshot.docs.map(d => d.data() as AppUser)
+              setRequests(newRequests);
+
+              if (!isFirstLoad && newRequests.length > requests.length) {
+                  const latestRequester = newRequests.find(newUser => !requests.some(oldUser => oldUser.uid === newUser.uid));
+                  if(latestRequester) {
+                      showNotification('New Friend Request', {
+                          body: `${latestRequester.displayName} wants to be your friend!`
+                      });
+                  }
+              }
+
             } else {
               setRequests([]);
             }
             setIsLoading(false);
+            isFirstLoad = false;
         });
 
         return () => unsubscribe();
-    }, [user, firestore]);
+    }, [user, firestore, showNotification, requests]);
     
     const handleAccept = async (friendId: string) => {
         if (!user) return;

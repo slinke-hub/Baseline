@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, getDocs, doc, onSnapshot, addDoc, serverTimestamp, orderBy, Unsubscribe, getDoc } from 'firebase/firestore';
 import type { AppUser, Connection, ChatMessage } from '@/lib/types';
+import { useNotifications } from '@/hooks/use-notifications';
 
 // Helper to get initials from a name
 const getInitials = (name?: string | null) => {
@@ -25,8 +26,9 @@ const getChatId = (uid1: string, uid2: string) => {
 };
 
 export default function ClientChatPage() {
-    const { user } = useAuth();
+    const { user, appUser } = useAuth();
     const { firestore } = useFirebase();
+    const { showNotification } = useNotifications();
     const [friends, setFriends] = useState<AppUser[]>([]);
     const [selectedFriend, setSelectedFriend] = useState<AppUser | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -75,10 +77,23 @@ export default function ClientChatPage() {
             messagesUnsubscribe.current();
         }
 
+        let isFirstLoad = true;
         messagesUnsubscribe.current = onSnapshot(messagesQuery, (snapshot) => {
             const msgs = snapshot.docs.map(doc => doc.data() as ChatMessage);
             setMessages(msgs);
             setIsLoadingMessages(false);
+
+            if (!isFirstLoad && msgs.length > 0) {
+                const lastMessage = msgs[msgs.length - 1];
+                if (lastMessage.senderId !== user.uid) {
+                    const sender = friends.find(f => f.uid === lastMessage.senderId) || selectedFriend;
+                    showNotification(`New message from ${sender.displayName}`, {
+                        body: lastMessage.text,
+                        tag: `chat-${chatId}`
+                    });
+                }
+            }
+            isFirstLoad = false;
         });
 
         return () => {
@@ -86,7 +101,7 @@ export default function ClientChatPage() {
                 messagesUnsubscribe.current();
             }
         };
-    }, [selectedFriend, user, firestore]);
+    }, [selectedFriend, user, firestore, friends, showNotification]);
     
     // Scroll to bottom of messages
     useEffect(() => {
@@ -170,7 +185,7 @@ export default function ClientChatPage() {
                                     )}>
                                         <p>{message.text}</p>
                                     </div>
-                                    {message.senderId === user?.uid && <Avatar className="h-8 w-8"><AvatarImage src={user?.photoURL || undefined} /><AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback></Avatar>}
+                                    {message.senderId === user?.uid && <Avatar className="h-8 w-8"><AvatarImage src={appUser?.photoURL || undefined} /><AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback></Avatar>}
                                 </div>
                             ))}
                             <div ref={messagesEndRef} />

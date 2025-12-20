@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useNotifications } from '@/hooks/use-notifications';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +18,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useEffect, useState } from 'react';
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const { requestPermission, permission } = useNotifications();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  useEffect(() => {
+    setNotificationsEnabled(permission === 'granted');
+  }, [permission]);
 
   const handleDeleteAccount = () => {
     // In a real app, this would call a Firebase function to delete user data
@@ -29,6 +37,23 @@ export default function SettingsPage() {
         variant: 'destructive',
     });
   };
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (enabled) {
+      const granted = await requestPermission();
+      setNotificationsEnabled(granted);
+    } else {
+      // Cannot programmatically revoke permission. User must do it in browser settings.
+      toast({
+        title: 'How to Disable Notifications',
+        description: 'To turn off notifications, you need to update the settings for this site in your browser.',
+      });
+      // Revert the switch if permission is still granted
+      if (permission === 'granted') {
+          setTimeout(() => setNotificationsEnabled(true), 100);
+      }
+    }
+  }
 
   const handleToggle = (feature: string, enabled: boolean) => {
     toast({
@@ -57,7 +82,11 @@ export default function SettingsPage() {
                     Enable workout reminders and progress updates.
                 </span>
             </Label>
-            <Switch id="notifications" onCheckedChange={(checked) => handleToggle('Push Notifications', checked)} />
+            <Switch 
+              id="notifications" 
+              checked={notificationsEnabled}
+              onCheckedChange={handleNotificationToggle} 
+            />
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">
             <Label htmlFor="dark-mode" className="flex flex-col space-y-1">
@@ -110,5 +139,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

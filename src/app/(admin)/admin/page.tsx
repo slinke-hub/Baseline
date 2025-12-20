@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useNotifications } from '@/hooks/use-notifications';
 
 // Mock user data for demonstration
 const mockUsers = [
@@ -30,6 +31,7 @@ type Announcement = {
 
 export default function AdminDashboardPage() {
     const { toast } = useToast();
+    const { showNotification } = useNotifications();
     const [newAnnouncement, setNewAnnouncement] = useState('');
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [xpForCourtsEnabled, setXpForCourtsEnabled] = useState(true);
@@ -56,6 +58,9 @@ export default function AdminDashboardPage() {
         setAnnouncements([announcement, ...announcements]);
         setNewAnnouncement('');
         toast({ title: "Announcement Posted", description: "Your announcement is now visible to all clients." });
+        
+        // This is a simulation. In a real app, a backend service would send this notification.
+        showNotification('New Announcement', { body: newAnnouncement });
     }
     
     const handleFeatureToggle = (enabled: boolean) => {
