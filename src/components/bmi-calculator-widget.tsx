@@ -73,7 +73,7 @@ export function BmiCalculatorWidget() {
   }
 
   return (
-    <Card>
+    <Card className="neon-border">
       <CardHeader>
         <CardTitle>BMI Calculator</CardTitle>
         <CardDescription>Quickly check your Body Mass Index.</CardDescription>

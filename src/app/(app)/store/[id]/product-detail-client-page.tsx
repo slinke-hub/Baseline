@@ -104,7 +104,7 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
       </Link>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
         <div className="lg:col-span-3">
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden neon-border">
             {productImage && (
                 <div className="relative aspect-video w-full">
                 <Image
@@ -119,7 +119,7 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
           </Card>
         </div>
         <div className="lg:col-span-2">
-            <Card>
+            <Card className="neon-border">
                 <CardHeader>
                     <CardTitle className="text-3xl font-bold">{product.name}</CardTitle>
                     <CardDescription>{product.description}</CardDescription>

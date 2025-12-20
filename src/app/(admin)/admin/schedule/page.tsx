@@ -146,7 +146,7 @@ function ScheduleComponent() {
                 </div>
                 <Button onClick={() => openForm()}><PlusCircle className="mr-2 h-4 w-4" /> Add Event</Button>
             </div>
-            <Card>
+            <Card className="neon-border">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>

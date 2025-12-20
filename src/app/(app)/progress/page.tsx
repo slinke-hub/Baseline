@@ -60,7 +60,7 @@ export default function ProgressPage() {
 
         <div className="grid gap-4 md:grid-cols-3">
             {stats.map(stat => (
-                <Card key={stat.label}>
+                <Card key={stat.label} className="neon-border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
                         <stat.icon className="h-4 w-4 text-muted-foreground" />
@@ -72,7 +72,7 @@ export default function ProgressPage() {
             ))}
         </div>
 
-        <Card>
+        <Card className="neon-border">
             <CardHeader>
                 <CardTitle>Weekly Activity</CardTitle>
                 <CardDescription>A summary of your workouts over the last week.</CardDescription>

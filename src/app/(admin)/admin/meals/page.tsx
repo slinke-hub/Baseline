@@ -113,7 +113,7 @@ export default function AdminMealsPage() {
     }
 
     return (
-        <Card>
+        <Card className="neon-border">
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle>Meal Plan Management</CardTitle>

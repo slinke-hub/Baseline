@@ -96,7 +96,7 @@ export default function AdminChatPage() {
                 <h1 className="text-3xl font-bold tracking-tight">Client Chat</h1>
                 <p className="text-muted-foreground">Communicate directly with your clients.</p>
             </div>
-            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr]">
+            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr] neon-border">
                 <div className="flex flex-col border-r">
                     <CardHeader>
                         <CardTitle>Clients</CardTitle>

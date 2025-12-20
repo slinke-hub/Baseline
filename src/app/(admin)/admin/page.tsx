@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center neon-border">
               <CardHeader className="p-1">
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Users className="h-4 w-4 text-muted-foreground" /> Total Users</CardTitle>
               </CardHeader>
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">+2 since last week</p>
               </CardContent>
           </Card>
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center neon-border">
               <CardHeader className="p-1">
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Dumbbell className="h-4 w-4 text-muted-foreground" /> Total Workouts</CardTitle>
               </CardHeader>
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">Manage workout content</p>
               </CardContent>
           </Card>
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
+          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center neon-border">
               <CardHeader className="p-1">
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Total Meals</CardTitle>
               </CardHeader>
@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
           </Card>
       </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 neon-border">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> Post an Announcement</CardTitle>
                     <CardDescription>This message will be broadcast to all client dashboards.</CardDescription>
@@ -119,7 +119,7 @@ export default function AdminDashboardPage() {
                     <Button onClick={handlePostAnnouncement} disabled={!newAnnouncement.trim()}>Post Announcement</Button>
                 </CardContent>
             </Card>
-             <Card>
+             <Card className="neon-border">
                 <CardHeader>
                     <CardTitle>Recent Announcements</CardTitle>
                     <CardDescription>A log of your most recent posts.</CardDescription>
@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
                     </div>
                 </CardContent>
             </Card>
-            <Card className="lg:col-span-3">
+            <Card className="lg:col-span-3 neon-border">
                 <CardHeader>
                     <CardTitle>Feature Flags</CardTitle>
                     <CardDescription>Enable or disable experimental features.</CardDescription>

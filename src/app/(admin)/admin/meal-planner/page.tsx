@@ -153,7 +153,7 @@ export default function AdminMealPlannerPage() {
             {!isLoading && <div className="overflow-x-auto">
                 <div className="grid grid-cols-1 md:grid-cols-7 gap-1 min-w-[1200px]">
                     {weekDays.map(day => (
-                        <Card key={day} className="flex-1">
+                        <Card key={day} className="flex-1 neon-border">
                             <CardHeader>
                                 <CardTitle className="text-center">{day}</CardTitle>
                             </CardHeader>
@@ -205,7 +205,7 @@ export default function AdminMealPlannerPage() {
                         {meals
                             ?.filter(m => currentSlot?.mealTime === 'Snacks' ? m.category === 'Snacks' : m.category !== 'Snacks')
                             .map(meal => (
-                            <Card key={meal.id} className="cursor-pointer hover:shadow-primary/20 hover:shadow-lg" onClick={() => handleSelectMeal(meal)}>
+                            <Card key={meal.id} className="cursor-pointer hover:shadow-primary/20 hover:shadow-lg neon-border" onClick={() => handleSelectMeal(meal)}>
                                 <CardHeader className="p-4">
                                      <Image
                                         src={placeholderData.placeholderImages.find(p => p.id === meal.imageId)?.imageUrl || ''}

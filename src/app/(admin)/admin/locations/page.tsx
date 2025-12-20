@@ -54,7 +54,7 @@ export default function AdminLocationsPage() {
                 </div>
             </div>
             <div className="grid md:grid-cols-2 gap-8">
-                <Card>
+                <Card className="neon-border">
                     <CardHeader>
                         <CardTitle>Locations List</CardTitle>
                         <CardDescription>A list of all submitted practice locations.</CardDescription>
@@ -99,7 +99,7 @@ export default function AdminLocationsPage() {
                        )}
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="neon-border">
                      <CardHeader>
                         <CardTitle>Map View</CardTitle>
                         <CardDescription>Visual representation of all locations.</CardDescription>

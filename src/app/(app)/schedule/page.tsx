@@ -41,7 +41,7 @@ export default function ClientSchedulePage() {
                 <h1 className="text-3xl font-bold tracking-tight">My Schedule</h1>
                 <p className="text-muted-foreground">Your weekly training and nutrition plan.</p>
             </div>
-            <Card>
+            <Card className="neon-border">
                 <CardContent className="grid md:grid-cols-2 gap-8 p-4 sm:p-6">
                     <div className="flex justify-center">
                         <Calendar
@@ -49,28 +49,6 @@ export default function ClientSchedulePage() {
                             selected={date}
                             onSelect={setDate}
                             className="rounded-md border"
-                            components={{
-                                DayContent: ({ date }) => {
-                                    const events = getEventsForDate(date);
-                                    return (
-                                        <div className="relative h-full w-full">
-                                            {format(date, 'd')}
-                                            {events.length > 0 && (
-                                                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
-                                                    {events.map((event, i) => {
-                                                        let color = 'bg-gray-400';
-                                                        if (event.type === 'workout') color = 'bg-primary';
-                                                        else if (event.type === 'game') color = 'bg-destructive';
-                                                        else if (event.type === 'rest') color = 'bg-green-500';
-                                                        else if (event.type === 'meal') color = 'bg-amber-500';
-                                                        return <div key={i} className={`h-1.5 w-1.5 rounded-full ${color}`}></div>
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                }
-                            }}
                         />
                     </div>
                     <div>

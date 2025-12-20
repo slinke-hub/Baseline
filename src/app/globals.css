@@ -123,17 +123,21 @@
   }
   
   .neon-border {
-    border-color: hsl(var(--primary) / 0.5);
-    box-shadow: 0 0 2px hsl(var(--primary)), 0 0 5px hsl(var(--primary) / 0.7), 0 0 8px hsl(var(--primary) / 0.5);
-    animation: neon-flicker 3s infinite alternate;
+    --neon-hue: 217;
+    border-color: hsl(var(--neon-hue), 91%, 60%, 0.5);
+    box-shadow: 0 0 2px hsl(var(--neon-hue), 91%, 60%), 0 0 5px hsl(var(--neon-hue), 91%, 60%, 0.7), 0 0 8px hsl(var(--neon-hue), 91%, 60%, 0.5);
+    animation: neon-border-glow 5s linear infinite;
   }
 
-  @keyframes neon-flicker {
-    0%, 18%, 22%, 25%, 53%, 57%, 100% {
-      box-shadow: 0 0 2px hsl(var(--primary)), 0 0 5px hsl(var(--primary) / 0.7), 0 0 8px hsl(var(--primary) / 0.5);
+  @keyframes neon-border-glow {
+    0% {
+      --neon-hue: 217;
     }
-    20%, 24%, 55% {
-      box-shadow: none;
+    50% {
+      --neon-hue: 280; /* A slightly purple-ish blue for variation */
+    }
+    100% {
+      --neon-hue: 217;
     }
   }
 }

@@ -46,7 +46,7 @@ function UserCard({ otherUser, connections, onAdd, onAccept, onCancel }: {
     };
 
     return (
-        <Card className="flex items-center p-4">
+        <Card className="flex items-center p-4 neon-border">
             <Avatar className="h-12 w-12">
                 <AvatarImage src={otherUser.photoURL} alt={otherUser.displayName} />
                 <AvatarFallback>{getInitials(otherUser.displayName)}</AvatarFallback>
@@ -107,7 +107,7 @@ function FriendRequests() {
     return (
         <div className="space-y-4">
             {requests.length > 0 ? requests.map(reqUser => (
-                <Card key={reqUser.uid} className="flex items-center p-4">
+                <Card key={reqUser.uid} className="flex items-center p-4 neon-border">
                     <Avatar className="h-12 w-12">
                         <AvatarImage src={reqUser.photoURL} alt={reqUser.displayName} />
                         <AvatarFallback>{getInitials(reqUser.displayName)}</AvatarFallback>
@@ -202,7 +202,7 @@ export default function FriendsPage() {
                     <TabsTrigger value="requests">Friend Requests</TabsTrigger>
                 </TabsList>
                 <TabsContent value="all">
-                    <Card>
+                    <Card className="neon-border">
                         <CardHeader>
                             <CardTitle>All Users</CardTitle>
                             <CardDescription>Find and add other players.</CardDescription>
@@ -237,7 +237,7 @@ export default function FriendsPage() {
                     </Card>
                 </TabsContent>
                 <TabsContent value="requests">
-                     <Card>
+                     <Card className="neon-border">
                         <CardHeader>
                             <CardTitle>Friend Requests</CardTitle>
                             <CardDescription>Accept incoming friend requests.</CardDescription>

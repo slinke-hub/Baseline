@@ -258,7 +258,7 @@ export default function LocationsPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {locations?.map(location => (
-                    <Card key={location.id} className="overflow-hidden group">
+                    <Card key={location.id} className="overflow-hidden group neon-border">
                         <CardHeader className="p-0">
                             <div className="relative aspect-video w-full">
                                 <Image src={(location.photoUrls && location.photoUrls[0]) || 'https://picsum.photos/seed/1/600/400'} alt={location.name} fill className="object-cover" />

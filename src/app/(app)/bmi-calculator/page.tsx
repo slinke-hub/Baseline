@@ -77,7 +77,7 @@ export default function BmiCalculatorPage() {
             <p className="text-muted-foreground">Calculate your Body Mass Index to tailor your training focus.</p>
         </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        <Card>
+        <Card className="neon-border">
           <CardHeader>
             <CardTitle>Your Measurements</CardTitle>
             <CardDescription>Enter your height and weight to calculate your BMI.</CardDescription>
@@ -126,7 +126,7 @@ export default function BmiCalculatorPage() {
           </CardContent>
         </Card>
         
-        <Card className="flex flex-col min-h-[360px]">
+        <Card className="flex flex-col min-h-[360px] neon-border">
             <CardHeader>
                 <CardTitle>Your Result</CardTitle>
                 <CardDescription>Your calculated BMI and suggested training focus.</CardDescription>

@@ -39,7 +39,7 @@ export function MealDetailClientPage({ meal }: { meal: Meal }) {
         Back to Meals
       </Link>
       <div className="max-w-4xl mx-auto">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden neon-border">
             {mealImage && (
                 <div className="relative h-64 w-full">
                 <Image

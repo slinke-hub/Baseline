@@ -101,7 +101,7 @@ export default function MyOrdersPage() {
                 </div>
             </div>
 
-            <Card>
+            <Card className="neon-border">
                 <CardHeader>
                     <CardTitle>Order History</CardTitle>
                     <CardDescription>A list of all your past and current orders.</CardDescription>

@@ -121,7 +121,7 @@ function FriendRequests() {
     if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
 
     return (
-        <Card>
+        <Card className="neon-border">
             <CardHeader>
                 <CardTitle>Pending Requests</CardTitle>
                 <CardDescription>All pending friend requests across the platform.</CardDescription>
@@ -302,7 +302,7 @@ export default function AdminUsersPage() {
                     </TabsList>
                 </div>
                 <TabsContent value="clients">
-                    <Card>
+                    <Card className="neon-border">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
                                 <CardTitle>Client Management</CardTitle>
