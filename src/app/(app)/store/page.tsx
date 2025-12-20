@@ -8,7 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2, ShoppingCart, Star, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { mockProducts } from '@/lib/mock-data';
 import Image from 'next/image';
 import placeholderData from '@/lib/placeholder-images.json';
 import type { Product, UserOrder } from '@/lib/types';
@@ -35,7 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useFirebase, errorEmitter, FirestorePermissionError, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, serverTimestamp, doc, updateDoc, increment, writeBatch } from 'firebase/firestore';
 
 
@@ -45,11 +44,14 @@ type CartItem = {
 };
 
 export default function StorePage() {
-  const { appUser, user, loading } = useAuth();
+  const { appUser, user, loading: userLoading } = useAuth();
   const { firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
-  const products = mockProducts;
+
+  const productsQuery = useMemoFirebase(() => collection(firestore, 'products'), [firestore]);
+  const { data: products, isLoading: isLoadingProducts } = useCollection<Product>(productsQuery);
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showCodAlert, setShowCodAlert] = useState(false);
@@ -146,7 +148,9 @@ export default function StorePage() {
   const cartSubtotalXP = cart.reduce((total, item) => total + item.product.priceXp * item.quantity, 0);
   const cartSubtotalCash = cart.reduce((total, item) => total + item.product.priceCash * item.quantity, 0);
 
-  if (loading) {
+  const isLoading = userLoading || isLoadingProducts;
+
+  if (isLoading) {
     return (
       <div className="flex h-[calc(100vh-80px)] items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -247,7 +251,7 @@ export default function StorePage() {
         </div>
       </div>
 
-      {products.length > 0 ? (
+      {products && products.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map(product => (
             <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
@@ -265,3 +269,5 @@ export default function StorePage() {
     </div>
   );
 }
+
+    

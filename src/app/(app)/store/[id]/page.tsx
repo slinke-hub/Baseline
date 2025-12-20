@@ -1,17 +1,26 @@
 
-import { mockProducts } from "@/lib/mock-data";
+'use client';
 import { ProductDetailClientPage } from "./product-detail-client-page";
 import type { Product } from "@/lib/types";
-
-export async function generateStaticParams() {
-  return mockProducts.map((product) => ({
-    id: product.id,
-  }));
-}
+import { useDoc, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
+import { useFirebase } from "@/firebase/provider";
+import { Loader2 } from "lucide-react";
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const product: Product | undefined = mockProducts.find(p => p.id === id);
+  const { firestore } = useFirebase();
+
+  const productDocRef = useMemoFirebase(() => doc(firestore, 'products', id), [firestore, id]);
+  const { data: product, isLoading } = useDoc<Product>(productDocRef);
+
+  if (isLoading) {
+    return (
+        <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -23,3 +32,5 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   return <ProductDetailClientPage product={product} />;
 }
+
+    
