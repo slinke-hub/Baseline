@@ -61,50 +61,54 @@ function FriendRequests() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const q = query(
-            collectionGroup(firestore, 'connections'),
-            where('status', '==', 'pending')
-        );
+        setIsLoading(true);
 
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const seen = new Set();
-            const pendingConnections = snapshot.docs
-                .map(d => ({
-                    path: d.ref.path,
-                    ...d.data() as Connection
-                }))
-                .filter(c => {
-                    const [ , userId, , friendId] = c.path.split('/');
-                    const sortedId = [userId, friendId].sort().join('_');
-                    if (seen.has(sortedId)) return false;
-                    seen.add(sortedId);
-                    return true;
-                });
-                
-            const populatedRequests = await Promise.all(
-                pendingConnections.map(async (conn) => {
-                    const [ , receiverId, , senderId] = conn.path.split('/');
+        const fetchAllUsersAndRequests = async () => {
+            const usersSnapshot = await getDocs(collection(firestore, 'users'));
+            const allUsers = usersSnapshot.docs.map(d => d.data() as AppUser);
+            const userMap = new Map(allUsers.map(u => [u.uid, u]));
+            
+            const allRequests: PendingRequest[] = [];
+            const seenRequests = new Set<string>();
+
+            for (const user of allUsers) {
+                const connectionsQuery = query(
+                    collection(firestore, 'users', user.uid, 'connections'),
+                    where('status', '==', 'pending')
+                );
+                const connectionsSnapshot = await getDocs(connectionsQuery);
+
+                for (const connDoc of connectionsSnapshot.docs) {
+                    const connection = connDoc.data() as Connection;
+                    const friendId = connDoc.id;
+
+                    const sortedIds = [user.uid, friendId].sort();
+                    const requestId = sortedIds.join('_');
+
+                    if (seenRequests.has(requestId)) continue;
+                    seenRequests.add(requestId);
+
+                    const fromUser = userMap.get(connection.initiator);
+                    const toUser = userMap.get(connection.initiator === user.uid ? friendId : user.uid);
                     
-                    const fromUserDoc = await getDoc(doc(firestore, 'users', conn.initiator));
-                    const toUserDoc = await getDoc(doc(firestore, 'users', conn.initiator === senderId ? receiverId : senderId));
-
-                    if (fromUserDoc.exists() && toUserDoc.exists()) {
-                         return {
-                            id: `${fromUserDoc.id}_${toUserDoc.id}`,
-                            fromUser: fromUserDoc.data() as AppUser,
-                            toUser: toUserDoc.data() as AppUser,
-                        };
+                    if (fromUser && toUser) {
+                        allRequests.push({
+                            id: requestId,
+                            fromUser,
+                            toUser,
+                        });
                     }
-                    return null;
-                })
-            );
+                }
+            }
+            setRequests(allRequests);
+            setIsLoading(false);
+        }
 
-            setRequests(populatedRequests.filter(Boolean) as PendingRequest[]);
+        fetchAllUsersAndRequests().catch(err => {
+            console.error(err);
             setIsLoading(false);
         });
-
-        return () => unsubscribe();
-
+        
     }, [firestore]);
 
     if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
