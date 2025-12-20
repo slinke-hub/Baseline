@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star, User, UserCheck, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star, User, UserCheck, Loader2, CheckCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,59 +57,86 @@ type PendingRequest = {
 
 function FriendRequests() {
     const { firestore } = useFirebase();
+    const { toast } = useToast();
     const [requests, setRequests] = useState<PendingRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
+    const fetchRequests = async () => {
         setIsLoading(true);
+        const usersSnapshot = await getDocs(collection(firestore, 'users'));
+        const allUsers = usersSnapshot.docs.map(d => d.data() as AppUser);
+        const userMap = new Map(allUsers.map(u => [u.uid, u]));
+        
+        const allRequests: PendingRequest[] = [];
+        const seenRequests = new Set<string>();
 
-        const fetchAllUsersAndRequests = async () => {
-            const usersSnapshot = await getDocs(collection(firestore, 'users'));
-            const allUsers = usersSnapshot.docs.map(d => d.data() as AppUser);
-            const userMap = new Map(allUsers.map(u => [u.uid, u]));
-            
-            const allRequests: PendingRequest[] = [];
-            const seenRequests = new Set<string>();
+        for (const user of allUsers) {
+            const connectionsQuery = query(
+                collection(firestore, 'users', user.uid, 'connections'),
+                where('status', '==', 'pending')
+            );
+            const connectionsSnapshot = await getDocs(connectionsQuery);
 
-            for (const user of allUsers) {
-                const connectionsQuery = query(
-                    collection(firestore, 'users', user.uid, 'connections'),
-                    where('status', '==', 'pending')
-                );
-                const connectionsSnapshot = await getDocs(connectionsQuery);
+            for (const connDoc of connectionsSnapshot.docs) {
+                const connection = connDoc.data() as Connection;
+                const friendId = connDoc.id;
 
-                for (const connDoc of connectionsSnapshot.docs) {
-                    const connection = connDoc.data() as Connection;
-                    const friendId = connDoc.id;
+                const sortedIds = [user.uid, friendId].sort();
+                const requestId = sortedIds.join('_');
 
-                    const sortedIds = [user.uid, friendId].sort();
-                    const requestId = sortedIds.join('_');
+                if (seenRequests.has(requestId)) continue;
+                seenRequests.add(requestId);
 
-                    if (seenRequests.has(requestId)) continue;
-                    seenRequests.add(requestId);
-
-                    const fromUser = userMap.get(connection.initiator);
-                    const toUser = userMap.get(connection.initiator === user.uid ? friendId : user.uid);
-                    
-                    if (fromUser && toUser) {
-                        allRequests.push({
-                            id: requestId,
-                            fromUser,
-                            toUser,
-                        });
-                    }
+                const fromUser = userMap.get(connection.initiator);
+                const toUser = userMap.get(connection.initiator === user.uid ? friendId : user.uid);
+                
+                if (fromUser && toUser) {
+                    allRequests.push({
+                        id: requestId,
+                        fromUser,
+                        toUser,
+                    });
                 }
             }
-            setRequests(allRequests);
-            setIsLoading(false);
         }
-
-        fetchAllUsersAndRequests().catch(err => {
+        setRequests(allRequests);
+        setIsLoading(false);
+    }
+    
+    useEffect(() => {
+        fetchRequests().catch(err => {
             console.error(err);
             setIsLoading(false);
         });
-        
     }, [firestore]);
+    
+    const handleAcceptRequest = async (fromUserId: string, toUserId: string) => {
+        try {
+            const batch = writeBatch(firestore);
+            const fromUserRef = doc(firestore, 'users', fromUserId, 'connections', toUserId);
+            const toUserRef = doc(firestore, 'users', toUserId, 'connections', fromUserId);
+
+            batch.update(fromUserRef, { status: 'accepted' });
+            batch.update(toUserRef, { status: 'accepted' });
+
+            await batch.commit();
+
+            toast({
+                title: "Request Accepted",
+                description: "The users are now friends.",
+            });
+            // Refetch requests to update the UI
+            await fetchRequests();
+        } catch (error) {
+            console.error("Error accepting request:", error);
+            toast({
+                title: "Error",
+                description: "Could not accept the friend request.",
+                variant: "destructive",
+            });
+        }
+    };
+
 
     if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
 
@@ -127,6 +154,7 @@ function FriendRequests() {
                                 <TableHead>From</TableHead>
                                 <TableHead>To</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead className="text-right">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -152,6 +180,12 @@ function FriendRequests() {
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant="outline">Pending</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button size="sm" onClick={() => handleAcceptRequest(req.fromUser.uid, req.toUser.uid)}>
+                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                            Accept
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -474,4 +508,3 @@ export default function AdminUsersPage() {
             </AlertDialog>
         </>
     )
-}
