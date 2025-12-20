@@ -5,11 +5,12 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-export default function RedirectToAppHome() {
+export default function RedirectToRoot() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/home');
+    // Redirect to the root, which will handle auth and redirect to the correct home page.
+    router.replace('/');
   }, [router]);
 
   return (
