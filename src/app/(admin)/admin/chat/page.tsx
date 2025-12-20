@@ -10,7 +10,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, addDoc, serverTimestamp, Unsubscribe, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, addDoc, serverTimestamp, Unsubscribe, onSnapshot } from 'firebase/firestore';
 import type { AppUser, ChatMessage } from '@/lib/types';
 
 const getInitials = (name?: string | null) => {
@@ -25,15 +25,17 @@ const getChatId = (uid1: string, uid2: string) => {
 export default function AdminChatPage() {
     const { user: adminUser } = useAuth();
     const { firestore } = useFirebase();
-    const [selectedClient, setSelectedClient] = useState<AppUser | null>(null);
+    const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesUnsubscribe = useRef<Unsubscribe | null>(null);
     
-    const clientsQuery = useMemoFirebase(() => query(collection(firestore, 'users'), where('role', '==', 'client')), [firestore]);
-    const { data: clients, isLoading: isLoadingClients } = useCollection<AppUser>(clientsQuery);
+    const usersQuery = useMemoFirebase(() => query(collection(firestore, 'users')), [firestore]);
+    const { data: allUsers, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
+
+    const usersToDisplay = allUsers?.filter(u => u.uid !== adminUser?.uid);
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -42,13 +44,13 @@ export default function AdminChatPage() {
     }, [messages]);
 
     useEffect(() => {
-        if (!adminUser || !selectedClient) {
+        if (!adminUser || !selectedUser) {
             setMessages([]);
             return;
         }
 
         setIsLoadingMessages(true);
-        const chatId = getChatId(adminUser.uid, selectedClient.uid);
+        const chatId = getChatId(adminUser.uid, selectedUser.uid);
         const messagesQuery = query(collection(firestore, 'chats', chatId, 'messages'), orderBy('createdAt', 'asc'));
 
         if (messagesUnsubscribe.current) {
@@ -69,21 +71,21 @@ export default function AdminChatPage() {
                 messagesUnsubscribe.current();
             }
         };
-    }, [selectedClient, adminUser, firestore]);
+    }, [selectedUser, adminUser, firestore]);
 
-    const handleSelectClient = (client: AppUser) => {
-        setSelectedClient(client);
+    const handleSelectUser = (user: AppUser) => {
+        setSelectedUser(user);
     };
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !adminUser || !selectedClient) return;
+        if (!newMessage.trim() || !adminUser || !selectedUser) return;
 
-        const chatId = getChatId(adminUser.uid, selectedClient.uid);
+        const chatId = getChatId(adminUser.uid, selectedUser.uid);
         await addDoc(collection(firestore, 'chats', chatId, 'messages'), {
             text: newMessage.trim(),
             senderId: adminUser.uid,
-            receiverId: selectedClient.uid,
+            receiverId: selectedUser.uid,
             createdAt: serverTimestamp(),
         });
 
@@ -93,44 +95,45 @@ export default function AdminChatPage() {
     return (
         <div className="h-[calc(100vh-2rem)] flex flex-col">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Client Chat</h1>
-                <p className="text-muted-foreground">Communicate directly with your clients.</p>
+                <h1 className="text-3xl font-bold tracking-tight">User Chat</h1>
+                <p className="text-muted-foreground">Communicate directly with any user.</p>
             </div>
             <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr]">
                 <div className="flex flex-col border-r">
                     <CardHeader>
-                        <CardTitle>Clients</CardTitle>
+                        <CardTitle>All Users</CardTitle>
                     </CardHeader>
                     <CardContent className="p-2 space-y-1 overflow-y-auto">
-                        {isLoadingClients ? <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin"/></div> :
-                         clients?.map(client => (
+                        {isLoadingUsers ? <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin"/></div> :
+                         usersToDisplay?.map(user => (
                             <button
-                                key={client.uid}
+                                key={user.uid}
                                 className={cn(
                                     "w-full flex items-center gap-3 text-left p-2 rounded-lg transition-colors",
-                                    selectedClient?.uid === client.uid ? "bg-accent" : "hover:bg-accent/50"
+                                    selectedUser?.uid === user.uid ? "bg-accent" : "hover:bg-accent/50"
                                 )}
-                                onClick={() => handleSelectClient(client)}
+                                onClick={() => handleSelectUser(user)}
                             >
                                 <Avatar>
-                                    <AvatarImage src={client.photoURL} />
-                                    <AvatarFallback>{getInitials(client.displayName)}</AvatarFallback>
+                                    <AvatarImage src={user.photoURL} />
+                                    <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 overflow-hidden">
-                                    <p className="font-semibold truncate">{client.displayName}</p>
+                                    <p className="font-semibold truncate">{user.displayName}</p>
+                                    <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
                                 </div>
                             </button>
                         ))}
                     </CardContent>
                 </div>
-                {selectedClient ? (
+                {selectedUser ? (
                     <div className="flex flex-col">
                         <CardHeader className="flex-row items-center gap-3 border-b">
                              <Avatar>
-                                <AvatarImage src={selectedClient.photoURL} />
-                                <AvatarFallback>{getInitials(selectedClient.displayName)}</AvatarFallback>
+                                <AvatarImage src={selectedUser.photoURL} />
+                                <AvatarFallback>{getInitials(selectedUser.displayName)}</AvatarFallback>
                             </Avatar>
-                            <CardTitle>{selectedClient.displayName}</CardTitle>
+                            <CardTitle>{selectedUser.displayName}</CardTitle>
                         </CardHeader>
                         <CardContent className="flex-1 p-6 space-y-4 overflow-y-auto">
                             {isLoadingMessages ? <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div> :
@@ -139,7 +142,7 @@ export default function AdminChatPage() {
                                     "flex items-end gap-2",
                                     message.senderId === adminUser?.uid ? 'justify-end' : 'justify-start'
                                 )}>
-                                    {message.senderId !== adminUser?.uid && <Avatar className="h-8 w-8"><AvatarImage src={selectedClient.photoURL} /><AvatarFallback>{getInitials(selectedClient.displayName)}</AvatarFallback></Avatar>}
+                                    {message.senderId !== adminUser?.uid && <Avatar className="h-8 w-8"><AvatarImage src={selectedUser.photoURL} /><AvatarFallback>{getInitials(selectedUser.displayName)}</AvatarFallback></Avatar>}
                                     <div className={cn(
                                         "max-w-xs md:max-w-md rounded-lg px-4 py-2",
                                         message.senderId === adminUser?.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary'
@@ -167,7 +170,7 @@ export default function AdminChatPage() {
                     </div>
                 ) : (
                      <div className="flex items-center justify-center h-full">
-                        <p className="text-muted-foreground">Select a client to start chatting</p>
+                        <p className="text-muted-foreground">Select a user to start chatting</p>
                     </div>
                 )}
             </Card>
