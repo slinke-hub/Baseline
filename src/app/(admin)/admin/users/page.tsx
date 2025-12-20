@@ -39,21 +39,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { AppUser, Connection } from '@/lib/types';
 import { useFirebase } from '@/firebase';
-import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
+import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-
-// Mock user data for demonstration
-const initialUsers: AppUser[] = [
-    { uid: 'user-4', displayName: 'Admin User', email: 'monti.training@gmail.com', role: 'admin' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 9999 },
-    { uid: 'user-coach-1', displayName: 'Coach Carter', email: 'coach@baseline.dev', role: 'coach' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
-    { uid: 'user-seller-1', displayName: 'Delivery Dan', email: 'seller@baseline.dev', role: 'seller' as const, photoURL: '', sessionsCompleted: 0, totalSessions: 0, xp: 0 },
-    { uid: 'user-1', displayName: 'LeBron James', email: 'lebron@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 4, totalSessions: 8, xp: 1250, address: '123 Main St, Akron, OH' },
-    { uid: 'user-2', displayName: 'Stephen Curry', email: 'steph@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 6, totalSessions: 8, xp: 2300, address: '456 High St, Charlotte, NC' },
-    { uid: 'user-3', displayName: 'Kevin Durant', email: 'kd@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 1, totalSessions: 12, xp: 800, address: '789 Slim Ave, Washington, DC' },
-    { uid: 'user-5', displayName: 'Zion Williamson', email: 'zion@example.com', role: 'client' as const, photoURL: '', sessionsCompleted: 8, totalSessions: 8, xp: 3000, address: '901 Pelican Way, New Orleans, LA' },
-];
 
 const getInitials = (name?: string | null) => {
     if (!name) return 'U';
@@ -175,7 +164,7 @@ function FriendRequests() {
 export default function AdminUsersPage() {
     const { toast } = useToast();
     const { firestore } = useFirebase();
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState<AppUser[]>([]);
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
@@ -194,45 +183,28 @@ export default function AdminUsersPage() {
 
     const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const name = formData.get('name') as string;
-        const email = formData.get('email') as string;
-        const role = formData.get('role') as AppUser['role'];
-        
-        const newUser: AppUser = {
-            uid: `user-${Date.now()}`,
-            displayName: name,
-            email,
-            role: role || 'client',
-            photoURL: '',
-            sessionsCompleted: 0,
-            totalSessions: 8,
-            xp: 0,
-        };
-
-        setUsers(currentUsers => [newUser, ...currentUsers]);
-
-        toast({ title: 'User Added', description: `Added new user: ${name} (${email})` });
+        // In a real app, adding a user would involve Firebase Auth and is best done via a backend function.
+        // This client-side implementation is for demonstration purposes.
+        toast({ title: 'Add User', description: `Adding users from the admin panel is not fully implemented.` });
         setAddUserOpen(false);
     }
     
     const handleDeleteUser = async () => {
         if (!userToDelete) return;
 
+        // Note: This only deletes the Firestore record. For a full deletion,
+        // you would need a Firebase Function to delete the user from Firebase Authentication.
         const userDocRef = doc(firestore, 'users', userToDelete.uid);
 
         try {
             const batch = writeBatch(firestore);
             batch.delete(userDocRef);
 
-            // Here you might also want to delete from Firebase Auth, which requires a backend function.
-            // For now, we just delete from Firestore.
-
             await batch.commit();
 
             toast({
                 title: "User Deleted",
-                description: "The user has been removed from the list.",
+                description: "The user has been removed from the Firestore database.",
                 variant: "destructive",
             });
             
@@ -247,30 +219,31 @@ export default function AdminUsersPage() {
         }
     }
 
-    const handleEditUser = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleEditUser = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!selectedUser) return;
         const formData = new FormData(event.currentTarget);
-        const name = formData.get('name') as string;
-        const email = formData.get('email') as string;
-        const role = formData.get('role') as AppUser['role'];
-        const totalSessions = formData.get('totalSessions') as string;
-        const xp = formData.get('xp') as string;
+        
+        const updatedData = {
+            displayName: formData.get('name') as string,
+            email: formData.get('email') as string,
+            role: formData.get('role') as AppUser['role'],
+            totalSessions: parseInt(formData.get('totalSessions') as string, 10) || selectedUser.totalSessions,
+            xp: parseInt(formData.get('xp') as string, 10) || 0,
+        };
+        
+        const userDocRef = doc(firestore, 'users', selectedUser.uid);
 
-        setUsers(currentUsers => currentUsers.map(user => 
-            user.uid === selectedUser.uid ? { 
-                ...user, 
-                displayName: name, 
-                email, 
-                role, 
-                totalSessions: parseInt(totalSessions, 10) || user.totalSessions,
-                xp: parseInt(xp, 10) || 0,
-             } : user
-        ));
-
-        toast({ title: 'User Updated', description: `Updated details for ${name}.` });
-        setIsEditUserOpen(false);
-        setSelectedUser(null);
+        try {
+            await updateDoc(userDocRef, updatedData);
+            toast({ title: 'User Updated', description: `Updated details for ${updatedData.displayName}.` });
+        } catch (error) {
+            console.error("Error updating user:", error);
+            toast({ title: 'Update Failed', description: 'Could not update user details.', variant: 'destructive'});
+        } finally {
+            setIsEditUserOpen(false);
+            setSelectedUser(null);
+        }
     }
 
     const openEditDialog = (user: AppUser) => {

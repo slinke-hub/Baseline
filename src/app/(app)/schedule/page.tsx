@@ -4,24 +4,42 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, isSameDay } from 'date-fns';
-import { UtensilsCrossed, Dumbbell } from 'lucide-react';
+import { UtensilsCrossed, Dumbbell, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import type { ScheduleEvent } from '@/lib/types';
-import { mockSchedule } from '@/lib/mock-data';
+import { useFirebase } from '@/firebase';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 
 
 export default function ClientSchedulePage() {
-    const { appUser } = useAuth();
+    const { user } = useAuth();
+    const { firestore } = useFirebase();
     const [date, setDate] = useState<Date | undefined>(new Date());
+    const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     
-    // In a real app, this would be a Firestore query. For now, we mock a "logged in" user.
-    const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2'; 
-    const userSchedule = mockSchedule.filter(event => event.userId === currentUserMockId);
+    useEffect(() => {
+        if (!user) return;
+        setIsLoading(true);
+        const scheduleQuery = query(collection(firestore, 'users', user.uid, 'schedule'));
+        const unsubscribe = onSnapshot(scheduleQuery, (snapshot) => {
+            const userSchedule = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return { ...data, id: doc.id, date: data.date.toDate() } as ScheduleEvent;
+            });
+            setSchedule(userSchedule);
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Failed to fetch schedule: ", error);
+            setIsLoading(false);
+        });
+        return () => unsubscribe();
+    }, [user, firestore]);
 
     const getEventsForDate = (d: Date) => {
-        return userSchedule.filter(event => isSameDay(event.date, d));
+        return schedule.filter(event => isSameDay(event.date, d));
     }
     
     const getEventBadge = (type: ScheduleEvent['type']) => {
@@ -33,7 +51,6 @@ export default function ClientSchedulePage() {
             default: return <Badge className="flex-shrink-0">{type}</Badge>;
         }
     }
-
 
     return (
         <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -55,19 +72,21 @@ export default function ClientSchedulePage() {
                         <h3 className="text-lg font-semibold mb-4">
                             Plan for {date ? format(date, 'MMMM do, yyyy') : '...'}
                         </h3>
-                        <div className="space-y-4">
-                           {date && getEventsForDate(date).length > 0 ? getEventsForDate(date).map((event) => (
-                                <div key={event.id} className="flex items-center gap-4 rounded-lg border p-4">
-                                    {getEventBadge(event.type)}
-                                    <p className="font-medium flex-1 truncate">{event.title}</p>
-                                </div>
-                            )) : (
-                                <div className="text-muted-foreground p-4 text-center border-2 border-dashed rounded-lg">
-                                    <p>No events scheduled for this day.</p>
-                                    <p className="text-xs">Check back later or contact your coach.</p>
-                                </div>
-                            )}
-                        </div>
+                         {isLoading ? <div className="flex justify-center items-center h-48"><Loader2 className="h-8 w-8 animate-spin" /></div> :
+                            <div className="space-y-4">
+                               {date && getEventsForDate(date).length > 0 ? getEventsForDate(date).map((event) => (
+                                    <div key={event.id} className="flex items-center gap-4 rounded-lg border p-4">
+                                        {getEventBadge(event.type)}
+                                        <p className="font-medium flex-1 truncate">{event.title}</p>
+                                    </div>
+                                )) : (
+                                    <div className="text-muted-foreground p-4 text-center border-2 border-dashed rounded-lg">
+                                        <p>No events scheduled for this day.</p>
+                                        <p className="text-xs">Check back later or contact your coach.</p>
+                                    </div>
+                                )}
+                            </div>
+                        }
                     </div>
                 </CardContent>
             </Card>

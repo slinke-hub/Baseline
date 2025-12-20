@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
@@ -9,68 +9,62 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState, useEffect } from 'react';
 import { addDays, format, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash2, UtensilsCrossed } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, UtensilsCrossed, Dumbbell, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { mockWorkouts, mockMeals } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import type { Workout, Meal, ScheduleEvent, AppUser } from '@/lib/types';
 
-const mockUsers = [
-    { id: 'user-1', name: 'LeBron James' },
-    { id: 'user-2', name: 'Stephen Curry' },
-    { id: 'user-3', name: 'Kevin Durant' },
-    { id: 'user-5', name: 'Zion Williamson' },
-];
-
-type ScheduleEvent = {
-    id: string;
-    userId: string;
-    date: Date;
-    type: 'workout' | 'rest' | 'game' | 'meal';
-    title: string;
-    workoutId?: string;
-    mealId?: string;
-}
-
-const initialSchedule: ScheduleEvent[] = [
-    { id: 'event-1', userId: 'user-1', date: new Date(), type: 'workout', title: 'Plyometric Power', workoutId: '5' },
-    { id: 'event-2', userId: 'user-1', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
-    { id: 'event-3', userId: 'user-1', date: addDays(new Date(), 4), type: 'rest', title: 'Rest Day' },
-    { id: 'event-4', userId: 'user-2', date: new Date(), type: 'workout', title: 'Stationary Dribbling Series', workoutId: '2' },
-    { id: 'event-5', userId: 'user-2', date: addDays(new Date(), 1), type: 'workout', title: 'Defensive Slides', workoutId: '3' },
-    { id: 'event-6', userId: 'user-2', date: addDays(new Date(), 3), type: 'game', title: 'Game Day' },
-    { id: 'event-10', userId: 'user-2', date: new Date(), type: 'meal', title: 'Power Oatmeal', mealId: '1'},
-    { id: 'event-11', userId: 'user-2', date: new Date(), type: 'meal', title: 'Grilled Chicken Salad', mealId: '2'},
-    { id: 'event-12', userId: 'user-2', date: addDays(new Date(),1), type: 'meal', title: 'Recovery Salmon', mealId: '3'},
-    { id: 'event-7', userId: 'user-3', date: new Date(), type: 'workout', title: 'Hill Sprints', workoutId: '4' },
-    { id: 'event-8', userId: 'user-3', date: addDays(new Date(), 1), type: 'rest', title: 'Rest Day' },
-    { id: 'event-9', userId: 'user-3', date: addDays(new Date(), 2), type: 'workout', title: 'Form Shooting', workoutId: '1' },
-    { id: 'event-13', userId: 'user-5', date: new Date(), type: 'meal', title: 'Post-Game Protein Shake', mealId: '5' },
-]
 
 function ScheduleComponent() {
     const searchParams = useSearchParams();
     const userIdFromParams = searchParams.get('userId');
-
     const { toast } = useToast();
-    const [schedule, setSchedule] = useState(initialSchedule);
-    const [selectedUser, setSelectedUser] = useState(userIdFromParams || 'user-2');
+    const { firestore } = useFirebase();
+
+    const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
+    const [selectedUser, setSelectedUser] = useState<string | null>(userIdFromParams);
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [isFormOpen, setFormOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
 
+    const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+    const { data: users, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
+
+    const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
+    const { data: workouts, isLoading: isLoadingWorkouts } = useCollection<Workout>(workoutsQuery);
+
+    const mealsQuery = useMemoFirebase(() => collection(firestore, 'meals'), [firestore]);
+    const { data: meals, isLoading: isLoadingMeals } = useCollection<Meal>(mealsQuery);
+
     useEffect(() => {
         if (userIdFromParams) {
             setSelectedUser(userIdFromParams);
+        } else if (users && users.length > 0) {
+            setSelectedUser(users[0].uid);
         }
-    }, [userIdFromParams]);
+    }, [userIdFromParams, users]);
+
+    useEffect(() => {
+        if (!selectedUser) return;
+        const scheduleQuery = query(collection(firestore, 'users', selectedUser, 'schedule'));
+        const unsubscribe = onSnapshot(scheduleQuery, (snapshot) => {
+            const userSchedule = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return { ...data, id: doc.id, date: data.date.toDate() } as ScheduleEvent;
+            });
+            setSchedule(userSchedule);
+        });
+        return () => unsubscribe();
+    }, [selectedUser, firestore]);
 
     const isEditing = !!selectedEvent;
-    const userSchedule = schedule.filter(event => event.userId === selectedUser);
 
     const getEventsForDate = (d: Date) => {
-        return userSchedule.filter(event => isSameDay(event.date, d));
+        return schedule.filter(event => isSameDay(event.date, d));
     }
 
     const openForm = (event?: ScheduleEvent) => {
@@ -86,23 +80,19 @@ function ScheduleComponent() {
         setSelectedEvent(null);
     }
 
-    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
-        const selectedWorkout = mockWorkouts.find(w => w.id === values.workoutId);
-        const selectedMeal = mockMeals.find(m => m.id === values.mealId);
+        const selectedWorkout = workouts?.find(w => w.id === values.workoutId);
+        const selectedMeal = meals?.find(m => m.id === values.mealId);
 
         let title = '';
-        if (values.type === 'workout' && selectedWorkout) {
-            title = selectedWorkout.title;
-        } else if (values.type === 'meal' && selectedMeal) {
-            title = selectedMeal.title;
-        } else {
-            title = values.title;
-        }
+        if (values.type === 'workout' && selectedWorkout) title = selectedWorkout.title;
+        else if (values.type === 'meal' && selectedMeal) title = selectedMeal.title;
+        else title = values.title;
         
-        const eventData = {
+        const eventData: Omit<ScheduleEvent, 'id'> = {
             userId: values.userId,
             date: date!,
             type: values.type,
@@ -111,31 +101,45 @@ function ScheduleComponent() {
             mealId: values.mealId,
         };
         
-        if (isEditing) {
-            setSchedule(current => current.map(ev => ev.id === selectedEvent.id ? { ...ev, ...eventData } : ev));
-            toast({ title: "Event Updated", description: "The schedule has been updated."});
-        } else {
-            setSchedule(current => [...current, { id: `event-${Date.now()}`, ...eventData }]);
-            toast({ title: "Event Added", description: "The client's schedule has been updated."});
+        try {
+            if (isEditing && selectedEvent) {
+                const eventRef = doc(firestore, 'users', values.userId, 'schedule', selectedEvent.id);
+                await setDoc(eventRef, eventData);
+                toast({ title: "Event Updated", description: "The schedule has been updated."});
+            } else {
+                const scheduleColRef = collection(firestore, 'users', values.userId, 'schedule');
+                await addDoc(scheduleColRef, eventData);
+                toast({ title: "Event Added", description: "The client's schedule has been updated."});
+            }
+            closeForm();
+        } catch (error) {
+            console.error("Error saving event:", error);
+            toast({ title: "Save Failed", description: "Could not save the event.", variant: "destructive"});
         }
-        
-        closeForm();
     }
     
-    const handleDelete = (eventId: string) => {
-        setSchedule(current => current.filter(ev => ev.id !== eventId));
-        toast({ title: "Event Deleted", description: "The event has been removed from the schedule.", variant: 'destructive'});
+    const handleDelete = async (event: ScheduleEvent) => {
+        try {
+            const eventRef = doc(firestore, 'users', event.userId, 'schedule', event.id);
+            await deleteDoc(eventRef);
+            toast({ title: "Event Deleted", description: "The event has been removed from the schedule.", variant: 'destructive'});
+        } catch (error) {
+            console.error("Error deleting event:", error);
+            toast({ title: "Delete Failed", description: "Could not delete the event.", variant: "destructive"});
+        }
     }
 
     const getEventBadge = (type: ScheduleEvent['type']) => {
         switch(type) {
-            case 'workout': return <Badge variant="default">{type}</Badge>;
-            case 'meal': return <Badge className="bg-amber-500 text-black hover:bg-amber-500/80">{type}</Badge>;
+            case 'workout': return <Badge variant="default"><Dumbbell className="h-3 w-3 mr-1" />{type}</Badge>;
+            case 'meal': return <Badge className="bg-amber-500 text-black hover:bg-amber-500/80"><UtensilsCrossed className="h-3 w-3 mr-1" />{type}</Badge>;
             case 'game': return <Badge variant="destructive">{type}</Badge>;
             case 'rest': return <Badge className="bg-green-500 hover:bg-green-500/80 text-white">{type}</Badge>;
             default: return <Badge>{type}</Badge>;
         }
     }
+
+    const isLoading = isLoadingUsers || isLoadingWorkouts || isLoadingMeals;
 
     return (
         <div className="space-y-6">
@@ -144,7 +148,7 @@ function ScheduleComponent() {
                     <h1 className="text-3xl font-bold tracking-tight">Client Schedules</h1>
                     <p className="text-muted-foreground">View and manage training schedules for your clients.</p>
                 </div>
-                <Button onClick={() => openForm()}><PlusCircle className="mr-2 h-4 w-4" /> Add Event</Button>
+                <Button onClick={() => openForm()} disabled={!selectedUser}><PlusCircle className="mr-2 h-4 w-4" /> Add Event</Button>
             </div>
             <Card className="neon-border">
                 <CardHeader>
@@ -153,19 +157,20 @@ function ScheduleComponent() {
                             <CardTitle>Select a Client</CardTitle>
                             <CardDescription>Choose a client to see their weekly schedule.</CardDescription>
                         </div>
-                        <Select value={selectedUser} onValueChange={setSelectedUser}>
+                        <Select value={selectedUser || ''} onValueChange={setSelectedUser}>
                             <SelectTrigger className="w-[280px]">
                                 <SelectValue placeholder="Select a client" />
                             </SelectTrigger>
                             <SelectContent>
-                                {mockUsers.map(user => (
-                                    <SelectItem key={user.id} value={user.id}>{user.name}</SelectItem>
+                                {users?.map(user => (
+                                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-8">
+                    {isLoading ? <div className="flex justify-center items-center col-span-full h-64"><Loader2 className="h-8 w-8 animate-spin" /></div> : <>
                     <div className="flex justify-center">
                         <Calendar
                             mode="single"
@@ -203,14 +208,13 @@ function ScheduleComponent() {
                         <div className="space-y-4">
                            {date && getEventsForDate(date).length > 0 ? getEventsForDate(date).map((event) => (
                                 <div key={event.id} className="flex items-center justify-between gap-4 rounded-lg border p-4">
-                                    <div className="flex items-center gap-4">
-                                        {event.type === 'meal' && <UtensilsCrossed className="h-4 w-4 text-amber-500" />}
+                                    <div className="flex items-center gap-4 overflow-hidden">
                                         {getEventBadge(event.type)}
-                                        <p className="font-medium">{event.title}</p>
+                                        <p className="font-medium truncate">{event.title}</p>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <Button variant="ghost" size="icon" onClick={() => openForm(event)}><Edit className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(event.id)}><Trash2 className="h-4 w-4" /></Button>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(event)}><Trash2 className="h-4 w-4" /></Button>
                                     </div>
                                 </div>
                             )) : (
@@ -218,6 +222,7 @@ function ScheduleComponent() {
                             )}
                         </div>
                     </div>
+                    </>}
                 </CardContent>
             </Card>
             
@@ -230,6 +235,9 @@ function ScheduleComponent() {
                         <ScheduleFormFields 
                             selectedEvent={selectedEvent} 
                             selectedUser={selectedUser}
+                            users={users}
+                            workouts={workouts}
+                            meals={meals}
                         />
                         <DialogFooter className="mt-4">
                             <Button type="button" variant="ghost" onClick={closeForm}>Cancel</Button>
@@ -251,17 +259,23 @@ export default function AdminSchedulePage() {
     );
 }
 
-function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: ScheduleEvent | null, selectedUser: string }) {
+function ScheduleFormFields({ selectedEvent, selectedUser, users, workouts, meals }: { 
+    selectedEvent: ScheduleEvent | null, 
+    selectedUser: string | null,
+    users: AppUser[] | null,
+    workouts: Workout[] | null,
+    meals: Meal[] | null,
+}) {
     const [eventType, setEventType] = useState(selectedEvent?.type || 'workout');
 
     return (
         <div className="grid gap-4 py-4">
             <div className="space-y-2">
                 <Label htmlFor="userId">Client</Label>
-                <Select name="userId" defaultValue={selectedUser} required>
+                <Select name="userId" defaultValue={selectedUser || ''} required>
                     <SelectTrigger id="userId"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                        {mockUsers.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+                        {users?.map(u => <SelectItem key={u.uid} value={u.uid}>{u.displayName}</SelectItem>)}
                     </SelectContent>
                 </Select>
             </div>
@@ -284,7 +298,7 @@ function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: Sc
                     <Select name="workoutId" defaultValue={selectedEvent?.workoutId} required>
                         <SelectTrigger id="workoutId"><SelectValue placeholder="Select a workout" /></SelectTrigger>
                         <SelectContent>
-                            {mockWorkouts.map(w => <SelectItem key={w.id} value={w.id}>{w.title}</SelectItem>)}
+                            {workouts?.map(w => <SelectItem key={w.id} value={w.id}>{w.title}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
@@ -296,7 +310,7 @@ function ScheduleFormFields({ selectedEvent, selectedUser }: { selectedEvent: Sc
                     <Select name="mealId" defaultValue={selectedEvent?.mealId} required>
                         <SelectTrigger id="mealId"><SelectValue placeholder="Select a meal" /></SelectTrigger>
                         <SelectContent>
-                            {mockMeals.map(m => <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>)}
+                            {meals?.map(m => <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>

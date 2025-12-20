@@ -23,7 +23,7 @@ export type WorkoutCategory = 'Shooting' | 'Ball Handling' | 'Defense' | 'Condit
 export interface Workout {
   id: string;
   title: string;
-  authorId: string;
+  authorId?: string;
   category: WorkoutCategory;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   duration: number; // in minutes
@@ -37,7 +37,7 @@ export type MealCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-ga
 
 export interface Meal {
   id: string;
-  authorId: string;
+  authorId?: string;
   title: string;
   category: MealCategory;
   imageId: string;
@@ -50,7 +50,7 @@ export interface Meal {
 }
 
 export interface WorkoutProgress {
-  id: string;
+  id?: string;
   userId: string;
   workoutId: string;
   date: Timestamp;
@@ -67,7 +67,7 @@ export interface UserMealPlan {
   mealTime: MealCategory;
 }
 
-export type ScheduleEvent = {
+export interface ScheduleEvent {
     id: string;
     userId: string;
     date: Date;

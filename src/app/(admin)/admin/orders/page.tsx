@@ -107,73 +107,75 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
             {isLoading ? (
                 <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
             ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Product</TableHead>
-                            <TableHead>Customer</TableHead>
-                            <TableHead>Address</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {orders.length > 0 ? orders.map(order => {
-                            const image = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
-                            return (
-                                <TableRow key={order.id}>
-                                    <TableCell className="flex items-center gap-2">
-                                        {image && <Image src={image.imageUrl} alt={order.productName} width={40} height={40} className="rounded-md object-cover" />}
-                                        <span className="font-medium">{order.productName}</span>
-                                    </TableCell>
-                                    <TableCell>{order.user?.displayName || 'N/A'}</TableCell>
-                                    <TableCell>{order.user?.address || 'N/A'}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-1">
-                                            {order.paymentMethod === 'xp' ? <Star className="h-4 w-4 text-yellow-400" /> : '$'}
-                                            {order.amountPaid.toLocaleString()}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{getStatusBadge(order.status)}</TableCell>
-                                    <TableCell className="text-right space-x-2">
-                                        {order.status === 'Pending' && (
-                                            <>
-                                                <Button size="sm" onClick={() => handleUpdateStatus(order, 'Shipped')}>
-                                                    <Truck className="mr-2 h-4 w-4" /> Ship
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Product</TableHead>
+                                <TableHead>Customer</TableHead>
+                                <TableHead>Address</TableHead>
+                                <TableHead>Amount</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {orders.length > 0 ? orders.map(order => {
+                                const image = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
+                                return (
+                                    <TableRow key={order.id}>
+                                        <TableCell className="flex items-center gap-2">
+                                            {image && <Image src={image.imageUrl} alt={order.productName} width={40} height={40} className="rounded-md object-cover" />}
+                                            <span className="font-medium">{order.productName}</span>
+                                        </TableCell>
+                                        <TableCell>{order.user?.displayName || 'N/A'}</TableCell>
+                                        <TableCell>{order.user?.address || 'N/A'}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1">
+                                                {order.paymentMethod === 'xp' ? <Star className="h-4 w-4 text-yellow-400" /> : '$'}
+                                                {order.amountPaid.toLocaleString()}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{getStatusBadge(order.status)}</TableCell>
+                                        <TableCell className="text-right space-x-2">
+                                            {order.status === 'Pending' && (
+                                                <>
+                                                    <Button size="sm" onClick={() => handleUpdateStatus(order, 'Shipped')}>
+                                                        <Truck className="mr-2 h-4 w-4" /> Ship
+                                                    </Button>
+                                                    <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(order, 'Canceled')}>
+                                                        <XCircle className="mr-2 h-4 w-4" /> Cancel
+                                                    </Button>
+                                                </>
+                                            )}
+                                            {order.status === 'Shipped' && (
+                                                 <>
+                                                    <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(order, 'Delivered')}>
+                                                        <PackageCheck className="mr-2 h-4 w-4" /> Deliver
+                                                    </Button>
+                                                     <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(order, 'Canceled')}>
+                                                        <XCircle className="mr-2 h-4 w-4" /> Cancel
+                                                    </Button>
+                                                </>
+                                            )}
+                                            {order.status === 'Canceled' && (
+                                                 <Button size="sm" variant="outline" disabled>
+                                                    <Undo2 className="mr-2 h-4 w-4" /> Refunded
                                                 </Button>
-                                                <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(order, 'Canceled')}>
-                                                    <XCircle className="mr-2 h-4 w-4" /> Cancel
-                                                </Button>
-                                            </>
-                                        )}
-                                        {order.status === 'Shipped' && (
-                                             <>
-                                                <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(order, 'Delivered')}>
-                                                    <PackageCheck className="mr-2 h-4 w-4" /> Deliver
-                                                </Button>
-                                                 <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(order, 'Canceled')}>
-                                                    <XCircle className="mr-2 h-4 w-4" /> Cancel
-                                                </Button>
-                                            </>
-                                        )}
-                                        {order.status === 'Canceled' && (
-                                             <Button size="sm" variant="outline" disabled>
-                                                <Undo2 className="mr-2 h-4 w-4" /> Refunded
-                                            </Button>
-                                        )}
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }) : (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="h-24 text-center">
+                                        No {statusFilter.toLowerCase()} orders found.
                                     </TableCell>
                                 </TableRow>
-                            )
-                        }) : (
-                            <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center">
-                                    No {statusFilter.toLowerCase()} orders found.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
         </>
     );
