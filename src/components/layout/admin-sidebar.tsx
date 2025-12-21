@@ -16,7 +16,6 @@ import {
   Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/icons/logo';
 
 const adminNavItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -39,7 +38,7 @@ export function AdminSidebar() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center justify-center border-b px-4 lg:h-[60px] lg:px-6">
           <Link href="/admin" className="flex items-center gap-2 font-semibold">
-            <Logo width={150} height={43}/>
+            <h1 className="text-lg font-bold">Baseline</h1>
           </Link>
         </div>
         <div className="flex-1">

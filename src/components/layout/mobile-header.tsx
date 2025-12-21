@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LogOut, Settings, Star, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
 import { useAuth as useAppAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
@@ -42,7 +41,7 @@ export function MobileHeader() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-card/95 px-4 backdrop-blur-sm sm:px-6">
       <Link href="/home">
-        <Logo width={150} height={42}/>
+        <h1 className="text-xl font-bold">Baseline</h1>
       </Link>
       
       <div className="flex items-center gap-2">

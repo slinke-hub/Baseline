@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import placeholderData from '@/lib/placeholder-images.json';
-import { Logo } from './icons/logo';
 import { useEffect, useState } from 'react';
 
 const words = ['Athlete', 'Baller', 'Hooper', 'You'];
@@ -57,17 +56,11 @@ export function LandingHero() {
   return (
     <div
       className="flex h-screen w-full flex-col"
-      style={{
-        backgroundImage: `url(/logo.png)`,
-        backgroundPosition: 'center center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
-      }}
     >
       <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
       <div className="relative z-10 flex h-full flex-col">
         <header className="p-4">
-          <Logo className="max-w-sm" width={256} height={73}/>
+            <h1 className="text-2xl font-bold">Baseline</h1>
         </header>
         <div className="flex flex-1">
           <div className="flex w-full flex-col items-center justify-center space-y-8 p-8 text-center">

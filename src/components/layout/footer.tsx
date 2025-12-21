@@ -1,5 +1,4 @@
 
-import { Logo } from "@/components/icons/logo";
 import Link from "next/link";
 
 const footerLinks = [
@@ -13,7 +12,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-            <Logo width={128} height={36} />
+            <h2 className="text-lg font-bold">Baseline</h2>
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} Baseline. All Rights Reserved.
             </p>

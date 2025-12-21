@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Logo } from '@/components/icons/logo';
 import Link from 'next/link';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -78,7 +77,7 @@ export function ForgotPasswordForm() {
     <Card className="w-full border-none bg-transparent shadow-none">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo className="max-w-sm" width={256} height={73}/>
+            <h1 className="text-2xl font-bold">Baseline</h1>
         </div>
         <CardTitle>Forgot Password</CardTitle>
         <CardDescription>Enter your email and we&apos;ll send you a link to reset it.</CardDescription>

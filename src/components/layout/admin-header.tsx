@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, User, NotebookPen, ShoppingCart, Package, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
@@ -70,7 +69,7 @@ export function AdminHeader() {
             <SheetContent side="left" className="flex flex-col">
                 <nav className="grid gap-2 text-lg font-medium">
                     <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
-                        <Logo width={150} height={43} />
+                        <h1 className="text-lg font-bold">Baseline</h1>
                     </Link>
                 </nav>
                 <ScrollArea className="flex-1">

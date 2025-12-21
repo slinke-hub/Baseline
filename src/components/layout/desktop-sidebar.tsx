@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/icons/logo';
 import { useAuth as useAppAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
 import {
@@ -61,7 +60,7 @@ export function DesktopSidebar() {
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card/95 bg-transparent text-white backdrop-blur-lg md:flex">
       <div className="flex h-20 items-center justify-center border-b px-6">
         <Link href="/home">
-          <Logo width={150} height={43}/>
+          <h1 className="text-xl font-bold">Baseline</h1>
         </Link>
       </div>
 

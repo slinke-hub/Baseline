@@ -32,13 +32,6 @@ export default async function WorkoutDetailPage({ params }: { params: { id: stri
     <div className="relative min-h-screen">
        <div
             className="absolute inset-0 -z-10 h-full w-full bg-background"
-            style={{
-                backgroundImage: `url(/logo.png)`,
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'contain',
-                backgroundAttachment: 'fixed',
-            }}
         />
         <div className="absolute inset-0 -z-10 bg-background/90 backdrop-blur-md" />
         <div className="relative z-0 p-4 sm:p-6 lg:p-8">

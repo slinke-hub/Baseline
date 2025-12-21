@@ -72,13 +72,6 @@ function WorkoutsPageContainer({ children }: { children: React.ReactNode }) {
         >
             <div
                 className="absolute inset-0 -z-10 h-full w-full bg-background"
-                style={{
-                    backgroundImage: `url(/logo.png)`,
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: 'contain',
-                    backgroundAttachment: 'fixed',
-                }}
             />
             <div className="absolute inset-0 -z-10 bg-background/90 backdrop-blur-md" />
             <div className="relative z-0">
