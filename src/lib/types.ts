@@ -47,7 +47,7 @@ export interface Meal {
   calories: number;
   protein: number; // in grams
   carbs: number; // in grams
-  fat: number; // in grams
+  fat: number; // in grams;
 }
 
 export interface WorkoutProgress {
@@ -111,8 +111,8 @@ export interface UserOrder {
   userId: string;
   productId: string;
   productName: string;
-  photoUrl?: string; // Add this
-  productImageId?: string; // Keep this for backward compatibility
+  photoUrl?: string; 
+  productImageId?: string; 
   paymentMethod: 'xp' | 'cod';
   amountPaid: number;
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
@@ -131,3 +131,5 @@ export interface ChatMessage {
     receiverId: string;
     createdAt: Timestamp;
 }
+
+    

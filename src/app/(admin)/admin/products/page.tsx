@@ -97,13 +97,13 @@ export default function AdminProductsPage() {
                 photoUrl = await getDownloadURL(snapshot.ref);
             }
 
-            if (!photoUrl) {
+            if (!photoUrl && !isEditing) {
                 toast({ title: "Photo Required", description: "Please upload a photo for the product.", variant: "destructive" });
                 setIsUploading(false);
                 return;
             }
 
-            const processedValues = {
+            const processedValues: Partial<Product> = {
                 name: values.name,
                 description: values.description,
                 priceXp: parseInt(values.priceXp, 10),
