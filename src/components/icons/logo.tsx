@@ -15,7 +15,13 @@ export const Logo = ({
 }) => {
   return (
     <div className={cn('relative', className)} style={{ width, height }}>
-      <h1 style={{ fontSize: `${height * 0.5}px`, fontWeight: 'bold' }}>Baseline</h1>
+      <Image
+        src="/logo.png"
+        alt="Baseline Logo"
+        fill
+        className="object-contain"
+        priority
+      />
     </div>
   );
 };

@@ -22,6 +22,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useFirebase } from '@/firebase';
+import { Logo } from '../icons/logo';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -78,7 +79,7 @@ export function LoginForm() {
     <Card className="w-full border-none bg-transparent shadow-none">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-          <h1 className="text-2xl font-bold">Baseline</h1>
+          <Logo width={120} height={34} />
         </div>
         <CardTitle>Welcome Back</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>

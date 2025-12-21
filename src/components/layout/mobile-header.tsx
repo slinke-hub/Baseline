@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useFirebase } from '@/firebase';
+import { Logo } from '../icons/logo';
 
 export function MobileHeader() {
   const { appUser } = useAppAuth();
@@ -41,7 +42,7 @@ export function MobileHeader() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-card/95 px-4 backdrop-blur-sm sm:px-6">
       <Link href="/home">
-        <h1 className="text-xl font-bold">Baseline</h1>
+        <Logo width={100} height={28} />
       </Link>
       
       <div className="flex items-center gap-2">

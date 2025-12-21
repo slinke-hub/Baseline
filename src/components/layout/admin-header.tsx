@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
+import { Logo } from '../icons/logo';
 
 
 const adminNavItems = [
@@ -69,7 +70,7 @@ export function AdminHeader() {
             <SheetContent side="left" className="flex flex-col">
                 <nav className="grid gap-2 text-lg font-medium">
                     <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
-                        <h1 className="text-lg font-bold">Baseline</h1>
+                        <Logo width={100} height={28} />
                     </Link>
                 </nav>
                 <ScrollArea className="flex-1">
