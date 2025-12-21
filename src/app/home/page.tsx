@@ -1,1 +1,5 @@
-// This file is intentionally left blank to prevent a routing conflict with src/app/(app)/home/page.tsx.
+// This file is intentionally not a page component to prevent routing conflicts.
+export function dummy() {
+  // This function is not a default export and will not create a page.
+  return null;
+}
