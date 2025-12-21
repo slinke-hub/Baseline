@@ -1,32 +1,4 @@
 
-/**
- * # Core Philosophy
- * This ruleset enforces a strict user-ownership model for all personal data,
- * ensuring that users can only access their own information. Public content,
- * such as a central library of workouts and meals, is segregated into separate
- * top-level collections. This content is readable by any authenticated user,
- * but write access is disabled for all clients, pending a secure admin implementation.
- *
- * # Data Structure
- * - /users/{userId}: Stores private user profiles and serves as the root for all user-owned subcollections.
- *   - /users/{userId}/connections/{friendId}: Manages user friendships.
- *   - /users/{userId}/workoutProgress/{workoutProgressId}: Contains a user's private workout history.
- *   - /users/{userId}/orders/{orderId}: Contains a user's private order history.
- * - /chats/{chatId}/messages/{messageId}: Stores private messages between two users.
- * - /workouts/{workoutId}: A read-only collection of available workouts, writable only by backend processes (e.g., an admin SDK).
- * - /meals/{mealId}: A read-only collection of available meals, writable only by backend processes (e.g., an admin SDK).
- * - /mealPlans/{mealPlanId}: Meal plan assignments for users. Writable by admins/coaches.
- * - /locations/{locationId}: A collection of user-submitted courts. Readable by all, writable by authenticated users for their own submissions.
- * - /ballIsLife/{postId}: A collection for real-time user posts. Readable by all, writable only by the post creator.
- * - /products/{productId}: A read-only collection of merchandise, writable only by an admin.
- *
- * # Key Security Decisions
- * - **Admin Override**: Admins have full read/write access to all data paths.
- * - **User Data Isolation**: All data under `/users/{userId}` is strictly controlled by path-based security for non-admins.
- * - **Chat Security**: Chats are only accessible to the two participants involved.
- * - **Connection Security**: Users can manage their own connection documents (send, accept, delete requests).
- * - **Default Deny**: Any operation not explicitly granted is denied.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
