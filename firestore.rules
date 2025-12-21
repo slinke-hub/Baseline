@@ -60,7 +60,7 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
     
-    // Admin has full access to everything.
+    // Admin has full access to everything. This rule is intentionally broad for admin users.
     match /{document=**} {
       allow read, write: if isAdmin();
     }
@@ -113,8 +113,10 @@ service cloud.firestore {
     match /locations/{locationId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource.data.creatorId == request.auth.uid;
-      allow delete: if isSignedIn() && (resource.data.creatorId == request.auth.uid || isAdmin());
+      // An admin can update any location, or a user can update their own submission.
+      allow update: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
+      // An admin can delete any location, or a user can delete their own submission.
+      allow delete: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
     }
     
     match /ballIsLife/{postId} {
