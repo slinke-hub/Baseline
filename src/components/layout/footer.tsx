@@ -14,7 +14,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <Logo className="h-10 w-32" />
+            <Logo width={128} height={36}/>
           </div>
           <p className="text-sm text-muted-foreground text-center md:text-left">
             &copy; {new Date().getFullYear()} Baseline. All Rights Reserved.

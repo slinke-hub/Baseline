@@ -9,7 +9,7 @@ export default function SignupPage() {
         backgroundImage: `url(/logo.png)`,
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
-        backgroundSize: '512px',
+        backgroundSize: 'contain',
       }}
     >
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />

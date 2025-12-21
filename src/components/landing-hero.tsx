@@ -61,13 +61,13 @@ export function LandingHero() {
         backgroundImage: `url(/logo.png)`,
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
-        backgroundSize: '512px',
+        backgroundSize: 'contain',
       }}
     >
       <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
       <div className="relative z-10 flex h-full flex-col">
         <header className="p-4">
-          <Logo className="h-24 w-full max-w-sm" />
+          <Logo className="max-w-sm" width={256} height={73}/>
         </header>
         <div className="flex flex-1">
           <div className="flex w-full flex-col items-center justify-center space-y-8 p-8 text-center">

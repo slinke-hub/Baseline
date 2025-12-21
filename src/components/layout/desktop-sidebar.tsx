@@ -61,7 +61,7 @@ export function DesktopSidebar() {
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card/95 bg-transparent text-white backdrop-blur-lg md:flex">
       <div className="flex h-20 items-center justify-center border-b px-6">
         <Link href="/home">
-          <Logo className="h-20 w-40" />
+          <Logo width={160} height={45}/>
         </Link>
       </div>
 
