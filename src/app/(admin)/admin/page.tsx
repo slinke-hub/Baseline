@@ -2,9 +2,8 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Activity, Dumbbell, UtensilsCrossed, Megaphone, Gift } from 'lucide-react';
+import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { mockWorkouts, mockMeals } from '@/lib/mock-data';
 import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -13,14 +12,9 @@ import { format } from 'date-fns';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useNotifications } from '@/hooks/use-notifications';
-
-// Mock user data for demonstration
-const mockUsers = [
-    { id: 'user-1', name: 'LeBron James', email: 'lebron@example.com', role: 'client', plan: 'Pro', joined: '2023-10-26' },
-    { id: 'user-2', name: 'Stephen Curry', email: 'steph@example.com', role: 'client', plan: 'Pro', joined: '2023-10-25' },
-    { id: 'user-3', name: 'Kevin Durant', email: 'kd@example.com', role: 'client', plan: 'Free', joined: '2023-10-24' },
-    { id: 'user-4', name: 'Admin User', email: 'admin@baseline.dev', role: 'admin', plan: 'N/A', joined: '2023-10-20' },
-];
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { AppUser, Workout, Meal } from '@/lib/types';
 
 type Announcement = {
     id: number;
@@ -32,6 +26,17 @@ type Announcement = {
 export default function AdminDashboardPage() {
     const { toast } = useToast();
     const { showNotification } = useNotifications();
+    const { firestore } = useFirebase();
+
+    const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+    const { data: allUsers, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
+
+    const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
+    const { data: allWorkouts, isLoading: isLoadingWorkouts } = useCollection<Workout>(workoutsQuery);
+
+    const mealsQuery = useMemoFirebase(() => collection(firestore, 'meals'), [firestore]);
+    const { data: allMeals, isLoading: isLoadingMeals } = useCollection<Meal>(mealsQuery);
+
     const [newAnnouncement, setNewAnnouncement] = useState('');
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [xpForCourtsEnabled, setXpForCourtsEnabled] = useState(true);
@@ -72,6 +77,8 @@ export default function AdminDashboardPage() {
         });
     }
 
+    const isLoadingStats = isLoadingUsers || isLoadingWorkouts || isLoadingMeals;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8">
@@ -85,8 +92,8 @@ export default function AdminDashboardPage() {
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Users className="h-4 w-4 text-muted-foreground" /> Total Users</CardTitle>
               </CardHeader>
               <CardContent className="p-1">
-                  <div className="text-2xl font-bold">{mockUsers.length}</div>
-                  <p className="text-xs text-muted-foreground">+2 since last week</p>
+                  {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{allUsers?.length || 0}</div>}
+                  <p className="text-xs text-muted-foreground">All registered users</p>
               </CardContent>
           </Card>
           <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
@@ -94,7 +101,7 @@ export default function AdminDashboardPage() {
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Dumbbell className="h-4 w-4 text-muted-foreground" /> Total Workouts</CardTitle>
               </CardHeader>
               <CardContent className="p-1">
-                  <div className="text-2xl font-bold">{mockWorkouts.length}</div>
+                  {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{allWorkouts?.length || 0}</div>}
                   <p className="text-xs text-muted-foreground">Manage workout content</p>
               </CardContent>
           </Card>
@@ -103,7 +110,7 @@ export default function AdminDashboardPage() {
                   <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Total Meals</CardTitle>
               </CardHeader>
               <CardContent className="p-1">
-                  <div className="text-2xl font-bold">{mockMeals.length}</div>
+                  {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{allMeals?.length || 0}</div>}
                   <p className="text-xs text-muted-foreground">Manage nutrition plans</p>
               </CardContent>
           </Card>
