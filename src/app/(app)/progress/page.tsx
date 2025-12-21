@@ -3,43 +3,37 @@
 
 import { ProgressChart } from "@/components/progress-chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BarChart, Flame, Timer, Loader2 } from "lucide-react";
+import { BarChart, Flame, Timer, Loader2, Dumbbell } from "lucide-react";
 import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
 import type { WorkoutProgress } from '@/lib/types';
-import { eachDayOfInterval, subDays, startOfDay, endOfDay, format } from 'date-fns';
-
-const stats = [
-    { label: "Total Workouts", value: "12", icon: BarChart },
-    { label: "Total Minutes", value: "348", icon: Timer },
-    { label: "Calories Burned", value: "2,100", icon: Flame },
-]
+import { eachDayOfInterval, subDays, startOfDay, format, isSameDay } from 'date-fns';
+import { useMemo } from 'react';
 
 export default function ProgressPage() {
     const { firestore } = useFirebase();
     const { user } = useAuth();
 
-    const sevenDaysAgo = subDays(new Date(), 6);
-    const progressQuery = useMemoFirebase(() => {
+    // Fetch all progress data for the user
+    const allProgressQuery = useMemoFirebase(() => {
         if (!user?.uid) return null;
-        return query(
-            collection(firestore, 'users', user.uid, 'workoutProgress'),
-            where('date', '>=', Timestamp.fromDate(startOfDay(sevenDaysAgo)))
-        );
+        return query(collection(firestore, 'users', user.uid, 'workoutProgress'));
     }, [user?.uid, firestore]);
     
-    const { data: progressData, isLoading } = useCollection<WorkoutProgress>(progressQuery);
+    const { data: allProgressData, isLoading } = useCollection<WorkoutProgress>(allProgressQuery);
 
-    const chartData = useMemoFirebase(() => {
+    const chartData = useMemo(() => {
+        if (!allProgressData) return [];
+        
         const today = new Date();
         const last7Days = eachDayOfInterval({ start: subDays(today, 6), end: today });
         
         const dailyStats = last7Days.map(day => {
-            const dayProgress = progressData?.filter(p => startOfDay(p.date.toDate()).getTime() === startOfDay(day).getTime());
+            const dayProgress = allProgressData.filter(p => isSameDay(p.date.toDate(), day));
             
-            const totalMinutes = dayProgress?.reduce((acc, curr) => acc + (curr.timeSpent || 0), 0) || 0;
-            const totalWorkouts = dayProgress?.length || 0;
+            const totalMinutes = dayProgress.reduce((acc, curr) => acc + (curr.timeSpent || 0), 0);
+            const totalWorkouts = dayProgress.length;
             
             return {
                 day: format(day, 'E'),
@@ -49,7 +43,25 @@ export default function ProgressPage() {
         });
 
         return dailyStats;
-    }, [progressData]);
+    }, [allProgressData]);
+
+    const totalStats = useMemo(() => {
+        if (!allProgressData) {
+            return { workouts: 0, minutes: 0, calories: 0 };
+        }
+        const workouts = allProgressData.length;
+        const minutes = allProgressData.reduce((acc, curr) => acc + curr.timeSpent, 0);
+        // Assuming an average of 8 calories per minute of workout
+        const calories = Math.round(minutes * 8);
+
+        return { workouts, minutes, calories };
+    }, [allProgressData]);
+    
+    const stats = [
+        { label: "Total Workouts", value: totalStats.workouts, icon: Dumbbell },
+        { label: "Total Minutes", value: totalStats.minutes, icon: Timer },
+        { label: "Calories Burned (Est.)", value: totalStats.calories.toLocaleString(), icon: Flame },
+    ]
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -66,7 +78,7 @@ export default function ProgressPage() {
                         <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stat.value}</div>
+                        {isLoading ? <Skeleton className="h-8 w-20" /> : <div className="text-2xl font-bold">{stat.value}</div>}
                     </CardContent>
                 </Card>
             ))}
@@ -75,7 +87,7 @@ export default function ProgressPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Weekly Activity</CardTitle>
-                <CardDescription>A summary of your workouts over the last week.</CardDescription>
+                <CardDescription>A summary of your workouts over the last 7 days.</CardDescription>
             </CardHeader>
             <CardContent>
                 {isLoading ? (

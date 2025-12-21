@@ -9,9 +9,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Progress } from "@/components/ui/progress";
 import placeholderData from '@/lib/placeholder-images.json';
-import { mockWorkouts } from '@/lib/mock-data';
 import { BmiCalculatorWidget } from '@/components/bmi-calculator-widget';
-import { cn } from '@/lib/utils';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, limit } from 'firebase/firestore';
+import type { Workout } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const workoutCategories = [
   { name: 'Shooting', icon: <Droplet className="h-8 w-8 text-white" />, href: '/workouts?category=Shooting', imageId: 'cat-shooting' },
@@ -26,8 +28,78 @@ const progressStats = [
 ];
 
 const TodaysWorkoutImage = placeholderData.placeholderImages.find(p => p.id === 'todays-workout');
-const todaysWorkout = mockWorkouts.find(w => w.category === 'Ball Handling') || mockWorkouts[0];
 const latestAnnouncement = "Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.";
+
+function TodaysWorkoutCard() {
+  const { firestore } = useFirebase();
+  const workoutQuery = useMemoFirebase(() => query(collection(firestore, 'workouts'), limit(1)), [firestore]);
+  const { data: workouts, isLoading } = useCollection<Workout>(workoutQuery);
+  const todaysWorkout = workouts?.[0];
+
+  if (isLoading) {
+    return (
+      <Card className="overflow-hidden lg:col-span-1">
+        <div className="grid md:grid-cols-2">
+          <div className="p-6 md:p-8">
+            <Skeleton className="h-4 w-24 mb-2" />
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-16 w-full mb-4" />
+            <Skeleton className="h-5 w-36 mb-6" />
+            <Skeleton className="h-12 w-32" />
+          </div>
+          <div className="relative h-48 md:h-auto min-h-[200px]">
+            <Skeleton className="h-full w-full" />
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  if (!todaysWorkout) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>No Workout Available</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Your coach hasn't added a workout yet. Check back later!</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden lg:col-span-1">
+      <div className="grid md:grid-cols-2">
+        <div className="p-6 md:p-8">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Today's Focus</h2>
+          <p className="mt-1 text-2xl font-bold">{todaysWorkout.title}</p>
+          <p className="mt-2 text-muted-foreground">{todaysWorkout.description}</p>
+          <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
+              <span>{todaysWorkout.difficulty} Difficulty</span>
+              <span>•</span>
+              <span>{todaysWorkout.duration} Mins</span>
+          </div>
+          <Button asChild size="lg" className="mt-6">
+            <Link href={`/workouts/track/${todaysWorkout.id}`}>Start Workout</Link>
+          </Button>
+        </div>
+        {TodaysWorkoutImage && (
+          <div className="relative h-48 md:h-auto min-h-[200px]">
+            <Image
+              src={TodaysWorkoutImage.imageUrl}
+              alt={todaysWorkout.title}
+              fill
+              className="object-cover"
+              data-ai-hint={TodaysWorkoutImage.imageHint}
+              priority
+            />
+          </div>
+        )}
+      </div>
+    </Card>
+  )
+}
 
 export default function HomePage() {
   const { appUser } = useAuth();
@@ -50,35 +122,7 @@ export default function HomePage() {
       </Card>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="overflow-hidden lg:col-span-1">
-          <div className="grid md:grid-cols-2">
-            <div className="p-6 md:p-8">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Today's Focus</h2>
-              <p className="mt-1 text-2xl font-bold">{todaysWorkout.title}</p>
-              <p className="mt-2 text-muted-foreground">{todaysWorkout.description}</p>
-              <div className="mt-4 flex gap-4 text-sm text-muted-foreground">
-                  <span>{todaysWorkout.difficulty} Difficulty</span>
-                  <span>•</span>
-                  <span>{todaysWorkout.duration} Mins</span>
-              </div>
-              <Button asChild size="lg" className="mt-6">
-                <Link href={`/workouts/track/${todaysWorkout.id}`}>Start Workout</Link>
-              </Button>
-            </div>
-            {TodaysWorkoutImage && (
-              <div className="relative h-48 md:h-auto min-h-[200px]">
-                <Image
-                  src={TodaysWorkoutImage.imageUrl}
-                  alt={todaysWorkout.title}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={TodaysWorkoutImage.imageHint}
-                  priority
-                />
-              </div>
-            )}
-          </div>
-        </Card>
+        <TodaysWorkoutCard />
         <div className="lg:col-span-1">
           <BmiCalculatorWidget />
         </div>

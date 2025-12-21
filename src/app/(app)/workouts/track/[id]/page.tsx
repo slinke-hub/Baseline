@@ -1,19 +1,21 @@
 
-import { mockWorkouts } from "@/lib/mock-data";
 import { WorkoutTrackerClientPage } from "./workout-tracker-client-page";
+import { getWorkoutById, getAllWorkoutIds } from "@/lib/firebase-admin-utils";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
-    return mockWorkouts.map((workout) => ({
-        id: workout.id,
+    const ids = await getAllWorkoutIds();
+    return ids.map((id) => ({
+        id: id,
     }));
 }
 
-export default function WorkoutTrackerPage({ params }: { params: { id: string } }) {
+export default async function WorkoutTrackerPage({ params }: { params: { id: string } }) {
     const { id } = params;
-    const workout = mockWorkouts.find(w => w.id === id);
+    const workout = await getWorkoutById(id);
 
     if (!workout) {
-        return <div className="p-8">Workout not found.</div>;
+        notFound();
     }
     
     return <WorkoutTrackerClientPage workout={workout} />;

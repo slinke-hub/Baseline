@@ -1,23 +1,21 @@
 
-import { mockMeals } from "@/lib/mock-data";
 import { MealDetailClientPage } from "./meal-detail-client-page";
+import { getMealById, getAllMealIds } from "@/lib/firebase-admin-utils";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
-  return mockMeals.map((meal) => ({
-    id: meal.id,
+  const ids = await getAllMealIds();
+  return ids.map((id) => ({
+    id: id,
   }));
 }
 
-export default function MealDetailPage({ params }: { params: { id: string } }) {
+export default async function MealDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const meal = mockMeals.find(m => m.id === id);
+  const meal = await getMealById(id);
 
   if (!meal) {
-    return (
-        <div className="p-8 text-center">
-            <p>Meal not found.</p>
-        </div>
-    );
+    notFound();
   }
 
   return <MealDetailClientPage meal={meal} />;

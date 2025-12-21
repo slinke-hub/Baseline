@@ -1,5 +1,4 @@
 
-import { mockWorkouts } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,19 +7,22 @@ import Image from "next/image";
 import placeholderData from '@/lib/placeholder-images.json';
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getWorkoutById, getAllWorkoutIds } from '@/lib/firebase-admin-utils';
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
-  return mockWorkouts.map((workout) => ({
-    id: workout.id,
+  const ids = await getAllWorkoutIds();
+  return ids.map((id) => ({
+    id: id,
   }));
 }
 
-export default function WorkoutDetailPage({ params }: { params: { id: string } }) {
+export default async function WorkoutDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const workout = mockWorkouts.find(w => w.id === id);
+  const workout = await getWorkoutById(id);
 
   if (!workout) {
-    return <div className="p-8">Workout not found.</div>;
+    notFound();
   }
   
   const workoutImage = placeholderData.placeholderImages.find(p => p.id === workout.imageId);

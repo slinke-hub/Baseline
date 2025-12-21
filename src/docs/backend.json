@@ -1,4 +1,5 @@
 
+
 {
   "entities": {
     "UserProfile": {
@@ -133,7 +134,7 @@
         }
       },
       "required": [
-        "authorId", "title", "difficulty", "duration", "category", "instructions"
+        "authorId"
       ]
     },
     "WorkoutProgress": {
@@ -227,7 +228,7 @@
         }
       },
       "required": [
-        "authorId", "name", "category", "ingredients", "steps", "calories", "protein", "carbs", "fat"
+        "authorId"
       ]
     },
     "UserMealPlan": {
@@ -248,13 +249,10 @@
           "type": "string",
           "description": "Reference to Meal. (Relationship: Meal 1:N UserMealPlan)"
         },
-        "authorId": {
-            "type": "string",
-            "description": "The UID of the admin or coach who created this meal plan entry."
-        },
-        "day": {
+        "date": {
           "type": "string",
-          "description": "Day of the week for which the meal is scheduled (e.g., Monday, Tuesday)."
+          "description": "Date for which the meal is scheduled.",
+          "format": "date-time"
         },
         "mealTime": {
           "type": "string",
@@ -262,7 +260,9 @@
         }
       },
       "required": [
-        "id", "userId", "mealId", "authorId", "day", "mealTime"
+        "id",
+        "userId",
+        "mealId"
       ]
     },
     "Location": {
@@ -296,7 +296,7 @@
                 "description": "The UID of the user who submitted this location."
             }
         },
-        "required": ["name", "address", "creatorId"]
+        "required": ["id", "name", "address", "creatorId"]
     },
     "BallIsLifePost": {
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -328,7 +328,7 @@
         "priceCash": { "type": "number", "description": "The cash price of the product." },
         "stock": { "type": "number", "description": "The number of items currently in stock." }
       },
-      "required": ["name", "description", "imageId", "priceXp", "priceCash", "stock"]
+      "required": ["id", "name", "imageId", "priceXp", "priceCash", "stock"]
     },
     "UserOrder": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -406,17 +406,21 @@
         }
       },
       {
-        "path": "/mealPlans/{mealPlanId}",
+        "path": "/users/{userId}/mealPlans/{mealPlanId}",
         "definition": {
           "entityName": "UserMealPlan",
           "schema": {
             "$ref": "#/backend/entities/UserMealPlan"
           },
-          "description": "Stores the assigned meal plans for all users. Writable by admins/coaches.",
+          "description": "Stores the meal plans of a user. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
           "params": [
             {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
               "name": "mealPlanId",
-              "description": "The unique identifier of the meal plan assignment (e.g., userId_day_mealTime)."
+              "description": "The unique identifier of the meal plan."
             }
           ]
         }

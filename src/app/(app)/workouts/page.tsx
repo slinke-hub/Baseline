@@ -3,19 +3,23 @@
 
 import { Suspense } from 'react';
 import { WorkoutCard } from '@/components/workout-card';
-import { mockWorkouts } from '@/lib/mock-data';
 import type { Workout, WorkoutCategory } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSearchParams } from 'next/navigation';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const categories: WorkoutCategory[] = ['Shooting', 'Ball Handling', 'Defense', 'Conditioning', 'Vertical Jump'];
 
 function WorkoutsContent() {
   const searchParams = useSearchParams();
-  const selectedCategory = searchParams.get('category') as WorkoutCategory | null;
+  const { firestore } = useFirebase();
+  const selectedCategoryParam = searchParams.get('category') as WorkoutCategory | null;
+  const activeTab = selectedCategoryParam && categories.includes(selectedCategoryParam) ? selectedCategoryParam : 'Shooting';
 
-  const filteredWorkouts = selectedCategory ? mockWorkouts.filter(w => w.category === selectedCategory) : mockWorkouts;
-  const defaultValue = selectedCategory && categories.includes(selectedCategory) ? selectedCategory : 'Shooting';
+  const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
+  const { data: allWorkouts, isLoading: isLoadingWorkouts } = useCollection<Workout>(workoutsQuery);
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -24,7 +28,7 @@ function WorkoutsContent() {
         <p className="text-muted-foreground">Find the perfect drill to level up your game.</p>
       </div>
 
-      <Tabs defaultValue={defaultValue} className="w-full">
+      <Tabs defaultValue={activeTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto bg-card/20 backdrop-blur-sm">
           {categories.map(category => (
             <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
@@ -32,11 +36,19 @@ function WorkoutsContent() {
         </TabsList>
         {categories.map(category => (
           <TabsContent key={category} value={category}>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {mockWorkouts.filter(w => w.category === category).map((workout: Workout) => (
-                <WorkoutCard key={workout.id} workout={workout} transparent />
-              ))}
-            </div>
+            {isLoadingWorkouts ? (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i}><CardHeader><Skeleton className="h-4 w-24" /><Skeleton className="h-6 w-48 mt-2" /></CardHeader><CardContent><Skeleton className="h-10 w-full" /></CardContent></Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {allWorkouts?.filter(w => w.category === category).map((workout: Workout) => (
+                  <WorkoutCard key={workout.id} workout={workout} transparent />
+                ))}
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>
