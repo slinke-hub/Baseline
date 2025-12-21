@@ -42,7 +42,7 @@ export function MobileHeader() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-card/95 px-4 backdrop-blur-sm sm:px-6">
       <Link href="/home">
-        <Logo width={128} height={36}/>
+        <Logo width={150} height={42}/>
       </Link>
       
       <div className="flex items-center gap-2">
