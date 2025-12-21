@@ -39,7 +39,7 @@ export function AdminSidebar() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center justify-center border-b px-4 lg:h-[60px] lg:px-6">
           <Link href="/admin" className="flex items-center gap-2 font-semibold">
-            <Logo width={100} height={28} />
+            <Logo width={120} height={34} />
           </Link>
         </div>
         <div className="flex-1">
