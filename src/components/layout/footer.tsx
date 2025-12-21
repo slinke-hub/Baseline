@@ -12,12 +12,12 @@ export function Footer() {
     <footer className="bg-background border-t py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <Logo width={128} height={36}/>
+          <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+            <Logo width={128} height={36} />
+            <p className="text-sm text-muted-foreground">
+              &copy; {new Date().getFullYear()} Baseline. All Rights Reserved.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            &copy; {new Date().getFullYear()} Baseline. All Rights Reserved.
-          </p>
           <nav className="flex gap-4">
             {footerLinks.map((link) => (
               <Link
