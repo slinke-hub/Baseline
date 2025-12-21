@@ -3,9 +3,8 @@ import { Logo } from "@/components/icons/logo";
 import Link from "next/link";
 
 const footerLinks = [
-  { href: "/#", label: "Terms of Service" },
-  { href: "/#", label: "Privacy Policy" },
-  { href: "/#", label: "Contact Us" },
+  { href: "/terms-of-service", label: "Terms of Service" },
+  { href: "/privacy-policy", label: "Privacy Policy" },
 ];
 
 export function Footer() {
