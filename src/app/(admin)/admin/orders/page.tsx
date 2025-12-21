@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, updateDoc, getDoc, writeBatch, increment } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, updateDoc, writeBatch, increment, collection, getDocs } from 'firebase/firestore';
 import type { UserOrder, AppUser } from '@/lib/types';
 import { Loader2, PackageCheck, Truck, XCircle, Undo2, Star } from 'lucide-react';
 import Image from 'next/image';
@@ -22,9 +22,6 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
     const { toast } = useToast();
     const { firestore } = useFirebase();
 
-    const [orders, setOrders] = useState<OrderWithUser[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
     const ordersQuery = useMemoFirebase(() => {
         if (!firestore) return null;
         return query(
@@ -34,32 +31,24 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
         );
     }, [firestore, paymentMethod, statusFilter]);
 
+    const usersQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'users');
+    }, [firestore]);
+
     const { data: fetchedOrders, isLoading: isLoadingOrders } = useCollection<UserOrder>(ordersQuery);
+    const { data: users, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
 
-    useEffect(() => {
-        if (isLoadingOrders) {
-            setIsLoading(true);
-            return;
-        }
-        if (!fetchedOrders) {
-            setOrders([]);
-            setIsLoading(false);
-            return;
-        }
+    const ordersWithUsers = useMemo(() => {
+        if (!fetchedOrders || !users) return [];
+        const userMap = new Map(users.map(u => [u.uid, u]));
+        return fetchedOrders.map(order => ({
+            ...order,
+            user: userMap.get(order.userId)
+        }));
+    }, [fetchedOrders, users]);
 
-        const fetchUsersForOrders = async () => {
-            const ordersWithUsers = await Promise.all(
-                fetchedOrders.map(async (order) => {
-                    const userDoc = await getDoc(doc(firestore, 'users', order.userId));
-                    return { ...order, user: userDoc.data() as AppUser };
-                })
-            );
-            setOrders(ordersWithUsers);
-            setIsLoading(false);
-        };
-
-        fetchUsersForOrders();
-    }, [fetchedOrders, isLoadingOrders, firestore]);
+    const isLoading = isLoadingOrders || isLoadingUsers;
 
     const handleUpdateStatus = async (order: UserOrder, newStatus: 'Shipped' | 'Delivered' | 'Canceled') => {
         try {
@@ -70,9 +59,7 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
 
             batch.update(orderDocRef, { status: newStatus });
             
-            if (newStatus === 'Delivered' && order.paymentMethod === 'xp') {
-                batch.update(productDocRef, { stock: increment(-1) });
-            } else if (newStatus === 'Delivered' && order.paymentMethod === 'cod') {
+            if (newStatus === 'Delivered') {
                 batch.update(productDocRef, { stock: increment(-1) });
             }
             else if (newStatus === 'Canceled') {
@@ -121,7 +108,7 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {orders.length > 0 ? orders.map(order => {
+                            {ordersWithUsers.length > 0 ? ordersWithUsers.map(order => {
                                 return (
                                     <TableRow key={order.id}>
                                         <TableCell className="flex items-center gap-2">
