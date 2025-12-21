@@ -12,7 +12,6 @@ import { collectionGroup, query, where, doc, updateDoc, getDoc, writeBatch, incr
 import type { UserOrder, AppUser } from '@/lib/types';
 import { Loader2, PackageCheck, Truck, XCircle, Undo2, Star } from 'lucide-react';
 import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type OrderWithUser = UserOrder & { user?: AppUser };
@@ -38,16 +37,17 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
     const { data: fetchedOrders, isLoading: isLoadingOrders } = useCollection<UserOrder>(ordersQuery);
 
     useEffect(() => {
-        if (isLoadingOrders || !fetchedOrders) {
-            if (!isLoadingOrders) {
-                setOrders([]);
-                setIsLoading(false);
-            }
+        if (isLoadingOrders) {
+            setIsLoading(true);
             return;
-        };
+        }
+        if (!fetchedOrders) {
+            setOrders([]);
+            setIsLoading(false);
+            return;
+        }
 
         const fetchUsersForOrders = async () => {
-            setIsLoading(true);
             const ordersWithUsers = await Promise.all(
                 fetchedOrders.map(async (order) => {
                     const userDoc = await getDoc(doc(firestore, 'users', order.userId));
@@ -71,14 +71,11 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
             batch.update(orderDocRef, { status: newStatus });
             
             if (newStatus === 'Delivered' && order.paymentMethod === 'xp') {
-                // XP was already deducted at time of purchase. Stock should be reduced.
                 batch.update(productDocRef, { stock: increment(-1) });
             } else if (newStatus === 'Delivered' && order.paymentMethod === 'cod') {
-                 // For COD, stock is reduced upon delivery confirmation.
                 batch.update(productDocRef, { stock: increment(-1) });
             }
             else if (newStatus === 'Canceled') {
-                // If the order was paid with XP, refund it.
                 if(order.paymentMethod === 'xp') {
                      batch.update(userDocRef, { xp: increment(order.amountPaid) });
                 }
@@ -125,11 +122,10 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
                         </TableHeader>
                         <TableBody>
                             {orders.length > 0 ? orders.map(order => {
-                                const image = order.photoUrl ? { imageUrl: order.photoUrl } : placeholderData.placeholderImages.find(p => p.id === order.productImageId);
                                 return (
                                     <TableRow key={order.id}>
                                         <TableCell className="flex items-center gap-2">
-                                            {image && <Image src={image.imageUrl} alt={order.productName} width={40} height={40} className="rounded-md object-cover" />}
+                                            {order.photoUrl && <Image src={order.photoUrl} alt={order.productName} width={40} height={40} className="rounded-md object-cover" />}
                                             <span className="font-medium">{order.productName}</span>
                                         </TableCell>
                                         <TableCell>{order.user?.displayName || 'N/A'}</TableCell>
