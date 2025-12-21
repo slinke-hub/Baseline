@@ -36,33 +36,29 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
     
-    // Admin has full access to everything. This is the key fix.
+    // Admin has full access to everything.
     match /{path=**} {
       allow read, write: if isAdmin();
     }
     
     // Specific rules for collection group queries that cannot use `get()` in rules.
-    // These allow admins/coaches/sellers to list items across all users.
-    // NOTE: The broad admin rule above makes these somewhat redundant for admins,
-    // but they are kept for clarity and for non-admin roles like 'coach' and 'seller'.
     match /{path=**}/connections/{connectionId} {
-        allow list: if isCoach(); // Admins are covered by the rule above
+        allow list: if isCoach();
     }
 
     match /{path=**}/orders/{orderId} {
-      allow list: if isSeller(); // Admins are covered by the rule above
+      allow list: if isSeller();
     }
 
     match /users/{userId} {
-      allow get: if isSignedIn(); // Allow reading any user's profile for friend lists or by sellers
-      allow list: if isSignedIn(); // Allow listing users to find friends
-      allow create: if isOwner(userId); // Allow a user to create their own document
-      allow update: if isOwner(userId) || isCoach(); // Coaches can also update user profiles
-      allow delete: if isAdmin(); // Only admins can delete user documents
+      allow get: if isSignedIn(); 
+      allow list: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isCoach();
+      allow delete: if isAdmin();
 
       match /connections/{friendId} {
         allow read, delete: if isOwner(userId);
-        // Allow creating/updating a connection if you are the user or the friend
         allow write: if isOwner(userId) || isOwner(friendId);
       }
       
@@ -70,12 +66,11 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
       
-      // Rule for individual document access within the orders subcollection.
       match /orders/{orderId} {
         allow read: if isOwner(userId) || isSeller();
         allow create: if isOwner(userId);
-        allow update: if isSeller(); // Sellers and Admins can update status
-        allow delete: if false; // Preserve order history
+        allow update: if isSeller();
+        allow delete: if false; 
       }
     }
 
@@ -84,28 +79,23 @@ service cloud.firestore {
     }
     
     match /mealPlans/{mealPlanId} {
-      allow get: if isSignedIn();
-      allow list: if isCoach(); // Admins and coaches can list all plans
-      // Only the authoring coach/admin can modify
-      allow create, update, delete: if isCoach() && request.resource.data.authorId == request.auth.uid; 
+      allow read, write: if isCoach();
     }
 
     match /workouts/{workoutId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isCoach(); // Managed by Coach or Admin
+      allow create, update, delete: if isCoach();
     }
 
     match /meals/{mealId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isCoach(); // Managed by Coach or Admin
+      allow create, update, delete: if isCoach();
     }
 
     match /locations/{locationId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      // An admin can update any location, or a user can update their own submission.
       allow update: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
-      // An admin can delete any location, or a user can delete their own submission.
       allow delete: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
     }
     
@@ -117,7 +107,7 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isSeller(); // Managed by Seller or Admin
+      allow create, update, delete: if isSeller();
     }
   }
 }

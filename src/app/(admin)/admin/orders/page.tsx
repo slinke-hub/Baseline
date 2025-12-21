@@ -12,7 +12,6 @@ import { collectionGroup, query, where, doc, updateDoc, writeBatch, increment, c
 import type { UserOrder, AppUser } from '@/lib/types';
 import { Loader2, PackageCheck, Truck, XCircle, Undo2, Star } from 'lucide-react';
 import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type OrderWithUser = UserOrder & { user?: AppUser };
@@ -60,10 +59,10 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
 
             batch.update(orderDocRef, { status: newStatus });
             
-            if (newStatus === 'Delivered') {
+            if (newStatus === 'Delivered' && order.status !== 'Delivered') { // Prevent multiple decrements
                 batch.update(productDocRef, { stock: increment(-1) });
             }
-            else if (newStatus === 'Canceled') {
+            else if (newStatus === 'Canceled' && order.status !== 'Canceled') { // Prevent multiple refunds
                 if(order.paymentMethod === 'xp') {
                      batch.update(userDocRef, { xp: increment(order.amountPaid) });
                 }
@@ -110,11 +109,10 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
                         </TableHeader>
                         <TableBody>
                             {ordersWithUsers.length > 0 ? ordersWithUsers.map(order => {
-                                const image = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
                                 return (
                                     <TableRow key={order.id}>
                                         <TableCell className="flex items-center gap-2">
-                                            {image && <Image src={image.imageUrl} alt={order.productName} width={40} height={40} className="rounded-md object-cover" />}
+                                            {order.photoUrl && <Image src={order.photoUrl} alt={order.productName} width={40} height={40} className="rounded-md object-cover" />}
                                             <span className="font-medium">{order.productName}</span>
                                         </TableCell>
                                         <TableCell>{order.user?.displayName || 'N/A'}</TableCell>
@@ -230,5 +228,3 @@ export default function AdminOrdersPage() {
         </Tabs>
     )
 }
-
-    

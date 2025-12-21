@@ -53,7 +53,7 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
         userId: user.uid,
         productId: product.id,
         productName: product.name,
-        photoUrl: product.photoUrl, // Make sure this is part of the data
+        photoUrl: product.photoUrl,
         paymentMethod: method,
         amountPaid: amount,
         status: 'Pending',
@@ -183,5 +183,3 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
     </div>
   );
 }
-
-    

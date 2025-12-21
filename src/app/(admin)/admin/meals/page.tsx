@@ -81,6 +81,7 @@ export default function AdminMealsPage() {
             ingredients: values.ingredients.split('\n'),
             steps: values.steps.split('\n'),
             authorId: appUser.uid,
+            imageId: `meal-${values.category.toLowerCase().split('-')[0]}-1`,
         }
 
         try {
@@ -88,11 +89,7 @@ export default function AdminMealsPage() {
                 await updateDoc(doc(firestore, 'meals', selectedMeal.id), processedValues);
                 toast({ title: "Meal Updated", description: "The meal has been successfully updated." });
             } else {
-                const newMealData = {
-                    ...processedValues,
-                    imageId: `meal-${values.category.toLowerCase().split('-')[0]}-1`,
-                };
-                await addDoc(collection(firestore, 'meals'), newMealData);
+                await addDoc(collection(firestore, 'meals'), processedValues);
                 toast({ title: "Meal Added", description: "The new meal has been created." });
             }
             closeForm();

@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 const categories: WorkoutCategory[] = ['Shooting', 'Ball Handling', 'Defense', 'Conditioning', 'Vertical Jump'];
 
@@ -39,7 +40,15 @@ function WorkoutsContent() {
             {isLoadingWorkouts ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
-                  <Card key={i}><CardHeader><Skeleton className="h-4 w-24" /><Skeleton className="h-6 w-48 mt-2" /></CardHeader><CardContent><Skeleton className="h-10 w-full" /></CardContent></Card>
+                   <Card key={i} className="bg-card/20 backdrop-blur-sm">
+                     <CardHeader>
+                       <Skeleton className="h-4 w-24" />
+                       <Skeleton className="h-6 w-48 mt-2" />
+                     </CardHeader>
+                     <CardContent>
+                       <Skeleton className="h-10 w-full" />
+                     </CardContent>
+                   </Card>
                 ))}
               </div>
             ) : (

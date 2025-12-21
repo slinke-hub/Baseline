@@ -40,13 +40,9 @@ export default function AdminMealPlannerPage() {
 
     // Fetch meal plans
     const mealPlansQuery = useMemoFirebase(() => {
-        if (!appUser) return null;
-        if (appUser.role === 'admin') {
-            return collection(firestore, 'mealPlans');
-        }
-        // Coaches only see meal plans they created
-        return query(collection(firestore, 'mealPlans'), where('authorId', '==', appUser.uid));
-    }, [appUser, firestore]);
+        if (!firestore) return null;
+        return collection(firestore, 'mealPlans');
+    }, [firestore]);
     const { data: mealPlans, isLoading: isLoadingPlans } = useCollection<UserMealPlan>(mealPlansQuery);
 
     const userPlan = useMemo(() => {
