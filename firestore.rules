@@ -13,7 +13,9 @@ service cloud.firestore {
     }
 
     function getRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      // Use the exists() function to safely check for the user document
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) ? 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role : 'client';
     }
 
     function isAdmin() {
@@ -34,19 +36,21 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
     
-    // Admin has full access to everything for direct document access.
+    // Admin has full access to everything. This is the key fix.
     match /{path=**} {
       allow read, write: if isAdmin();
     }
     
     // Specific rules for collection group queries that cannot use `get()` in rules.
     // These allow admins/coaches/sellers to list items across all users.
+    // NOTE: The broad admin rule above makes these somewhat redundant for admins,
+    // but they are kept for clarity and for non-admin roles like 'coach' and 'seller'.
     match /{path=**}/connections/{connectionId} {
-        allow list: if getRole() == 'admin' || getRole() == 'coach';
+        allow list: if isCoach(); // Admins are covered by the rule above
     }
 
     match /{path=**}/orders/{orderId} {
-      allow list: if getRole() == 'admin' || getRole() == 'seller';
+      allow list: if isSeller(); // Admins are covered by the rule above
     }
 
     match /users/{userId} {
