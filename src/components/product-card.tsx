@@ -7,7 +7,6 @@ import Image from 'next/image';
 import type { Product } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import placeholderData from '@/lib/placeholder-images.json';
 import { Button } from './ui/button';
 import { Star, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { Input } from './ui/input';
@@ -18,7 +17,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
-  const productImage = placeholderData.placeholderImages.find(p => p.id === product.imageId);
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCartClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -34,14 +32,13 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
         <Link href={`/store/${product.id}`} className="flex flex-col h-full">
-            {productImage && (
+            {product.photoUrl && (
             <div className="relative h-64 w-full">
                 <Image
-                src={productImage.imageUrl}
+                src={product.photoUrl}
                 alt={product.name}
                 fill
                 className="object-cover"
-                data-ai-hint={productImage.imageHint}
                 />
             </div>
             )}

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from 'next/link';
 import Image from "next/image";
-import placeholderData from '@/lib/placeholder-images.json';
 import { ArrowLeft, Star, ShoppingCart, Loader2, PackageCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -54,7 +53,7 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
         userId: user.uid,
         productId: product.id,
         productName: product.name,
-        productImageId: product.imageId,
+        photoUrl: product.photoUrl,
         paymentMethod: method,
         amountPaid: amount,
         status: 'Pending',
@@ -94,8 +93,6 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
     }
   };
 
-  const productImage = placeholderData.placeholderImages.find(p => p.id === product.imageId);
-
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <Link href="/store" className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
@@ -105,17 +102,14 @@ export function ProductDetailClientPage({ product }: { product: Product }) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
         <div className="lg:col-span-3">
           <Card className="overflow-hidden">
-            {productImage && (
-                <div className="relative aspect-video w-full">
-                <Image
-                    src={productImage.imageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    data-ai-hint={productImage.imageHint}
-                />
-                </div>
-            )}
+            <div className="relative aspect-square w-full">
+            <Image
+                src={product.photoUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+            />
+            </div>
           </Card>
         </div>
         <div className="lg:col-span-2">

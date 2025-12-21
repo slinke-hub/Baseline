@@ -111,7 +111,8 @@ export interface UserOrder {
   userId: string;
   productId: string;
   productName: string;
-  productImageId: string;
+  photoUrl?: string; // Add this
+  productImageId?: string; // Keep this for backward compatibility
   paymentMethod: 'xp' | 'cod';
   amountPaid: number;
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
@@ -130,5 +131,3 @@ export interface ChatMessage {
     receiverId: string;
     createdAt: Timestamp;
 }
-
-    

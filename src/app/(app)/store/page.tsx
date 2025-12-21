@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { Loader2, ShoppingCart, Star, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
 import type { Product, UserOrder } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -94,7 +93,7 @@ export default function StorePage() {
                 userId: user.uid,
                 productId: item.product.id,
                 productName: item.product.name,
-                productImageId: item.product.imageId,
+                photoUrl: item.product.photoUrl,
                 paymentMethod: paymentMethod,
                 amountPaid: paymentMethod === 'xp' ? item.product.priceXp * item.quantity : item.product.priceCash * item.quantity,
                 status: 'Pending',
@@ -192,11 +191,10 @@ export default function StorePage() {
                 {cart.length > 0 ? (
                   <div className="space-y-4">
                     {cart.map(item => {
-                      const productImage = placeholderData.placeholderImages.find(p => p.id === item.product.imageId);
                       return (
                         <div key={item.product.id} className="flex gap-4">
                           <Image
-                            src={productImage?.imageUrl || ''}
+                            src={item.product.photoUrl || ''}
                             alt={item.product.name}
                             width={64}
                             height={64}

@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useFirebase, useCollection } from '@/firebase';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collectionGroup, query, where, doc, updateDoc, getDoc, writeBatch, increment } from 'firebase/firestore';
 import type { UserOrder, AppUser } from '@/lib/types';
 import { Loader2, PackageCheck, Truck, XCircle, Undo2, Star } from 'lucide-react';
@@ -26,11 +26,15 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
     const [orders, setOrders] = useState<OrderWithUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const ordersQuery = query(
-        collectionGroup(firestore, 'orders'),
-        where('paymentMethod', '==', paymentMethod),
-        where('status', '==', statusFilter)
-    );
+    const ordersQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(
+            collectionGroup(firestore, 'orders'),
+            where('paymentMethod', '==', paymentMethod),
+            where('status', '==', statusFilter)
+        );
+    }, [firestore, paymentMethod, statusFilter]);
+
     const { data: fetchedOrders, isLoading: isLoadingOrders } = useCollection<UserOrder>(ordersQuery);
 
     useEffect(() => {
@@ -121,7 +125,7 @@ function OrdersTable({ statusFilter, paymentMethod }: { statusFilter: StatusFilt
                         </TableHeader>
                         <TableBody>
                             {orders.length > 0 ? orders.map(order => {
-                                const image = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
+                                const image = order.photoUrl ? { imageUrl: order.photoUrl } : placeholderData.placeholderImages.find(p => p.id === order.productImageId);
                                 return (
                                     <TableRow key={order.id}>
                                         <TableCell className="flex items-center gap-2">

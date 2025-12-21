@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Package, Star } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -42,12 +41,11 @@ function OrderList({ orders, statusFilter }: { orders: UserOrder[], statusFilter
     return (
         <div className="space-y-4">
             {filteredOrders.map(order => {
-                const productImage = placeholderData.placeholderImages.find(p => p.id === order.productImageId);
                 return (
                 <div key={order.id} className="flex flex-col sm:flex-row items-center gap-4 border p-4 rounded-lg">
-                    {productImage && (
+                    {order.photoUrl && (
                         <Image 
-                            src={productImage.imageUrl} 
+                            src={order.photoUrl} 
                             alt={order.productName}
                             width={80}
                             height={80}
