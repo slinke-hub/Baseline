@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -120,6 +121,12 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
 
   return (
     <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8"
+      style={{
+        backgroundImage: `url(/logo.png)`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+      }}
     >
       <div className="absolute inset-0 bg-background/70 backdrop-blur-sm -z-10" />
 
