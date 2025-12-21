@@ -45,15 +45,17 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && getRole() == 'admin';
+      // Check for custom claim OR role document for flexibility.
+      // Custom claims are more efficient for rules.
+      return isSignedIn() && (request.auth.token.admin == true || getRole() == 'admin');
     }
     
     function isCoach() {
-      return isSignedIn() && (getRole() == 'coach' || getRole() == 'admin');
+      return isSignedIn() && (getRole() == 'coach' || isAdmin());
     }
     
     function isSeller() {
-      return isSignedIn() && (getRole() == 'seller' || getRole() == 'admin');
+      return isSignedIn() && (getRole() == 'seller' || isAdmin());
     }
 
     function isParticipant(chatId) {
@@ -61,15 +63,19 @@ service cloud.firestore {
     }
     
     // Admin has full access to everything. This rule is intentionally broad for admin users.
-    match /{document=**} {
+    match /{path=**} {
       allow read, write: if isAdmin();
+    }
+    
+    match /{path=**}/connections/{connectionId} {
+        allow list: if isCoach();
     }
 
     match /users/{userId} {
       allow get: if isSignedIn(); // Allow reading any user's profile for friend lists or by sellers
       allow list: if isSignedIn(); // Allow listing users to find friends
       allow create: if isOwner(userId); // Allow a user to create their own document
-      allow update: if isOwner(userId);
+      allow update: if isOwner(userId) || isCoach(); // Coaches can also update user profiles
       allow delete: if isAdmin(); // Only admins can delete user documents
 
       match /connections/{friendId} {
@@ -82,8 +88,9 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
       
+      // Allow sellers/admins to list any user's orders via collection group query
       match /orders/{orderId} {
-        allow get, list: if isOwner(userId) || isSeller();
+        allow read, list: if isOwner(userId) || isSeller();
         allow create: if isOwner(userId);
         allow update: if isSeller(); // Sellers and Admins can update status
         allow delete: if false; // Preserve order history
@@ -97,7 +104,8 @@ service cloud.firestore {
     match /mealPlans/{mealPlanId} {
       allow get: if isSignedIn();
       allow list: if isCoach(); // Admins and coaches can list all plans
-      allow create, update, delete: if isCoach() && request.resource.data.authorId == request.auth.uid; // Only the authoring coach/admin can modify
+      // Only the authoring coach/admin can modify
+      allow create, update, delete: if isCoach() && request.resource.data.authorId == request.auth.uid; 
     }
 
     match /workouts/{workoutId} {
@@ -127,7 +135,7 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin(); // Managed by Admin only
+      allow create, update, delete: if isSeller(); // Managed by Seller or Admin
     }
   }
 }
