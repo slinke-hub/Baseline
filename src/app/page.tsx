@@ -4,10 +4,10 @@
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { Logo } from '@/components/icons/logo';
 import { useFirebase } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { BasketballLoader } from '@/components/basketball-loader';
 
 export default function EntryPage() {
   const { user, appUser, loading } = useAuth();
@@ -46,9 +46,7 @@ export default function EntryPage() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
-      <Logo width={600} height={600} />
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p>Loading your experience...</p>
+      <BasketballLoader />
     </div>
   );
 }

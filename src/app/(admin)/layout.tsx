@@ -2,7 +2,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { AdminHeader } from '@/components/layout/admin-header';
 import { AdminSidebar } from '@/components/layout/admin-sidebar';
 import { Footer } from '@/components/layout/footer';
+import { BasketballLoader } from '@/components/basketball-loader';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { appUser, loading } = useAuth();
@@ -26,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading || !appUser) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <BasketballLoader />
       </div>
     );
   }
