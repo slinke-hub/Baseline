@@ -165,7 +165,7 @@ export default function StorePage() {
           <h1 className="text-3xl font-bold tracking-tight">Merch Store</h1>
           <p className="text-muted-foreground">Rep the brand. Redeem your XP for exclusive gear.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 self-end sm:self-center">
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Your Balance</p>
             <p className="font-bold flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400" /> {appUser?.xp?.toLocaleString() || 0} XP</p>
@@ -269,5 +269,3 @@ export default function StorePage() {
     </div>
   );
 }
-
-    
