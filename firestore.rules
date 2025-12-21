@@ -62,13 +62,19 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
     
-    // Admin has full access to everything. This rule is intentionally broad for admin users.
+    // Admin has full access to everything for direct document access.
     match /{path=**} {
       allow read, write: if isAdmin();
     }
     
+    // Specific rules for collection group queries that cannot use `get()` in rules.
+    // These allow admins/coaches/sellers to list items across all users.
     match /{path=**}/connections/{connectionId} {
-        allow list: if isCoach();
+        allow list: if getRole() == 'admin' || getRole() == 'coach';
+    }
+
+    match /{path=**}/orders/{orderId} {
+      allow list: if getRole() == 'admin' || getRole() == 'seller';
     }
 
     match /users/{userId} {
@@ -88,9 +94,9 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
       
-      // Allow sellers/admins to list any user's orders via collection group query
+      // Rule for individual document access within the orders subcollection.
       match /orders/{orderId} {
-        allow read, list: if isOwner(userId) || isSeller();
+        allow read: if isOwner(userId) || isSeller();
         allow create: if isOwner(userId);
         allow update: if isSeller(); // Sellers and Admins can update status
         allow delete: if false; // Preserve order history
