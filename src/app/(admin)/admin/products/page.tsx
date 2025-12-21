@@ -3,12 +3,11 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Trash2, Edit, MoreVertical, Star, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, MoreVertical, Star, Loader2, Upload } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
-import placeholderData from '@/lib/placeholder-images.json';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
@@ -39,18 +38,34 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from '@/components/ui/textarea';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuth } from '@/hooks/use-auth';
+import { resizeImage } from '@/lib/image-resizer';
+
 
 export default function AdminProductsPage() {
     const { toast } = useToast();
-    const { firestore } = useFirebase();
+    const { firestore, firebaseApp } = useFirebase();
+    const { user } = useAuth();
 
     const productsQuery = useMemoFirebase(() => collection(firestore, 'products'), [firestore]);
     const { data: products, isLoading: isLoadingProducts } = useCollection<Product>(productsQuery);
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const isEditing = !!selectedProduct;
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setPhotoFile(file);
+            setPhotoPreview(URL.createObjectURL(file));
+        }
+    };
 
     const handleDelete = async (productId: string) => {
         try {
@@ -64,42 +79,67 @@ export default function AdminProductsPage() {
 
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (!user) return;
+        
+        setIsUploading(true);
+
         const formData = new FormData(event.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
-        const processedValues = {
-            ...values,
-            priceXp: parseInt(values.priceXp, 10),
-            priceCash: parseFloat(values.priceCash),
-            stock: parseInt(values.stock, 10),
-        }
+
+        let photoUrl = selectedProduct?.photoUrl || '';
 
         try {
+            if (photoFile) {
+                const resizedImageBlob = await resizeImage(photoFile, 800, 800);
+                const storage = getStorage(firebaseApp);
+                const storageRef = ref(storage, `product-photos/${Date.now()}_${photoFile.name}`);
+                const snapshot = await uploadBytes(storageRef, resizedImageBlob);
+                photoUrl = await getDownloadURL(snapshot.ref);
+            }
+
+            if (!photoUrl) {
+                toast({ title: "Photo Required", description: "Please upload a photo for the product.", variant: "destructive" });
+                setIsUploading(false);
+                return;
+            }
+
+            const processedValues = {
+                name: values.name,
+                description: values.description,
+                priceXp: parseInt(values.priceXp, 10),
+                priceCash: parseFloat(values.priceCash),
+                stock: parseInt(values.stock, 10),
+                photoUrl: photoUrl,
+            };
+
             if (isEditing && selectedProduct) {
                 await updateDoc(doc(firestore, 'products', selectedProduct.id), processedValues);
                 toast({ title: "Product Updated", description: "The product has been successfully updated." });
             } else {
-                const newProductData = {
-                    ...processedValues,
-                    imageId: 'merch-tee', // Default image for new products
-                };
-                await addDoc(collection(firestore, 'products'), newProductData);
+                await addDoc(collection(firestore, 'products'), processedValues);
                 toast({ title: "Product Added", description: "The new product has been created." });
             }
             closeForm();
         } catch (error) {
             console.error("Error saving product:", error);
             toast({ title: "Save Failed", variant: "destructive" });
+        } finally {
+            setIsUploading(false);
         }
     }
     
     const openForm = (product?: Product) => {
         setSelectedProduct(product || null);
+        setPhotoPreview(product?.photoUrl || null);
+        setPhotoFile(null);
         setIsFormOpen(true);
     }
     
     const closeForm = () => {
         setIsFormOpen(false);
         setSelectedProduct(null);
+        setPhotoFile(null);
+        setPhotoPreview(null);
     }
 
     return (
@@ -128,11 +168,10 @@ export default function AdminProductsPage() {
                         </TableHeader>
                         <TableBody>
                             {products?.map(product => {
-                                const image = placeholderData.placeholderImages.find(p => p.id === product.imageId);
                                 return (
                                     <TableRow key={product.id}>
                                         <TableCell>
-                                            {image && <Image src={image.imageUrl} alt={product.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={image.imageHint} />}
+                                            {product.photoUrl && <Image src={product.photoUrl} alt={product.name} width={64} height={64} className="rounded-md object-cover" />}
                                         </TableCell>
                                         <TableCell className="font-medium">{product.name}</TableCell>
                                         <TableCell>{product.stock}</TableCell>
@@ -182,6 +221,23 @@ export default function AdminProductsPage() {
                             <DialogDescription>Fill in the details for the merchandise.</DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
+                             <div className="space-y-2">
+                                <Label>Product Photo</Label>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative h-24 w-24 rounded-md border bg-muted flex items-center justify-center">
+                                       {photoPreview ? <Image src={photoPreview} alt="Product preview" fill className="object-cover rounded-md" /> : <span className="text-xs text-muted-foreground">Preview</span>}
+                                       {isUploading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md"><Loader2 className="h-6 w-6 animate-spin text-white"/></div>}
+                                    </div>
+                                    <Button asChild variant="outline">
+                                        <label htmlFor="photo-upload" className="cursor-pointer">
+                                            <Upload className="mr-2 h-4 w-4" />
+                                            {isUploading ? 'Uploading...' : 'Upload Photo'}
+                                        </label>
+                                    </Button>
+                                    <Input id="photo-upload" type="file" className="sr-only" onChange={handlePhotoChange} accept="image/*" />
+                                </div>
+                            </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="name">Product Name</Label>
                                 <Input id="name" name="name" defaultValue={selectedProduct?.name} required />
@@ -207,7 +263,7 @@ export default function AdminProductsPage() {
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="ghost" onClick={closeForm}>Cancel</Button>
-                            <Button type="submit">{isEditing ? 'Save Changes' : 'Create Product'}</Button>
+                            <Button type="submit" disabled={isUploading}>{isUploading ? 'Saving...' : (isEditing ? 'Save Changes' : 'Create Product')}</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -215,3 +271,5 @@ export default function AdminProductsPage() {
         </Card>
     )
 }
+
+    

@@ -1,4 +1,5 @@
 
+
 import { Timestamp } from "firebase/firestore";
 
 export interface AppUser {
@@ -99,7 +100,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  imageId: string;
+  photoUrl: string;
   priceXp: number;
   priceCash: number;
   stock: number;
@@ -129,3 +130,5 @@ export interface ChatMessage {
     receiverId: string;
     createdAt: Timestamp;
 }
+
+    
