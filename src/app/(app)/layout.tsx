@@ -3,6 +3,7 @@
 
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { DesktopSidebar } from '@/components/layout/desktop-sidebar';
+import { Footer } from '@/components/layout/footer';
 import { MobileHeader } from '@/components/layout/mobile-header';
 import { useAuth } from '@/hooks/use-auth';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -43,12 +44,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Desktop layout
         <div className="flex">
           <DesktopSidebar />
-          <main className="flex-1 md:pl-64">
-            <div className="p-4">
-              <div className="neon-border rounded-lg h-[calc(100vh-2rem)] overflow-y-auto">
+          <main className="flex-1 md:pl-64 flex flex-col h-screen">
+            <div className="p-4 flex-1">
+              <div className="neon-border rounded-lg h-full overflow-y-auto">
                 {children}
               </div>
             </div>
+            <Footer />
           </main>
         </div>
       )}

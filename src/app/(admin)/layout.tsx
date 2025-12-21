@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AdminHeader } from '@/components/layout/admin-header';
 import { AdminSidebar } from '@/components/layout/admin-sidebar';
-import { cn } from '@/lib/utils';
+import { Footer } from '@/components/layout/footer';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { appUser, loading } = useAuth();
@@ -54,6 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 neon-border">
           {children}
         </main>
+        <Footer />
       </div>
     </div>
   );
