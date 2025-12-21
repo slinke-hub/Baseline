@@ -69,7 +69,7 @@ export function DesktopSidebar() {
          <DropdownMenu>
             <DropdownMenuTrigger asChild>
                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-all hover:bg-accent/50">
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-10 w-10 neon-border">
                         <AvatarImage src={appUser?.photoURL} alt={appUser?.displayName || 'User'} />
                         <AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback>
                     </Avatar>

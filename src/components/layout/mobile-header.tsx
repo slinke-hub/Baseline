@@ -52,7 +52,7 @@ export function MobileHeader() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg text-left transition-all">
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-10 w-10 neon-border">
                         <AvatarImage src={appUser?.photoURL} alt={appUser?.displayName || 'User'} />
                         <AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback>
                     </Avatar>
