@@ -2,16 +2,26 @@
 import admin from 'firebase-admin';
 import { Product, Workout, Meal } from '@/lib/types';
 
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
-  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-  : undefined;
+try {
+  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+    : undefined;
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: serviceAccount ? admin.credential.cert(serviceAccount) : undefined,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  });
+  if (!admin.apps.length) {
+    if (serviceAccount) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      });
+    } else {
+      // Initialize without credentials in environments where they are auto-discovered
+      admin.initializeApp();
+    }
+  }
+} catch (error) {
+  console.error('Firebase Admin initialization error:', error);
 }
+
 
 const firestore = admin.firestore();
 
