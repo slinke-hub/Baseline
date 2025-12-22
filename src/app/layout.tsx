@@ -14,6 +14,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Baseline',
   description: 'Your Personal Basketball Training App',
+  manifest: '/manifest.json',
+  themeColor: '#2563eb',
 };
 
 export default function RootLayout({
