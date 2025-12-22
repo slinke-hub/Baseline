@@ -10,6 +10,7 @@ import { collection, query, where, Timestamp } from 'firebase/firestore';
 import type { WorkoutProgress } from '@/lib/types';
 import { eachDayOfInterval, subDays, startOfDay, format, isSameDay } from 'date-fns';
 import { useMemo } from 'react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProgressPage() {
     const { firestore } = useFirebase();
