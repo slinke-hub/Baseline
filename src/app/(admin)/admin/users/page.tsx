@@ -38,7 +38,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { AppUser, Connection } from '@/lib/types';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -58,58 +58,47 @@ type PendingRequest = {
 function FriendRequests() {
     const { firestore } = useFirebase();
     const { toast } = useToast();
+    
+    const pendingConnectionsQuery = useMemoFirebase(() => 
+        query(collectionGroup(firestore, 'connections'), where('status', '==', 'pending')),
+        [firestore]
+    );
+    const { data: pendingConnections, isLoading: isLoadingConnections } = useCollection<Connection>(pendingConnectionsQuery);
+
+    const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+    const { data: allUsers, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
+
     const [requests, setRequests] = useState<PendingRequest[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
-    const fetchRequests = async () => {
-        setIsLoading(true);
-        const usersSnapshot = await getDocs(collection(firestore, 'users'));
-        const allUsers = usersSnapshot.docs.map(d => d.data() as AppUser);
-        const userMap = new Map(allUsers.map(u => [u.uid, u]));
-        
-        const allRequests: PendingRequest[] = [];
-        const seenRequests = new Set<string>();
+    useEffect(() => {
+        if (pendingConnections && allUsers) {
+            const userMap = new Map(allUsers.map(u => [u.uid, u]));
+            const allRequests: PendingRequest[] = [];
+            const seenRequests = new Set<string>();
 
-        for (const user of allUsers) {
-            const connectionsQuery = query(
-                collection(firestore, 'users', user.uid, 'connections'),
-                where('status', '==', 'pending')
-            );
-            const connectionsSnapshot = await getDocs(connectionsQuery);
+            pendingConnections.forEach(connection => {
+                const friendId = connection.id; 
+                const initiatorId = connection.initiator;
+                
+                // Determine the other user's ID
+                const otherUserId = friendId === initiatorId ? null : friendId;
 
-            for (const connDoc of connectionsSnapshot.docs) {
-                const connection = connDoc.data() as Connection;
-                const friendId = connDoc.id;
-
-                const sortedIds = [user.uid, friendId].sort();
-                const requestId = sortedIds.join('_');
-
-                if (seenRequests.has(requestId)) continue;
-                seenRequests.add(requestId);
-
-                const fromUser = userMap.get(connection.initiator);
-                const toUser = userMap.get(connection.initiator === user.uid ? friendId : user.uid);
+                const fromUser = userMap.get(initiatorId);
+                const toUser = otherUserId ? userMap.get(otherUserId) : null;
                 
                 if (fromUser && toUser) {
-                    allRequests.push({
-                        id: requestId,
-                        fromUser,
-                        toUser,
-                    });
+                    const sortedIds = [fromUser.uid, toUser.uid].sort();
+                    const requestId = sortedIds.join('_');
+                    if (!seenRequests.has(requestId)) {
+                        allRequests.push({ id: requestId, fromUser, toUser });
+                        seenRequests.add(requestId);
+                    }
                 }
-            }
+            });
+            setRequests(allRequests);
         }
-        setRequests(allRequests);
-        setIsLoading(false);
-    }
-    
-    useEffect(() => {
-        fetchRequests().catch(err => {
-            console.error(err);
-            setIsLoading(false);
-        });
-    }, [firestore]);
-    
+    }, [pendingConnections, allUsers]);
+
     const handleAcceptRequest = async (fromUserId: string, toUserId: string) => {
         try {
             const batch = writeBatch(firestore);
@@ -125,8 +114,6 @@ function FriendRequests() {
                 title: "Request Accepted",
                 description: "The users are now friends.",
             });
-            // Refetch requests to update the UI
-            await fetchRequests();
         } catch (error) {
             console.error("Error accepting request:", error);
             toast({
@@ -136,7 +123,8 @@ function FriendRequests() {
             });
         }
     };
-
+    
+    const isLoading = isLoadingConnections || isLoadingUsers;
 
     if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
 
@@ -509,3 +497,5 @@ export default function AdminUsersPage() {
         </>
     )
 }
+
+    

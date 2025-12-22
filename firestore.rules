@@ -37,7 +37,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get, list: if isSignedIn() || isAdmin(); 
+      allow get: if isSignedIn() || isAdmin(); 
+      allow list: if isAdmin();
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isCoach() || isAdmin();
       allow delete: if isAdmin();
@@ -61,6 +62,10 @@ service cloud.firestore {
         allow update: if isSeller() || isAdmin();
         allow delete: if false; 
       }
+    }
+    
+    match /{path=**}/connections/{connectionId} {
+        allow list: if isAdmin();
     }
 
     match /chats/{chatId}/messages/{messageId} {
@@ -100,3 +105,5 @@ service cloud.firestore {
     }
   }
 }
+
+    
