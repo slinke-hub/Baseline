@@ -37,7 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Mobile layout
         <div className="flex min-h-screen flex-col">
           <MobileHeader />
-          <main className="flex-1 pb-20">{children}</main>
+          <main className="flex-1 pb-20 neon-border">{children}</main>
           <BottomNav />
         </div>
       ) : (
