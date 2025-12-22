@@ -74,48 +74,19 @@ function FriendRequests() {
         if (pendingConnections && allUsers) {
             const userMap = new Map(allUsers.map(u => [u.uid, u]));
             const allRequests: PendingRequest[] = [];
-            const seenRequests = new Set<string>();
-
+            
             pendingConnections.forEach(connection => {
-                const initiatorId = connection.initiator;
-                
-                // The parent doc of a connection is the user.
-                // We need to figure out who the other user is.
-                // The connection doc ID is the friend's UID.
-                // But the structure of the data returned from a collectionGroup query
-                // doesn't give us the full path easily without parsing.
-                // A better approach would be to have both UIDs in the connection doc.
-                // But working with the current structure:
-                // We can find the parent user by looking at the path, but use-collection doesn't expose it.
-                // Let's find another way.
-                // We know the initiator, and we have a list of all users.
-                // The collectionGroup query is on `connections`, so the path is `users/{userId}/connections/{friendId}`.
-                // The `id` on the connection from useCollection is `friendId`. This is incorrect for collectionGroup.
-                // The doc itself will have the ID. Let's assume the doc from useCollection is the raw doc.
-
-                // This logic is flawed because the parent path is not available.
-                // A collectionGroup query returns docs from any collection with that ID.
-                // Let's rethink. If we have a pending connection, we have the initiator.
-                // The document itself will live under a user.
-                // `useCollection` doesn't give us the ref. Let's adjust.
-                
-                // Let's assume that the 'id' of the connection object returned is the friendId (the document key)
-                // and we need to find which user it belongs to.
-                // This is not how collectionGroup queries work in the client. The snapshot contains the full doc path.
-                // Let's assume the hook handles it and we just need to stitch the data.
-                
-                // The problem is that a 'connection' doc itself doesn't tell us BOTH users.
-                // It only has an 'initiator'. The other user is the parent document's ID.
-                // The `useCollection` hook abstracts this away.
-                // To solve this, we need to manually query.
+                // The connection object doesn't tell us the parent document ID.
+                // We need to fetch it separately, but useCollection doesn't expose the doc ref.
+                // The current implementation is inefficient and likely to cause issues.
+                // A better approach is to use a manual snapshot listener that gives us the full doc reference.
             });
-
         }
     }, [pendingConnections, allUsers]);
 
     // Let's re-implement the data fetching part to be correct.
     useEffect(() => {
-        if (!firestore || !allUsers) return;
+        if (!firestore || !allUsers || allUsers.length === 0) return;
 
         const q = query(collectionGroup(firestore, 'connections'), where('status', '==', 'pending'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -134,11 +105,15 @@ function FriendRequests() {
                      // The initiator is who sent it. The other person is the receiver.
                     const fromUser = connection.initiator === userA.uid ? userA : userB;
                     const toUser = connection.initiator === userA.uid ? userB : userA;
-                    allRequests.push({ id: `${userA.uid}_${userB.uid}`, fromUser, toUser });
+
+                    // Ensure the 'from' user is always the initiator to avoid duplicates
+                    if (fromUser.uid === connection.initiator) {
+                        allRequests.push({ id: `${userA.uid}_${userB.uid}`, fromUser, toUser });
+                    }
                 }
             });
-            // Deduplicate requests since they exist for both users
-            const uniqueRequests = Array.from(new Map(allRequests.map(item => [item.id, item])).values());
+            // Deduplicate requests since they exist for both users but our logic now handles it
+            const uniqueRequests = Array.from(new Map(allRequests.map(item => [`${item.fromUser.uid}-${item.toUser.uid}`, item])).values());
             setRequests(uniqueRequests);
         });
 
@@ -238,22 +213,14 @@ function FriendRequests() {
 export default function AdminUsersPage() {
     const { toast } = useToast();
     const { firestore } = useFirebase();
-    const [users, setUsers] = useState<AppUser[]>([]);
+
+    const usersQuery = useMemoFirebase(() => query(collection(firestore, 'users')), [firestore]);
+    const { data: users, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
+
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
     const [userToDelete, setUserToDelete] = useState<AppUser | null>(null);
-
-    useEffect(() => {
-        const usersQuery = query(collection(firestore, 'users'));
-        const unsubscribe = onSnapshot(usersQuery, (snapshot) => {
-            const fetchedUsers = snapshot.docs.map(doc => doc.data() as AppUser);
-            setUsers(fetchedUsers);
-        });
-
-        return () => unsubscribe();
-    }, [firestore]);
-
 
     const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -405,6 +372,7 @@ export default function AdminUsersPage() {
                             </Dialog>
                         </CardHeader>
                         <CardContent>
+                           {isLoadingUsers ? <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div> :
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -418,7 +386,7 @@ export default function AdminUsersPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {users.map(user => (
+                                        {users?.map(user => (
                                             <TableRow key={user.uid}>
                                                 <TableCell className="font-medium">{user.displayName}</TableCell>
                                                 <TableCell>{user.email}</TableCell>
@@ -457,7 +425,7 @@ export default function AdminUsersPage() {
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </div>
+                            </div>}
                         </CardContent>
                         <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
                           <DialogContent className="sm:max-w-[425px]">

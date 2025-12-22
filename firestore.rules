@@ -41,8 +41,6 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isCoach() || isAdmin();
       allow delete: if isAdmin();
-      // Admins can list all users
-      allow list: if isAdmin();
 
       match /connections/{friendId} {
         allow read, delete: if isOwner(userId) || isAdmin();
@@ -63,6 +61,11 @@ service cloud.firestore {
         allow update: if isSeller() || isAdmin();
         allow delete: if false; 
       }
+    }
+    
+    // Admins can list all users
+    match /users/{userId} {
+       allow list: if isAdmin();
     }
     
     // Allow admins to perform collection group queries
@@ -111,3 +114,5 @@ service cloud.firestore {
     }
   }
 }
+
+    
