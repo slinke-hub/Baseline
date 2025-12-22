@@ -85,7 +85,7 @@ export default function AdminWorkoutsPage() {
                 const newWorkoutData = {
                     ...processedValues,
                     videoUrl: 'https://www.youtube.com/embed/example',
-                    imageId: `workout-${values.category.toLowerCase().split(' ')[0]}-1`,
+                    imageId: `workout-${values.category.toLowerCase().replace(/\s+/g, '-')}-1`,
                 };
                 await addDoc(collection(firestore, 'workouts'), newWorkoutData);
                 toast({ title: "Workout Added", description: "The new workout has been created." });
