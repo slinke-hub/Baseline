@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
-import Image from 'next/image';
+import { Logo } from '../icons/logo';
 
 const adminNavItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -68,7 +68,7 @@ export function AdminHeader() {
           <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
                   <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
-                      <Image src="/logo.png" alt="Baseline Logo" width={120} height={34} className="object-contain"/>
+                      <Logo width={120} height={34} />
                   </Link>
               </nav>
               <ScrollArea className="flex-1">

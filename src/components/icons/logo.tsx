@@ -21,11 +21,7 @@ export const Logo = ({
         fill
         className="object-contain"
         priority
-        style={{
-            width: 'auto',
-            height: 'auto',
-        }}
-        sizes="200px"
+        sizes={`${width}px`}
       />
     </div>
   );

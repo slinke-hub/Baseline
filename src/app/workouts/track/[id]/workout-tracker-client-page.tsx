@@ -2,25 +2,22 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { mockSchedule, mockWorkouts } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Play, Pause, RotateCcw, Check, Plus } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
-import { isSameDay } from 'date-fns';
 import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { Workout, WorkoutProgress } from '@/lib/types';
-import Image from 'next/image';
+import { Logo } from '@/components/icons/logo';
 
 export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { appUser, user } = useAuth();
+  const { user } = useAuth();
   const { firestore } = useFirebase();
-  const id = workout.id;
 
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -70,19 +67,8 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
       audio.volume = 0.5;
       audio.play().catch(e => console.error("Error playing sound:", e));
 
-      const currentUserMockId = appUser?.uid?.includes('zion') ? 'user-5' : 'user-2';
-      const todaysWorkouts = mockSchedule.filter(event => 
-          event.userId === currentUserMockId &&
-          event.type === 'workout' &&
-          isSameDay(event.date, new Date()) &&
-          event.workoutId !== id
-      );
+      router.push('/home');
 
-      if (todaysWorkouts.length > 0) {
-          router.push('/workouts');
-      } else {
-          router.push('/home');
-      }
     } catch(e) {
         console.error("Failed to save workout progress", e);
         toast({
@@ -92,7 +78,7 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
         });
     }
 
-  }, [workout, toast, router, appUser, id, user, firestore, time]);
+  }, [workout, toast, router, user, firestore, time]);
 
   useEffect(() => {
     if (isRunning && time > 0) {
@@ -134,15 +120,11 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
   }
 
   return (
-    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8"
-      style={{
-        backgroundImage: `url(/logo.png)`,
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
-      }}
-    >
-      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
+    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
+       <div className="absolute inset-0 -z-10 flex items-center justify-center">
+            <Logo width={300} height={88} className="opacity-5" />
+       </div>
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm -z-10" />
 
       <div className="relative z-10">
         <Link href={`/workouts/${workout.id}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">

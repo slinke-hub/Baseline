@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useFirebase } from '@/firebase';
 import { ScrollArea } from '../ui/scroll-area';
-import Image from 'next/image';
+import { Logo } from '../icons/logo';
 
 export const mainNavItems = [
   { href: '/home', icon: Home, label: 'Home', color: 'text-sky-400' },
@@ -61,7 +61,7 @@ export function DesktopSidebar() {
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-card/95 bg-transparent text-white backdrop-blur-lg md:flex">
       <div className="flex h-20 items-center justify-center border-b px-6">
         <Link href="/home">
-          <Image src="/logo.png" alt="Baseline Logo" width={160} height={45} priority className="object-contain"/>
+          <Logo />
         </Link>
       </div>
 
