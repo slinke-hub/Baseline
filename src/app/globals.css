@@ -130,13 +130,14 @@
 
   @keyframes neon-border-glow {
     0% {
-      box-shadow: 0 0 5px hsl(var(--primary) / 0.2), 0 0 10px hsl(var(--primary) / 0.2);
+      box-shadow: 0 0 2px hsl(var(--primary) / 0.2), 0 0 5px hsl(var(--primary) / 0.2), inset 0 0 5px hsl(var(--primary) / 0.1);
     }
     50% {
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.5);
+      box-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 15px hsl(var(--primary) / 0.5), inset 0 0 10px hsl(var(--primary) / 0.3);
+      border-color: hsl(var(--primary) / 0.8);
     }
     100% {
-      box-shadow: 0 0 5px hsl(var(--primary) / 0.2), 0 0 10px hsl(var(--primary) / 0.2);
+      box-shadow: 0 0 2px hsl(var(--primary) / 0.2), 0 0 5px hsl(var(--primary) / 0.2), inset 0 0 5px hsl(var(--primary) / 0.1);
     }
   }
 }

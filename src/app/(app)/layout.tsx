@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex">
           <DesktopSidebar />
           <main className="flex-1 md:pl-64 flex flex-col h-screen">
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto neon-border">
                 {children}
             </div>
             <Footer />
