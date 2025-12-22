@@ -1,5 +1,4 @@
 
-
 import { Timestamp } from "firebase/firestore";
 
 export interface AppUser {
@@ -130,4 +129,5 @@ export interface ChatMessage {
     senderId: string;
     receiverId: string;
     createdAt: Timestamp;
+    isSystem?: boolean;
 }
