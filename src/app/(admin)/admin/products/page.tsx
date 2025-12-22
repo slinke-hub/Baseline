@@ -98,9 +98,7 @@ export default function AdminProductsPage() {
             }
 
             if (!photoUrl && !isEditing) {
-                toast({ title: "Photo Required", description: "Please upload a photo for the product.", variant: "destructive" });
-                setIsUploading(false);
-                return;
+                photoUrl = 'https://picsum.photos/seed/product/600/600';
             }
 
             const processedValues: Partial<Product> = {
@@ -271,5 +269,7 @@ export default function AdminProductsPage() {
         </Card>
     )
 }
+
+    
 
     
