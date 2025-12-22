@@ -14,7 +14,7 @@ interface WorkoutCardProps {
 }
 
 export function WorkoutCard({ workout, transparent = false }: WorkoutCardProps) {
-  const workoutImage = placeholderData.placeholderImages.find(p => p.id === workout.imageId);
+  const workoutImage = workout.photoUrl || placeholderData.placeholderImages.find(p => p.id === workout.imageId)?.imageUrl;
 
   return (
     <Card className={cn(
@@ -24,11 +24,10 @@ export function WorkoutCard({ workout, transparent = false }: WorkoutCardProps) 
       {workoutImage && (
         <div className="relative h-48 w-full">
           <Image
-            src={workoutImage.imageUrl}
+            src={workoutImage}
             alt={workout.title}
             fill
             className="object-cover"
-            data-ai-hint={workoutImage.imageHint}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>

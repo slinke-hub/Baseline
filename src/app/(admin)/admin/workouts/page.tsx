@@ -41,10 +41,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/use-auth';
+import { generateImage } from '@/ai/flows/generate-image-flow';
+import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 export default function AdminWorkoutsPage() {
     const { toast } = useToast();
-    const { firestore } = useFirebase();
+    const { firestore, firebaseApp } = useFirebase();
     const { appUser } = useAuth();
     
     const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
@@ -52,6 +54,7 @@ export default function AdminWorkoutsPage() {
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const isEditing = !!selectedWorkout;
 
@@ -68,6 +71,7 @@ export default function AdminWorkoutsPage() {
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!appUser) return;
+        setIsGenerating(true);
 
         const formData = new FormData(event.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
@@ -83,6 +87,20 @@ export default function AdminWorkoutsPage() {
                 await updateDoc(doc(firestore, 'workouts', selectedWorkout.id), processedValues);
                 toast({ title: "Workout Updated", description: "The workout has been saved." });
             } else {
+                let photoUrl = '';
+                try {
+                    const { media: imageDataUri } = await generateImage(`A dynamic and inspiring image for a basketball workout titled "${values.title}" focused on ${values.category}. Style should be realistic and motivational.`);
+                    if (imageDataUri) {
+                        const storage = getStorage(firebaseApp);
+                        const storageRef = ref(storage, `workout-photos/${Date.now()}_${values.title.replace(/\s+/g, '-')}.png`);
+                        const snapshot = await uploadString(storageRef, imageDataUri, 'data_url');
+                        photoUrl = await getDownloadURL(snapshot.ref);
+                    }
+                } catch (e) {
+                    console.error("AI image generation failed, using placeholder", e);
+                    photoUrl = "https://picsum.photos/seed/workout/600/400"
+                }
+
                 const category = values.category as WorkoutCategory;
                 let imageIdSlug = category.toLowerCase().replace(/\s+/g, '-');
                 if (imageIdSlug === 'vertical-jump') {
@@ -92,6 +110,7 @@ export default function AdminWorkoutsPage() {
                     ...processedValues,
                     videoUrl: 'https://www.youtube.com/embed/example',
                     imageId: `workout-${imageIdSlug}-1`,
+                    photoUrl: photoUrl,
                 };
                 await addDoc(collection(firestore, 'workouts'), newWorkoutData);
                 toast({ title: "Workout Added", description: "The new workout has been created." });
@@ -100,6 +119,8 @@ export default function AdminWorkoutsPage() {
         } catch (error) {
             console.error("Error saving workout:", error);
             toast({ title: "Save Failed", variant: "destructive" });
+        } finally {
+            setIsGenerating(false);
         }
     }
     
@@ -180,7 +201,7 @@ export default function AdminWorkoutsPage() {
                     <form onSubmit={handleFormSubmit}>
                         <DialogHeader>
                             <DialogTitle>{isEditing ? 'Edit Workout' : 'Add New Workout'}</DialogTitle>
-                            <DialogDescription>Fill in the details for the workout program.</DialogDescription>
+                            <DialogDescription>Fill in the details for the workout program. An image will be auto-generated.</DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -220,7 +241,9 @@ export default function AdminWorkoutsPage() {
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="ghost" onClick={closeForm}>Cancel</Button>
-                            <Button type="submit">{isEditing ? 'Save Changes' : 'Create Workout'}</Button>
+                            <Button type="submit" disabled={isGenerating}>
+                                {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : (isEditing ? 'Save Changes' : 'Create Workout')}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

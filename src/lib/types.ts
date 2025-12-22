@@ -31,6 +31,7 @@ export interface Workout {
   steps: string[];
   videoUrl: string;
   imageId: string;
+  photoUrl?: string;
 }
 
 export type MealCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' | 'Pre-game' | 'Post-game';

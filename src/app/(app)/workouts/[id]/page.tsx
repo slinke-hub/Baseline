@@ -38,7 +38,7 @@ export default function WorkoutDetailPage({ params }: { params: { id: string } }
     notFound();
   }
   
-  const workoutImage = placeholderData.placeholderImages.find(p => p.id === workout.imageId);
+  const workoutImage = workout.photoUrl || placeholderData.placeholderImages.find(p => p.id === workout.imageId)?.imageUrl;
   const cardClassName = "bg-card/20 backdrop-blur-sm";
 
   return (
@@ -58,11 +58,10 @@ export default function WorkoutDetailPage({ params }: { params: { id: string } }
                         {workoutImage && (
                             <div className="relative h-64 w-full rounded-t-lg overflow-hidden">
                             <Image
-                                src={workoutImage.imageUrl}
+                                src={workoutImage}
                                 alt={workout.title}
                                 fill
                                 className="object-cover"
-                                data-ai-hint={workoutImage.imageHint}
                                 sizes="(max-width: 1024px) 100vw, 67vw"
                             />
                             </div>

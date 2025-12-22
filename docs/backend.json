@@ -139,6 +139,11 @@
         "imageId": {
           "type": "string",
           "description": "ID for the workout image in placeholder-images.json"
+        },
+        "photoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the workout's dynamically generated image stored in Firebase Storage."
         }
       },
       "required": [
