@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
@@ -67,6 +67,9 @@ export default function ClientChatPage() {
     useEffect(() => {
         if (!user || !selectedFriend || !firestore) {
             setMessages([]);
+            if (messagesUnsubscribe.current) {
+                messagesUnsubscribe.current();
+            }
             return;
         }
 
@@ -81,7 +84,7 @@ export default function ClientChatPage() {
 
         let isFirstLoad = true;
         messagesUnsubscribe.current = onSnapshot(messagesQuery, (snapshot) => {
-            const msgs = snapshot.docs.map(doc => doc.data() as ChatMessage);
+            const msgs = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as ChatMessage));
             setMessages(msgs);
             setIsLoadingMessages(false);
 
@@ -96,6 +99,9 @@ export default function ClientChatPage() {
                 }
             }
             isFirstLoad = false;
+        }, (error) => {
+            console.error("Error fetching messages:", error);
+            setIsLoadingMessages(false);
         });
 
         return () => {
@@ -136,7 +142,7 @@ export default function ClientChatPage() {
             <CardHeader>
                 <CardTitle>Friends</CardTitle>
             </CardHeader>
-            <CardContent className="p-2 space-y-1 overflow-y-auto">
+            <CardContent className="p-2 space-y-1 overflow-y-auto flex-1">
                 {isLoadingFriends ? <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin"/></div> :
                  friends.length > 0 ? friends.map(friend => (
                     <button
@@ -148,7 +154,7 @@ export default function ClientChatPage() {
                         onClick={() => handleSelectFriend(friend)}
                     >
                         <Avatar>
-                            <AvatarImage src={friend.photoURL} />
+                            <AvatarImage src={friend.photoURL} alt={friend.displayName}/>
                             <AvatarFallback>{getInitials(friend.displayName)}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 overflow-hidden">
@@ -163,27 +169,32 @@ export default function ClientChatPage() {
     const renderChatWindow = () => (
         <div className="flex flex-col h-full">
             <CardHeader className="flex-row items-center gap-3 border-b">
+                 {isMobile && (
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedFriend(null)}>
+                        <ArrowLeft className="h-4 w-4"/>
+                    </Button>
+                 )}
                  <Avatar>
-                    <AvatarImage src={selectedFriend?.photoURL} />
+                    <AvatarImage src={selectedFriend?.photoURL} alt={selectedFriend?.displayName} />
                     <AvatarFallback>{getInitials(selectedFriend?.displayName)}</AvatarFallback>
                 </Avatar>
                 <CardTitle>{selectedFriend?.displayName}</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 p-6 space-y-4 overflow-y-auto">
+            <CardContent className="flex-1 p-4 md:p-6 space-y-4 overflow-y-auto">
                {isLoadingMessages ? <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div> : 
-               messages.map((message, index) => (
-                    <div key={index} className={cn(
+               messages.map((message) => (
+                    <div key={message.id} className={cn(
                         "flex items-end gap-2",
                         message.senderId === user?.uid ? 'justify-end' : 'justify-start'
                     )}>
-                        {message.senderId !== user?.uid && <Avatar className="h-8 w-8"><AvatarImage src={selectedFriend?.photoURL} /><AvatarFallback>{getInitials(selectedFriend?.displayName)}</AvatarFallback></Avatar>}
+                        {message.senderId !== user?.uid && <Avatar className="h-8 w-8"><AvatarImage src={selectedFriend?.photoURL} alt={selectedFriend?.displayName} /><AvatarFallback>{getInitials(selectedFriend?.displayName)}</AvatarFallback></Avatar>}
                         <div className={cn(
                             "max-w-xs md:max-w-md rounded-lg px-4 py-2",
                             message.senderId === user?.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary'
                         )}>
                             <p>{message.text}</p>
                         </div>
-                        {message.senderId === user?.uid && <Avatar className="h-8 w-8"><AvatarImage src={appUser?.photoURL || undefined} /><AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback></Avatar>}
+                        {message.senderId === user?.uid && <Avatar className="h-8 w-8"><AvatarImage src={appUser?.photoURL || undefined} alt={appUser?.displayName} /><AvatarFallback>{getInitials(appUser?.displayName)}</AvatarFallback></Avatar>}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -205,12 +216,12 @@ export default function ClientChatPage() {
     );
 
     return (
-        <div className="h-[calc(100vh-theme(spacing.20))] md:h-full flex flex-col p-4 sm:p-6 lg:p-8">
+        <div className="h-[calc(100vh-theme(spacing.20))] md:h-auto flex flex-col p-4 sm:p-6 lg:p-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">Chat</h1>
                 <p className="text-muted-foreground">Talk with your friends.</p>
             </div>
-            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr]">
+            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr] overflow-hidden">
                 {isMobile ? (
                     selectedFriend ? renderChatWindow() : renderFriendList()
                 ) : (

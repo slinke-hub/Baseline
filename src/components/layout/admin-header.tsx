@@ -24,8 +24,7 @@ import {
 } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
-import { Logo } from '../icons/logo';
-
+import Image from 'next/image';
 
 const adminNavItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -58,41 +57,39 @@ export function AdminHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
-      <div className="flex items-center gap-4">
-        <Sheet>
-            <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="md:hidden">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Open navigation menu</span>
-                </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-                <nav className="grid gap-2 text-lg font-medium">
-                    <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
-                        <Logo width={100} height={28} />
-                    </Link>
-                </nav>
-                <ScrollArea className="flex-1">
-                    <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-                        {adminNavItems.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={cn(
-                                    'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
-                                     pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                                )}
-                            >
-                                <item.icon className="h-5 w-5" />
-                                {item.label}
-                            </Link>
-                        ))}
-                    </nav>
-                </ScrollArea>
-            </SheetContent>
-        </Sheet>
-      </div>
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card px-4 sm:justify-end sm:px-6">
+      <Sheet>
+          <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="md:hidden mr-auto">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Open navigation menu</span>
+              </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="flex flex-col">
+              <nav className="grid gap-2 text-lg font-medium">
+                  <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
+                      <Image src="/logo.png" alt="Baseline Logo" width={120} height={34} className="object-contain"/>
+                  </Link>
+              </nav>
+              <ScrollArea className="flex-1">
+                  <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+                      {adminNavItems.map((item) => (
+                          <Link
+                              key={item.href}
+                              href={item.href}
+                              className={cn(
+                                  'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
+                                   pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                              )}
+                          >
+                              <item.icon className="h-5 w-5" />
+                              {item.label}
+                          </Link>
+                      ))}
+                  </nav>
+              </ScrollArea>
+          </SheetContent>
+      </Sheet>
       
       <div className="flex items-center gap-2">
         <DropdownMenu>

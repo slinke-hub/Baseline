@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
@@ -48,6 +48,9 @@ export default function AdminChatPage() {
     useEffect(() => {
         if (!adminUser || !selectedUser) {
             setMessages([]);
+            if (messagesUnsubscribe.current) {
+                messagesUnsubscribe.current();
+            }
             return;
         }
 
@@ -60,7 +63,7 @@ export default function AdminChatPage() {
         }
 
         messagesUnsubscribe.current = onSnapshot(messagesQuery, (snapshot) => {
-            const msgs = snapshot.docs.map(doc => doc.data() as ChatMessage);
+            const msgs = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as ChatMessage));
             setMessages(msgs);
             setIsLoadingMessages(false);
         }, (error) => {
@@ -99,7 +102,7 @@ export default function AdminChatPage() {
             <CardHeader>
                 <CardTitle>All Users</CardTitle>
             </CardHeader>
-            <CardContent className="p-2 space-y-1 overflow-y-auto">
+            <CardContent className="p-2 space-y-1 overflow-y-auto flex-1">
                 {isLoadingUsers ? <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin"/></div> :
                  usersToDisplay?.map(user => (
                     <button
@@ -111,7 +114,7 @@ export default function AdminChatPage() {
                         onClick={() => handleSelectUser(user)}
                     >
                         <Avatar>
-                            <AvatarImage src={user.photoURL} />
+                            <AvatarImage src={user.photoURL} alt={user.displayName} />
                             <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 overflow-hidden">
@@ -127,27 +130,32 @@ export default function AdminChatPage() {
     const renderChatWindow = () => (
          <div className="flex flex-col h-full">
             <CardHeader className="flex-row items-center gap-3 border-b">
+                 {isMobile && (
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedUser(null)}>
+                        <ArrowLeft className="h-4 w-4"/>
+                    </Button>
+                 )}
                  <Avatar>
-                    <AvatarImage src={selectedUser?.photoURL} />
+                    <AvatarImage src={selectedUser?.photoURL} alt={selectedUser?.displayName} />
                     <AvatarFallback>{getInitials(selectedUser?.displayName)}</AvatarFallback>
                 </Avatar>
                 <CardTitle>{selectedUser?.displayName}</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 p-6 space-y-4 overflow-y-auto">
+            <CardContent className="flex-1 p-4 md:p-6 space-y-4 overflow-y-auto">
                 {isLoadingMessages ? <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div> :
-                 messages.map((message, index) => (
-                    <div key={index} className={cn(
+                 messages.map((message) => (
+                    <div key={message.id} className={cn(
                         "flex items-end gap-2",
                         message.senderId === adminUser?.uid ? 'justify-end' : 'justify-start'
                     )}>
-                        {message.senderId !== adminUser?.uid && <Avatar className="h-8 w-8"><AvatarImage src={selectedUser?.photoURL} /><AvatarFallback>{getInitials(selectedUser?.displayName)}</AvatarFallback></Avatar>}
+                        {message.senderId !== adminUser?.uid && <Avatar className="h-8 w-8"><AvatarImage src={selectedUser?.photoURL} alt={selectedUser?.displayName} /><AvatarFallback>{getInitials(selectedUser?.displayName)}</AvatarFallback></Avatar>}
                         <div className={cn(
                             "max-w-xs md:max-w-md rounded-lg px-4 py-2",
                             message.senderId === adminUser?.uid ? 'bg-primary text-primary-foreground' : 'bg-secondary'
                         )}>
                             <p>{message.text}</p>
                         </div>
-                        {message.senderId === adminUser?.uid && <Avatar className="h-8 w-8"><AvatarImage src={adminUser?.photoURL || undefined} /><AvatarFallback>{getInitials(adminUser?.displayName)}</AvatarFallback></Avatar>}
+                        {message.senderId === adminUser?.uid && <Avatar className="h-8 w-8"><AvatarImage src={adminUser?.photoURL || undefined} alt={adminUser?.displayName} /><AvatarFallback>{getInitials(adminUser?.displayName)}</AvatarFallback></Avatar>}
                     </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -169,12 +177,12 @@ export default function AdminChatPage() {
     );
 
     return (
-        <div className="h-[calc(100vh-8rem)] md:h-auto flex flex-col">
+        <div className="h-[calc(100vh-8rem)] flex flex-col">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">User Chat</h1>
                 <p className="text-muted-foreground">Communicate directly with any user.</p>
             </div>
-            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr]">
+            <Card className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr] overflow-hidden">
                 {isMobile ? (
                     selectedUser ? renderChatWindow() : renderUserList()
                 ) : (

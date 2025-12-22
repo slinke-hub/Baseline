@@ -21,7 +21,7 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useFirebase } from '@/firebase';
-import { Logo } from '../icons/logo';
+import Image from 'next/image';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -78,7 +78,7 @@ export function ForgotPasswordForm() {
     <Card className="w-full border-none bg-transparent shadow-none">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo width={120} height={34} />
+            <Image src="/logo.png" alt="Baseline Logo" width={160} height={45} className="object-contain"/>
         </div>
         <CardTitle>Forgot Password</CardTitle>
         <CardDescription>Enter your email and we&apos;ll send you a link to reset it.</CardDescription>

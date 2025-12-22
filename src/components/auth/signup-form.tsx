@@ -25,7 +25,7 @@ import { Loader2 } from 'lucide-react';
 import type { AppUser } from '@/lib/types';
 import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { Textarea } from '../ui/textarea';
-import { Logo } from '../icons/logo';
+import Image from 'next/image';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -66,8 +66,7 @@ export function SignupForm() {
       
       const role = values.email === 'monti.training@gmail.com' ? 'admin' : 'client';
 
-      const userData: Omit<AppUser, 'id'> = {
-        uid: user.uid,
+      const userData: Omit<AppUser, 'uid'> = {
         displayName: values.displayName,
         email: values.email,
         photoURL: user.photoURL || '',
@@ -117,7 +116,7 @@ export function SignupForm() {
     <Card className="w-full border-none bg-transparent shadow-none">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo width={120} height={34} />
+            <Image src="/logo.png" alt="Baseline Logo" width={160} height={45} className="object-contain"/>
         </div>
         <CardTitle>Create an Account</CardTitle>
         <CardDescription>Enter your details below to create your account.</CardDescription>

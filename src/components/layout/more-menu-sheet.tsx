@@ -14,19 +14,22 @@ import { mainNavItems } from './desktop-sidebar';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 export function MoreMenuSheet() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
   const excludedItems = ['/profile', '/settings', '/home', '/workouts', '/ball-is-life', '/store'];
+  
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <button className="flex flex-col items-center gap-1 rounded-md p-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground w-16">
           <Menu className="h-5 w-5" />
           <span>More</span>
         </button>
       </SheetTrigger>
-      <SheetContent side="bottom">
+      <SheetContent side="bottom" className="h-auto">
         <SheetHeader>
           <SheetTitle>More</SheetTitle>
         </SheetHeader>
@@ -39,6 +42,7 @@ export function MoreMenuSheet() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setIsOpen(false)}
                 className={cn(
                   'flex flex-col items-center gap-2 rounded-lg p-3 text-center transition-all',
                   isActive

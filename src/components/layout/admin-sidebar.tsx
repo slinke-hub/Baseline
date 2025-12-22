@@ -16,7 +16,7 @@ import {
   Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '../icons/logo';
+import Image from 'next/image';
 
 const adminNavItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -39,7 +39,7 @@ export function AdminSidebar() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center justify-center border-b px-4 lg:h-[60px] lg:px-6">
           <Link href="/admin" className="flex items-center gap-2 font-semibold">
-            <Logo width={120} height={34} />
+            <Image src="/logo.png" alt="Baseline Logo" width={140} height={40} priority className="object-contain"/>
           </Link>
         </div>
         <div className="flex-1">

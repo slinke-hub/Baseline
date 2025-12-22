@@ -36,23 +36,18 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
     
-    // Admin has full access to everything.
+    // Admins have blanket read/get/write access. `list` is handled separately.
     match /{path=**} {
-      allow read, write: if isAdmin();
+      allow get, write: if isAdmin();
     }
     
-    // Specific rules for collection group queries that cannot use `get()` in rules.
-    match /{path=**}/connections/{connectionId} {
-        allow list: if isCoach();
-    }
-
-    match /{path=**}/orders/{orderId} {
-      allow list: if isSeller();
+    // Explicitly allow admins to list anything.
+    match /{path=**} {
+        allow list: if isAdmin();
     }
 
     match /users/{userId} {
-      allow get: if isSignedIn(); 
-      allow list: if isSignedIn();
+      allow get, list: if isSignedIn(); 
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isCoach();
       allow delete: if isAdmin();

@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -10,12 +11,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'storage.googleapis.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      }
     ],
   },
   experimental: {
-    serverActions: {
-      bodySizeLimit: '4.5mb',
-    },
+    optimizeFonts: true,
   },
 };
 

@@ -125,7 +125,7 @@ export interface Connection {
 }
 
 export interface ChatMessage {
-    id?: string;
+    id: string;
     text: string;
     senderId: string;
     receiverId: string;
