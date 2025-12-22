@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -59,7 +58,7 @@ export default function ClientSchedulePage() {
                 <p className="text-muted-foreground">Your weekly training and nutrition plan.</p>
             </div>
             <Card>
-                <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-4 sm:p-6 lg:items-center">
+                <CardContent className="grid grid-cols-1 lg:grid-cols-1 gap-8 p-4 sm:p-6">
                     <div className="flex justify-center">
                         <Calendar
                             mode="single"
