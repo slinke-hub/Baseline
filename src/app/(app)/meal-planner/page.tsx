@@ -1,15 +1,21 @@
 
+'use client';
+
 import { MealCard } from '@/components/meal-card';
 import type { Meal, MealCategory } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { getAllMeals } from '@/lib/firebase-admin-utils';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 
 const categories: MealCategory[] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Pre-game', 'Post-game'];
 
-export default async function MealPlannerPage() {
-  const meals = await getAllMeals();
+export default function MealPlannerPage() {
+  const { firestore } = useFirebase();
+  const mealsQuery = useMemoFirebase(() => collection(firestore, 'meals'), [firestore]);
+  const { data: meals, isLoading } = useCollection<Meal>(mealsQuery);
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -22,26 +28,30 @@ export default async function MealPlannerPage() {
             <Link href="/meal-planner/my-plan">My Meal Plan</Link>
         </Button>
       </div>
-
-      <Tabs defaultValue="Breakfast" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
+      
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
+      ) : (
+        <Tabs defaultValue="Breakfast" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
+            {categories.map(category => (
+              <TabsTrigger key={category} value={category} className="text-xs sm:text-sm">{category}</TabsTrigger>
+            ))}
+          </TabsList>
           {categories.map(category => (
-            <TabsTrigger key={category} value={category} className="text-xs sm:text-sm">{category}</TabsTrigger>
+            <TabsContent key={category} value={category}>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {meals?.filter(m => m.category === category).map((meal: Meal) => (
+                  <MealCard key={meal.id} meal={meal} />
+                ))}
+                {meals?.filter(m => m.category === category).length === 0 && (
+                  <p className="text-muted-foreground col-span-full text-center mt-8">No {category.toLowerCase()} meals found.</p>
+                )}
+              </div>
+            </TabsContent>
           ))}
-        </TabsList>
-        {categories.map(category => (
-          <TabsContent key={category} value={category}>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {meals?.filter(m => m.category === category).map((meal: Meal) => (
-                <MealCard key={meal.id} meal={meal} />
-              ))}
-              {meals?.filter(m => m.category === category).length === 0 && (
-                <p className="text-muted-foreground col-span-full text-center mt-8">No {category.toLowerCase()} meals found.</p>
-              )}
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+        </Tabs>
+      )}
     </div>
   );
 }

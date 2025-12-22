@@ -1,25 +1,38 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
 import Image from "next/image";
 import placeholderData from '@/lib/placeholder-images.json';
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getWorkoutById, getAllWorkoutIds } from '@/lib/firebase-admin-utils';
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
+import { useFirebase, useDoc, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
+import type { Workout } from "@/lib/types";
+import { BasketballLoader } from "@/components/basketball-loader";
 
-export async function generateStaticParams() {
-  const ids = await getAllWorkoutIds();
-  return ids.map((id) => ({
-    id: id,
-  }));
-}
+export default function WorkoutDetailPage() {
+  const { id } = useParams() as { id: string };
+  const { firestore } = useFirebase();
 
-export default async function WorkoutDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
-  const workout = await getWorkoutById(id);
+  const workoutDocRef = useMemoFirebase(() => {
+    if (!firestore || !id) return null;
+    return doc(firestore, 'workouts', id);
+  }, [firestore, id]);
+
+  const { data: workout, isLoading } = useDoc<Workout>(workoutDocRef);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <BasketballLoader />
+      </div>
+    );
+  }
 
   if (!workout) {
     notFound();

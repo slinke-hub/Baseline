@@ -1,18 +1,31 @@
 
+'use client';
+
 import { WorkoutTrackerClientPage } from "./workout-tracker-client-page";
-import { getWorkoutById, getAllWorkoutIds } from "@/lib/firebase-admin-utils";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
+import { useFirebase, useDoc, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
+import type { Workout } from "@/lib/types";
+import { BasketballLoader } from "@/components/basketball-loader";
 
-export async function generateStaticParams() {
-    const ids = await getAllWorkoutIds();
-    return ids.map((id) => ({
-        id: id,
-    }));
-}
+export default function WorkoutTrackerPage() {
+    const { id } = useParams() as { id: string };
+    const { firestore } = useFirebase();
 
-export default async function WorkoutTrackerPage({ params }: { params: { id: string } }) {
-    const { id } = params;
-    const workout = await getWorkoutById(id);
+    const workoutDocRef = useMemoFirebase(() => {
+        if (!firestore || !id) return null;
+        return doc(firestore, 'workouts', id);
+    }, [firestore, id]);
+
+    const { data: workout, isLoading } = useDoc<Workout>(workoutDocRef);
+
+    if (isLoading) {
+        return (
+          <div className="flex h-screen w-full items-center justify-center bg-background">
+            <BasketballLoader />
+          </div>
+        );
+    }
 
     if (!workout) {
         notFound();

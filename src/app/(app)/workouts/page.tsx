@@ -1,14 +1,19 @@
 
-import { Suspense } from 'react';
+'use client';
+
 import { WorkoutCard } from '@/components/workout-card';
 import type { Workout, WorkoutCategory } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getAllWorkouts } from '@/lib/firebase-admin-utils';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 
 const categories: WorkoutCategory[] = ['Shooting', 'Ball Handling', 'Defense', 'Conditioning', 'Vertical Jump'];
 
-async function WorkoutsContent() {
-  const allWorkouts = await getAllWorkouts();
+function WorkoutsContent() {
+  const { firestore } = useFirebase();
+  const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
+  const { data: allWorkouts, isLoading } = useCollection<Workout>(workoutsQuery);
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -17,22 +22,26 @@ async function WorkoutsContent() {
         <p className="text-muted-foreground">Find the perfect drill to level up your game.</p>
       </div>
 
-      <Tabs defaultValue={'Shooting'} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto bg-card/20 backdrop-blur-sm">
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
+      ) : (
+        <Tabs defaultValue={'Shooting'} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto bg-card/20 backdrop-blur-sm">
+            {categories.map(category => (
+              <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
+            ))}
+          </TabsList>
           {categories.map(category => (
-            <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
+            <TabsContent key={category} value={category}>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {allWorkouts?.filter(w => w.category === category).map((workout: Workout) => (
+                    <WorkoutCard key={workout.id} workout={workout} transparent />
+                  ))}
+                </div>
+            </TabsContent>
           ))}
-        </TabsList>
-        {categories.map(category => (
-          <TabsContent key={category} value={category}>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {allWorkouts?.filter(w => w.category === category).map((workout: Workout) => (
-                  <WorkoutCard key={workout.id} workout={workout} transparent />
-                ))}
-              </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+        </Tabs>
+      )}
     </div>
   );
 }
@@ -55,10 +64,8 @@ function WorkoutsPageContainer({ children }: { children: React.ReactNode }) {
 
 export default function WorkoutsPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <WorkoutsPageContainer>
-                <WorkoutsContent />
-            </WorkoutsPageContainer>
-        </Suspense>
+      <WorkoutsPageContainer>
+          <WorkoutsContent />
+      </WorkoutsPageContainer>
     )
 }
