@@ -13,8 +13,7 @@ export const Logo = ({
   width?: number;
   height?: number;
 }) => {
-  // Assuming the new logo has a certain aspect ratio.
-  // We can adjust this if the new logo's dimensions are different.
+  // New logo's aspect ratio
   const aspectRatio = 140 / 38; 
   const effectiveHeight = height || width / aspectRatio;
 
