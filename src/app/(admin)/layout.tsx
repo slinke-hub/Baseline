@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <AdminSidebar />
       <div className="flex flex-col">
         <AdminHeader />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 neon-border">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 neon-border-glow">
           {children}
         </main>
         <Footer />

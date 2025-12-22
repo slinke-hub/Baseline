@@ -37,7 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // Mobile layout
         <div className="flex min-h-screen flex-col">
           <MobileHeader />
-          <main className="flex-1 pb-20 neon-border">{children}</main>
+          <main className="flex-1 pb-20 neon-border-glow">{children}</main>
           <BottomNav />
         </div>
       ) : (
@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex">
           <DesktopSidebar />
           <main className="flex-1 md:pl-64 flex flex-col h-screen">
-            <div className="flex-1 overflow-y-auto neon-border">
+            <div className="flex-1 overflow-y-auto neon-border-glow">
                 {children}
             </div>
             <Footer />
