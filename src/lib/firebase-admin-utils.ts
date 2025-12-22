@@ -38,6 +38,11 @@ export async function getProductById(id: string): Promise<Product | null> {
 
 
 // Workout Functions
+export async function getAllWorkouts(): Promise<Workout[]> {
+    const snapshot = await firestore.collection('workouts').get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Workout));
+}
+
 export async function getAllWorkoutIds(): Promise<string[]> {
     const workoutsSnapshot = await firestore.collection('workouts').select().get();
     return workoutsSnapshot.docs.map(doc => doc.id);
@@ -56,6 +61,11 @@ export async function getWorkoutById(id: string): Promise<Workout | null> {
 
 
 // Meal Functions
+export async function getAllMeals(): Promise<Meal[]> {
+    const snapshot = await firestore.collection('meals').get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Meal));
+}
+
 export async function getAllMealIds(): Promise<string[]> {
     const mealsSnapshot = await firestore.collection('meals').select().get();
     return mealsSnapshot.docs.map(doc => doc.id);

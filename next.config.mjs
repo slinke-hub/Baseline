@@ -4,7 +4,6 @@
 import withPWA from '@ducanh2912/next-pwa';
 
 const nextConfig = {
-    reactStrictMode: true,
     images: {
         remotePatterns: [
             {
@@ -13,13 +12,20 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'picsum.photos',
+                hostname: 'storage.googleapis.com',
             },
             {
                 protocol: 'https',
-                hostname: 'storage.googleapis.com',
+                hostname: 'picsum.photos',
             },
+             {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+            }
         ],
+    },
+     env: {
+        FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
     },
 };
 
