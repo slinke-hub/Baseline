@@ -139,6 +139,11 @@
         "imageId": {
           "type": "string",
           "description": "ID for the workout image in placeholder-images.json"
+        },
+        "photoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the workout's dynamically generated image stored in Firebase Storage."
         }
       },
       "required": [
@@ -343,7 +348,7 @@
         "priceCash": { "type": "number", "description": "The cash price of the product." },
         "stock": { "type": "number", "description": "The number of items currently in stock." }
       },
-      "required": ["id", "name", "photoUrl", "priceXp", "priceCash", "stock"]
+      "required": ["id", "name", "priceXp", "priceCash", "stock"]
     },
     "UserOrder": {
       "$schema": "http://json-schema.org/draft-07/schema#",

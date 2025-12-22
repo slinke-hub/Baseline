@@ -269,7 +269,3 @@ export default function AdminProductsPage() {
         </Card>
     )
 }
-
-    
-
-    
