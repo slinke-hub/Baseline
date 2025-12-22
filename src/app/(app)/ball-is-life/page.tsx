@@ -49,7 +49,7 @@ function BallIsLifeFeed() {
                                     <p className="text-xs text-muted-foreground">{post.createdAt ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true }) : 'just now'}</p>
                                 </div>
                                 <div className="mt-2 relative aspect-[4/3] rounded-lg overflow-hidden border">
-                                    <Image src={post.selfieUrl} alt={`Selfie by ${post.creatorName}`} fill className="object-cover" />
+                                    <Image src={post.selfieUrl} alt={`Selfie by ${post.creatorName}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw"/>
                                 </div>
                             </div>
                         </div>
@@ -237,7 +237,7 @@ export default function BallIsLifePage() {
                     )}
                     <video ref={videoRef} className={`w-full h-full object-cover ${capturedImage ? 'hidden' : ''}`} autoPlay playsInline muted />
                     {capturedImage && (
-                        <Image src={capturedImage} alt="Captured selfie" fill objectFit="cover" />
+                        <Image src={capturedImage} alt="Captured selfie" fill objectFit="cover" sizes="(max-width: 768px) 100vw, 50vw"/>
                     )}
                 </div>
 
@@ -271,4 +271,3 @@ export default function BallIsLifePage() {
     </div>
   );
 }
-    

@@ -83,10 +83,15 @@ export default function AdminWorkoutsPage() {
                 await updateDoc(doc(firestore, 'workouts', selectedWorkout.id), processedValues);
                 toast({ title: "Workout Updated", description: "The workout has been saved." });
             } else {
+                const category = values.category as WorkoutCategory;
+                let imageIdSlug = category.toLowerCase().replace(/\s+/g, '-');
+                if (imageIdSlug === 'vertical-jump') {
+                    imageIdSlug = 'jump';
+                }
                 const newWorkoutData = {
                     ...processedValues,
                     videoUrl: 'https://www.youtube.com/embed/example',
-                    imageId: `workout-${values.category.toLowerCase().replace(/\s+/g, '-')}-1`,
+                    imageId: `workout-${imageIdSlug}-1`,
                 };
                 await addDoc(collection(firestore, 'workouts'), newWorkoutData);
                 toast({ title: "Workout Added", description: "The new workout has been created." });

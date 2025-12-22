@@ -68,7 +68,7 @@ export function AdminHeader() {
           <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
                   <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold mb-4">
-                      <Logo width={120} height={34} />
+                      <Logo width={120} />
                   </Link>
               </nav>
               <ScrollArea className="flex-1">

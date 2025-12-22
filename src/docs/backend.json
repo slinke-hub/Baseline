@@ -1,5 +1,4 @@
 
-
 {
   "entities": {
     "UserProfile": {
@@ -37,7 +36,7 @@
           "type": "string",
           "description": "User's experience level in basketball (e.g., beginner, intermediate, advanced)."
         },
-        "profilePhotoUrl": {
+        "photoURL": {
           "type": "string",
           "description": "URL of the user's profile photo stored in Firebase Storage.",
           "format": "uri"
@@ -123,18 +122,27 @@
           "type": "string",
           "description": "Category of the workout (shooting, ball handling, defense, conditioning, vertical jump)."
         },
-        "instructions": {
+        "description": {
           "type": "string",
+          "description": "A short summary of the workout."
+        },
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" },
           "description": "Step-by-step instructions for the workout."
         },
         "videoUrl": {
           "type": "string",
           "description": "URL of the embedded video demonstrating the workout.",
           "format": "uri"
+        },
+        "imageId": {
+          "type": "string",
+          "description": "ID for the workout image in placeholder-images.json"
         }
       },
       "required": [
-        "id", "authorId"
+        "id", "authorId", "title", "description", "steps", "videoUrl", "imageId"
       ]
     },
     "WorkoutProgress": {
@@ -189,7 +197,7 @@
             "type": "string",
             "description": "The UID of the admin or coach who created this meal."
         },
-        "name": {
+        "title": {
           "type": "string",
           "description": "Name of the meal."
         },
@@ -198,11 +206,13 @@
           "description": "Category of the meal (Breakfast, Lunch, Dinner, Snacks, Pre-game meals, Post-game meals)."
         },
         "ingredients": {
-          "type": "string",
+           "type": "array",
+          "items": { "type": "string" },
           "description": "List of ingredients for the meal."
         },
         "steps": {
-          "type": "string",
+          "type": "array",
+          "items": { "type": "string" },
           "description": "Step-by-step instructions for preparing the meal."
         },
         "calories": {
@@ -221,14 +231,13 @@
           "type": "number",
           "description": "Amount of fat in the meal (in grams)."
         },
-        "photoUrl": {
+        "imageId": {
           "type": "string",
-          "description": "URL of the meal photo.",
-          "format": "uri"
+          "description": "ID for the meal image in placeholder-images.json"
         }
       },
       "required": [
-        "id", "authorId"
+        "id", "authorId", "title", "ingredients", "steps", "calories", "protein", "carbs", "fat", "imageId"
       ]
     },
     "UserMealPlan": {
@@ -249,10 +258,13 @@
           "type": "string",
           "description": "Reference to Meal. (Relationship: Meal 1:N UserMealPlan)"
         },
-        "date": {
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the coach who assigned this meal."
+        },
+        "day": {
           "type": "string",
-          "description": "Date for which the meal is scheduled.",
-          "format": "date-time"
+          "description": "Day of the week for the meal."
         },
         "mealTime": {
           "type": "string",
@@ -262,7 +274,10 @@
       "required": [
         "id",
         "userId",
-        "mealId"
+        "mealId",
+        "authorId",
+        "day",
+        "mealTime"
       ]
     },
     "Location": {
@@ -340,7 +355,7 @@
         "userId": { "type": "string", "description": "The UID of the user who placed the order." },
         "productId": { "type": "string", "description": "Reference to the Product." },
         "productName": { "type": "string", "description": "The name of the product at the time of order." },
-        "productImageId": { "type": "string", "description": "The image ID of the product." },
+        "photoUrl": { "type": "string", "description": "The photo URL of the product at the time of order." },
         "paymentMethod": { "type": "string", "enum": ["xp", "cod"], "description": "The payment method used for the order." },
         "amountPaid": { "type": "number", "description": "The amount paid (in XP or cash)." },
         "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered", "Canceled"], "description": "The status of the order." },
@@ -406,18 +421,14 @@
         }
       },
       {
-        "path": "/users/{userId}/mealPlans/{mealPlanId}",
+        "path": "/mealPlans/{mealPlanId}",
         "definition": {
           "entityName": "UserMealPlan",
           "schema": {
             "$ref": "#/backend/entities/UserMealPlan"
           },
-          "description": "Stores the meal plans of a user. Path-based ownership enables simple security rules based on request.auth.uid == userId.",
+          "description": "Stores the meal plans of a user, assigned by a coach.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
             {
               "name": "mealPlanId",
               "description": "The unique identifier of the meal plan."
@@ -528,6 +539,3 @@
     "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, and locations is maintained in top-level `/workouts`, `/meals`, and `/locations` collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin role for content management, or allowing authenticated users to contribute (as with locations). This design eliminates the need for `get()` calls in security rules, supporting atomic operations and improving debuggability."
   }
 }
-
-
-    

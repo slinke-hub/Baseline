@@ -116,7 +116,7 @@ export function SignupForm() {
     <Card className="w-full border-none bg-transparent shadow-none">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center gap-2">
-            <Logo width={240} height={24} />
+            <Logo width={240} />
         </div>
         <CardTitle>Create an Account</CardTitle>
         <CardDescription>Enter your details below to create your account.</CardDescription>
