@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { Workout, WorkoutProgress } from '@/lib/types';
+import { Logo } from '@/components/icons/logo';
 
 export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
   const router = useRouter();
@@ -120,14 +121,10 @@ export function WorkoutTrackerClientPage({ workout }: { workout: Workout }) {
   }
 
   return (
-    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8"
-      style={{
-        backgroundImage: `url(/logo.png)`,
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
-      }}
-    >
+    <div className="relative flex h-full min-h-[calc(100vh-theme(spacing.16))] sm:min-h-screen flex-col p-4 sm:p-6 lg:p-8">
+       <div className="absolute inset-0 -z-10 flex items-center justify-center">
+            <Logo width={300} height={88} className="opacity-5" />
+       </div>
       <div className="absolute inset-0 bg-background/70 backdrop-blur-sm -z-10" />
 
       <div className="relative z-10">
