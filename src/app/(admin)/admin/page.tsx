@@ -28,13 +28,13 @@ export default function AdminDashboardPage() {
     const { showNotification } = useNotifications();
     const { firestore } = useFirebase();
 
-    const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+    const usersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
     const { data: allUsers, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
 
-    const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
+    const workoutsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workouts') : null, [firestore]);
     const { data: allWorkouts, isLoading: isLoadingWorkouts } = useCollection<Workout>(workoutsQuery);
 
-    const mealsQuery = useMemoFirebase(() => collection(firestore, 'meals'), [firestore]);
+    const mealsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'meals') : null, [firestore]);
     const { data: allMeals, isLoading: isLoadingMeals } = useCollection<Meal>(mealsQuery);
 
     const [newAnnouncement, setNewAnnouncement] = useState('');
