@@ -2,11 +2,11 @@
 'use client';
 
 import { notFound, useParams } from "next/navigation";
-import { useFirebase, useDoc, useMemoFirebase } from "@/firebase";
 import { doc } from "firebase/firestore";
 import type { Workout } from "@/lib/types";
-import { BasketballLoader } from "@/components/basketball-loader";
 import { WorkoutDetailClientPage } from "./workout-detail-client-page";
+import { useFirebase, useDoc, useMemoFirebase } from "@/firebase";
+import { BasketballLoader } from "@/components/basketball-loader";
 
 export default function WorkoutDetailPage() {
   const { id } = useParams() as { id: string };
