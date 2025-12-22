@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to the Baseline control center.</p>
+        <p className="text-muted-foreground">Welcome to the HoopsCoach control center.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
