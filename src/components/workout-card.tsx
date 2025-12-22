@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Workout } from '@/lib/types';
@@ -28,6 +29,7 @@ export function WorkoutCard({ workout, transparent = false }: WorkoutCardProps) 
             fill
             className="object-cover"
             data-ai-hint={workoutImage.imageHint}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
       )}

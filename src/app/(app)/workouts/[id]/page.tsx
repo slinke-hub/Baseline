@@ -50,6 +50,7 @@ export default async function WorkoutDetailPage({ params }: { params: { id: stri
                                 fill
                                 className="object-cover"
                                 data-ai-hint={workoutImage.imageHint}
+                                sizes="(max-width: 1024px) 100vw, 67vw"
                             />
                             </div>
                         )}

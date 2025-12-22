@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Meal } from '@/lib/types';
@@ -24,6 +25,7 @@ export function MealCard({ meal }: MealCardProps) {
             fill
             className="object-cover"
             data-ai-hint={mealImage.imageHint}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
           />
         </div>
       )}

@@ -48,6 +48,7 @@ export function MealDetailClientPage({ meal }: { meal: Meal }) {
                     fill
                     className="object-cover"
                     data-ai-hint={mealImage.imageHint}
+                    sizes="100vw"
                 />
                 </div>
             )}
