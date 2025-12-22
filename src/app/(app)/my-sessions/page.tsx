@@ -24,7 +24,7 @@ import {
 
 // This is a simplified way to identify the admin. In a real-world scenario,
 // this might come from a configuration file or a specific Firestore document.
-const ADMIN_UID = 'I2UQx7rrrEZH51eGJq4yxIjHY2R2';
+const ADMIN_UID = '96tEClb7y8aUnYxTds2v4pW0b2C2';
 
 export default function MySessionsPage() {
   const { appUser, user } = useAuth();
