@@ -72,7 +72,7 @@ export interface ScheduleEvent {
     id: string;
     userId: string;
     date: Date;
-    type: 'workout' | 'rest' | 'game' | 'meal';
+    type: 'workout' | 'rest' | 'game' | 'meal' | 'practice' | 'reminder';
     title: string;
     workoutId?: string;
     mealId?: string;
