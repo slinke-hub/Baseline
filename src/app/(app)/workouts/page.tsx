@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const categories: WorkoutCategory[] = ['Shooting', 'Ball Handling', 'Defense', 'Conditioning', 'Vertical Jump'];
 
@@ -26,11 +27,14 @@ function WorkoutsContent() {
         <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
       ) : (
         <Tabs defaultValue={'Shooting'} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto bg-card/20 backdrop-blur-sm">
-            {categories.map(category => (
-              <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
-            ))}
-          </TabsList>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <TabsList className="inline-grid w-max grid-cols-5 sm:w-full bg-card/20 backdrop-blur-sm">
+                    {categories.map(category => (
+                    <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
+                    ))}
+                </TabsList>
+                <ScrollBar orientation="horizontal" className="invisible" />
+            </ScrollArea>
           {categories.map(category => (
             <TabsContent key={category} value={category}>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
