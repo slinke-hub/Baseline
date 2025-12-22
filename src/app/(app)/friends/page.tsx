@@ -32,31 +32,33 @@ function UserCard({ otherUser, connections, onAdd, onAccept, onCancel }: {
 
     const renderButton = () => {
         if (!connection) {
-            return <Button onClick={() => onAdd(otherUser.uid)}><UserPlus className="mr-2" />Add Friend</Button>;
+            return <Button onClick={() => onAdd(otherUser.uid)} size="sm"><UserPlus className="mr-2 h-4 w-4" />Add</Button>;
         }
         if (connection.status === 'pending') {
              if (connection.initiator === otherUser.uid) { // They sent the request
-                return <Button onClick={() => onAccept(otherUser.uid)} variant="secondary" className="bg-green-600 hover:bg-green-700 text-white">Accept Request</Button>;
+                return <Button onClick={() => onAccept(otherUser.uid)} variant="secondary" size="sm" className="bg-green-600 hover:bg-green-700 text-white">Accept</Button>;
              }
-             return <Button onClick={() => onCancel(otherUser.uid)} variant="outline"><Clock className="mr-2"/>Pending</Button>;
+             return <Button onClick={() => onCancel(otherUser.uid)} variant="outline" size="sm"><Clock className="mr-2 h-4 w-4"/>Pending</Button>;
         }
         if (connection.status === 'accepted') {
-            return <Button disabled variant="ghost" className="text-green-500"><UserCheck className="mr-2"/>Friends</Button>;
+            return <Button disabled variant="ghost" size="sm" className="text-green-500"><UserCheck className="mr-2 h-4 w-4"/>Friends</Button>;
         }
         return null;
     };
 
     return (
-        <Card className="flex items-center p-4">
-            <Avatar className="h-12 w-12">
+        <Card className="flex items-center p-3 sm:p-4">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                 <AvatarImage src={otherUser.photoURL} alt={otherUser.displayName} />
                 <AvatarFallback>{getInitials(otherUser.displayName)}</AvatarFallback>
             </Avatar>
-            <div className="ml-4 flex-grow">
-                <p className="font-bold">{otherUser.displayName}</p>
-                <p className="text-sm text-muted-foreground">{otherUser.email}</p>
+            <div className="ml-3 sm:ml-4 flex-grow overflow-hidden">
+                <p className="font-bold text-sm sm:text-base truncate">{otherUser.displayName}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{otherUser.email}</p>
             </div>
-            {renderButton()}
+            <div className="ml-2 shrink-0">
+                {renderButton()}
+            </div>
         </Card>
     );
 }
@@ -229,9 +231,7 @@ export default function FriendsPage() {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
-                                <Button type="submit">
-                                    <span className="mr-2">😊</span> Find me
-                                </Button>
+                                <Button type="submit">Search</Button>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
