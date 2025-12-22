@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, where, Unsubscribe, DocumentData } from 'firebase/firestore';
 import type { AppUser, Connection } from '@/lib/types';
-import { Loader2, UserPlus, UserCheck, Clock } from 'lucide-react';
+import { Loader2, UserPlus, UserCheck, Clock, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
@@ -32,7 +32,7 @@ function UserCard({ otherUser, connections, onAdd, onAccept, onCancel }: {
 
     const renderButton = () => {
         if (!connection) {
-            return <Button onClick={() => onAdd(otherUser.uid)} size="sm"><UserPlus className="mr-2 h-4 w-4" />Add</Button>;
+            return <Button onClick={() => onAdd(otherUser.uid)} size="sm"><Plus className="mr-2 h-4 w-4" />Add</Button>;
         }
         if (connection.status === 'pending') {
              if (connection.initiator === otherUser.uid) { // They sent the request
