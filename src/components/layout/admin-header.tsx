@@ -27,16 +27,16 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../icons/logo';
 
 const adminNavItems = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/users', icon: Users, label: 'Users' },
-  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
-  { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals' },
-  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
-  { href: '/admin/products', icon: ShoppingCart, label: 'Products' },
-  { href: '/admin/orders', icon: Package, label: 'Orders' },
-  { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
-  { href: '/admin/locations', icon: MapPin, label: 'Locations' },
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', color: 'text-sky-400' },
+  { href: '/admin/users', icon: Users, label: 'Users', color: 'text-amber-400' },
+  { href: '/admin/schedule', icon: Calendar, label: 'Schedules', color: 'text-blue-400' },
+  { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
+  { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals', color: 'text-teal-400' },
+  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner', color: 'text-green-400' },
+  { href: '/admin/products', icon: ShoppingCart, label: 'Products', color: 'text-pink-400' },
+  { href: '/admin/orders', icon: Package, label: 'Orders', color: 'text-orange-400' },
+  { href: '/admin/chat', icon: MessageSquare, label: 'Chat', color: 'text-rose-400' },
+  { href: '/admin/locations', icon: MapPin, label: 'Locations', color: 'text-violet-400' },
 ];
 
 
@@ -73,7 +73,9 @@ export function AdminHeader() {
               </nav>
               <ScrollArea className="flex-1">
                   <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-                      {adminNavItems.map((item) => (
+                      {adminNavItems.map((item) => {
+                          const isActive = pathname.startsWith(item.href);
+                          return (
                           <Link
                               key={item.href}
                               href={item.href}
@@ -82,10 +84,10 @@ export function AdminHeader() {
                                    pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                               )}
                           >
-                              <item.icon className="h-5 w-5" />
+                              <item.icon className={cn('h-5 w-5', isActive ? '' : item.color)} />
                               {item.label}
                           </Link>
-                      ))}
+                      )})}
                   </nav>
               </ScrollArea>
           </SheetContent>

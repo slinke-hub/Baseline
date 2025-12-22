@@ -19,16 +19,16 @@ import { cn } from '@/lib/utils';
 import { Logo } from '../icons/logo';
 
 const adminNavItems = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/users', icon: Users, label: 'Users' },
-  { href: '/admin/schedule', icon: Calendar, label: 'Schedules' },
-  { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts' },
-  { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals' },
-  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner'},
-  { href: '/admin/products', icon: ShoppingCart, label: 'Products' },
-  { href: '/admin/orders', icon: Package, label: 'Orders' },
-  { href: '/admin/chat', icon: MessageSquare, label: 'Chat' },
-  { href: '/admin/locations', icon: MapPin, label: 'Locations' },
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', color: 'text-sky-400' },
+  { href: '/admin/users', icon: Users, label: 'Users', color: 'text-amber-400' },
+  { href: '/admin/schedule', icon: Calendar, label: 'Schedules', color: 'text-blue-400' },
+  { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
+  { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals', color: 'text-teal-400' },
+  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner', color: 'text-green-400' },
+  { href: '/admin/products', icon: ShoppingCart, label: 'Products', color: 'text-pink-400' },
+  { href: '/admin/orders', icon: Package, label: 'Orders', color: 'text-orange-400' },
+  { href: '/admin/chat', icon: MessageSquare, label: 'Chat', color: 'text-rose-400' },
+  { href: '/admin/locations', icon: MapPin, label: 'Locations', color: 'text-violet-400' },
 ];
 
 export function AdminSidebar() {
@@ -54,10 +54,10 @@ export function AdminSidebar() {
                     'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
                     isActive
                       ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-primary'
+                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                   )}
                 >
-                  <item.icon className="h-4 w-4" />
+                  <item.icon className={cn('h-4 w-4', isActive ? '' : item.color)} />
                   {item.label}
                 </Link>
               );
