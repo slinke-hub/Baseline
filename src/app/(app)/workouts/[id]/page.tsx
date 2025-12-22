@@ -9,14 +9,14 @@ import Image from "next/image";
 import placeholderData from '@/lib/placeholder-images.json';
 import { ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import { useFirebase, useDoc, useMemoFirebase } from "@/firebase";
 import { doc } from "firebase/firestore";
 import type { Workout } from "@/lib/types";
 import { BasketballLoader } from "@/components/basketball-loader";
 
-export default function WorkoutDetailPage() {
-  const { id } = useParams() as { id: string };
+export default function WorkoutDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const { firestore } = useFirebase();
 
   const workoutDocRef = useMemoFirebase(() => {
