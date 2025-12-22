@@ -11,7 +11,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const categories: WorkoutCategory[] = ['Shooting', 'Ball Handling', 'Defense', 'Conditioning', 'Vertical Jump'];
 
-function WorkoutsContent() {
+export default function WorkoutsPage() {
   const { firestore } = useFirebase();
   const workoutsQuery = useMemoFirebase(() => collection(firestore, 'workouts'), [firestore]);
   const { data: allWorkouts, isLoading } = useCollection<Workout>(workoutsQuery);
@@ -28,7 +28,7 @@ function WorkoutsContent() {
       ) : (
         <Tabs defaultValue={'Shooting'} className="w-full">
             <ScrollArea className="w-full whitespace-nowrap">
-                <TabsList className="inline-grid w-max grid-cols-5 sm:w-full bg-card/20 backdrop-blur-sm">
+                <TabsList className="inline-grid w-max grid-cols-5 sm:w-full">
                     {categories.map(category => (
                     <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
                     ))}
@@ -39,7 +39,7 @@ function WorkoutsContent() {
             <TabsContent key={category} value={category}>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {allWorkouts?.filter(w => w.category === category).map((workout: Workout) => (
-                    <WorkoutCard key={workout.id} workout={workout} transparent />
+                    <WorkoutCard key={workout.id} workout={workout} />
                   ))}
                 </div>
             </TabsContent>
@@ -48,28 +48,4 @@ function WorkoutsContent() {
       )}
     </div>
   );
-}
-
-function WorkoutsPageContainer({ children }: { children: React.ReactNode }) {
-    return (
-        <div
-            className="relative min-h-screen"
-        >
-            <div
-                className="absolute inset-0 -z-10 h-full w-full bg-background"
-            />
-            <div className="absolute inset-0 -z-10 bg-background/90 backdrop-blur-md" />
-            <div className="relative z-0">
-                {children}
-            </div>
-        </div>
-    )
-}
-
-export default function WorkoutsPage() {
-    return (
-      <WorkoutsPageContainer>
-          <WorkoutsContent />
-      </WorkoutsPageContainer>
-    )
 }

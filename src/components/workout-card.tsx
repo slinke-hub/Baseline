@@ -10,17 +10,13 @@ import { cn } from '@/lib/utils';
 
 interface WorkoutCardProps {
   workout: Workout;
-  transparent?: boolean;
 }
 
-export function WorkoutCard({ workout, transparent = false }: WorkoutCardProps) {
+export function WorkoutCard({ workout }: WorkoutCardProps) {
   const workoutImage = workout.photoUrl || placeholderData.placeholderImages.find(p => p.id === workout.imageId)?.imageUrl;
 
   return (
-    <Card className={cn(
-        "flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1",
-        transparent && "bg-card/20 backdrop-blur-sm"
-    )}>
+    <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
       {workoutImage && (
         <div className="relative h-48 w-full">
           <Image
