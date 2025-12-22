@@ -3,6 +3,7 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 import { Toaster } from '@/components/ui/toaster';
 import { Inter } from 'next/font/google';
+import { PageLoader } from '@/components/page-loader';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.variable}`} style={{ colorScheme: 'dark' }}>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
         <Providers>
+          <PageLoader />
           {children}
           <Toaster />
         </Providers>
