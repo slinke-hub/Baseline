@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, where, Unsubscribe, DocumentData } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
 import type { AppUser, Connection } from '@/lib/types';
 import { Loader2, UserPlus, UserCheck, Clock, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -21,29 +21,31 @@ const getInitials = (name?: string | null) => {
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 };
 
-function UserCard({ otherUser, connections, onAdd, onAccept, onCancel }: {
+function UserCard({ otherUser, connectionStatus, onAdd, onAccept, onCancel, onRemove }: {
     otherUser: AppUser,
-    connections: { [key: string]: Connection },
+    connectionStatus: { status: 'pending' | 'accepted' | 'none', initiator?: string },
     onAdd: (id: string) => void,
     onAccept: (id: string) => void,
     onCancel: (id: string) => void,
+    onRemove: (id: string) => void,
 }) {
-    const connection = connections[otherUser.uid];
+    const { user } = useAuth();
 
     const renderButton = () => {
-        if (!connection) {
-            return <Button onClick={() => onAdd(otherUser.uid)} size="sm"><Plus className="mr-2 h-4 w-4" />Add</Button>;
+        switch (connectionStatus.status) {
+            case 'none':
+                return <Button onClick={() => onAdd(otherUser.uid)} size="sm"><Plus className="mr-2 h-4 w-4" />Add</Button>;
+            case 'pending':
+                if (connectionStatus.initiator === user?.uid) {
+                    return <Button onClick={() => onCancel(otherUser.uid)} variant="outline" size="sm"><Clock className="mr-2 h-4 w-4"/>Pending</Button>;
+                } else {
+                    return <Button onClick={() => onAccept(otherUser.uid)} variant="secondary" size="sm" className="bg-green-600 hover:bg-green-700 text-white">Accept</Button>;
+                }
+            case 'accepted':
+                return <Button onClick={() => onRemove(otherUser.uid)} variant="destructive" size="sm"><UserCheck className="mr-2 h-4 w-4"/>Friends</Button>;
+            default:
+                return null;
         }
-        if (connection.status === 'pending') {
-             if (connection.initiator === otherUser.uid) { // They sent the request
-                return <Button onClick={() => onAccept(otherUser.uid)} variant="secondary" size="sm" className="bg-green-600 hover:bg-green-700 text-white">Accept</Button>;
-             }
-             return <Button onClick={() => onCancel(otherUser.uid)} variant="outline" size="sm"><Clock className="mr-2 h-4 w-4"/>Pending</Button>;
-        }
-        if (connection.status === 'accepted') {
-            return <Button disabled variant="ghost" size="sm" className="text-green-500"><UserCheck className="mr-2 h-4 w-4"/>Friends</Button>;
-        }
-        return null;
     };
 
     return (
@@ -112,10 +114,10 @@ function FriendRequests() {
     
     const handleAccept = async (friendId: string) => {
         if (!user) return;
-        // Accept on my side
-        await setDoc(doc(firestore, 'users', user.uid, 'connections', friendId), { status: 'accepted' }, { merge: true });
-        // Accept on their side
-        await setDoc(doc(firestore, 'users', friendId, 'connections', user.uid), { status: 'accepted' }, { merge: true });
+        const batch = writeBatch(firestore);
+        batch.update(doc(firestore, 'users', user.uid, 'connections', friendId), { status: 'accepted' });
+        batch.update(doc(firestore, 'users', friendId, 'connections', user.uid), { status: 'accepted' });
+        await batch.commit();
 
         toast({ title: 'Friend Added!' });
     };
@@ -172,37 +174,60 @@ export default function FriendsPage() {
 
     const handleAddFriend = async (friendId: string) => {
         if (!user) return;
-        // Set pending on my side
-        await setDoc(doc(firestore, 'users', user.uid, 'connections', friendId), { status: 'pending', initiator: user.uid });
-        // Set pending on their side
-        await setDoc(doc(firestore, 'users', friendId, 'connections', user.uid), { status: 'pending', initiator: user.uid });
+        const batch = writeBatch(firestore);
+        batch.set(doc(firestore, 'users', user.uid, 'connections', friendId), { status: 'pending', initiator: user.uid });
+        batch.set(doc(firestore, 'users', friendId, 'connections', user.uid), { status: 'pending', initiator: user.uid });
+        await batch.commit();
         toast({ title: 'Friend Request Sent!' });
     };
 
     const handleAcceptRequest = async (friendId: string) => {
         if (!user) return;
-        // Accept on my side
-        await setDoc(doc(firestore, 'users', user.uid, 'connections', friendId), { status: 'accepted' }, { merge: true });
-        // Accept on their side
-        await setDoc(doc(firestore, 'users', friendId, 'connections', user.uid), { status: 'accepted' }, { merge: true });
+        const batch = writeBatch(firestore);
+        batch.update(doc(firestore, 'users', user.uid, 'connections', friendId), { status: 'accepted' });
+        batch.update(doc(firestore, 'users', friendId, 'connections', user.uid), { status: 'accepted' });
+        await batch.commit();
         toast({ title: 'Friend Added!' });
     };
     
     const handleCancelRequest = async (friendId: string) => {
         if(!user) return;
-        await deleteDoc(doc(firestore, 'users', user.uid, 'connections', friendId));
-        await deleteDoc(doc(firestore, 'users', friendId, 'connections', user.uid));
+        const batch = writeBatch(firestore);
+        batch.delete(doc(firestore, 'users', user.uid, 'connections', friendId));
+        batch.delete(doc(firestore, 'users', friendId, 'connections', user.uid));
+        await batch.commit();
         toast({ title: 'Request Cancelled.' });
     };
 
-    const filteredUsers = allUsers
-        ?.filter(u => u.uid !== user?.uid)
-        .filter(u => {
-            if (searchTerm.trim() === '') return true;
-            const term = searchTerm.toLowerCase();
-            return u.displayName.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
-        });
+    const handleRemoveFriend = async (friendId: string) => {
+        if(!user) return;
+        const batch = writeBatch(firestore);
+        batch.delete(doc(firestore, 'users', user.uid, 'connections', friendId));
+        batch.delete(doc(firestore, 'users', friendId, 'connections', user.uid));
+        await batch.commit();
+        toast({ title: 'Friend Removed.', variant: 'destructive' });
+    }
+
+    const filteredUsers = useMemo(() => {
+        if (!allUsers) return [];
+        return allUsers
+            .filter(u => u.uid !== user?.uid)
+            .filter(u => {
+                if (searchTerm.trim() === '') return true;
+                const term = searchTerm.toLowerCase();
+                return u.displayName.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
+            });
+    }, [allUsers, user, searchTerm]);
+
     const isLoading = isLoadingUsers || isLoadingConnections;
+
+    const getConnectionStatus = (otherUserId: string) => {
+        const connection = connections[otherUserId];
+        if (!connection) {
+            return { status: 'none' as const };
+        }
+        return { status: connection.status, initiator: connection.initiator };
+    };
 
     return (
         <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -238,14 +263,15 @@ export default function FriendsPage() {
                             {isLoading ? (
                                 <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin" /></div>
                             ) : (
-                                filteredUsers?.map(otherUser => (
+                                filteredUsers.map(otherUser => (
                                     <UserCard
                                         key={otherUser.uid}
                                         otherUser={otherUser}
-                                        connections={connections}
+                                        connectionStatus={getConnectionStatus(otherUser.uid)}
                                         onAdd={handleAddFriend}
                                         onAccept={handleAcceptRequest}
                                         onCancel={handleCancelRequest}
+                                        onRemove={handleRemoveFriend}
                                     />
                                 ))
                             )}
@@ -267,3 +293,4 @@ export default function FriendsPage() {
         </div>
     );
 }
+    
