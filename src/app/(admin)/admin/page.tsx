@@ -1,8 +1,7 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2 } from 'lucide-react';
+import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2, ArrowRight, Package, NotebookPen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +14,7 @@ import { useNotifications } from '@/hooks/use-notifications';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { AppUser, Workout, Meal } from '@/lib/types';
+import Link from 'next/link';
 
 type Announcement = {
     id: number;
@@ -22,6 +22,13 @@ type Announcement = {
     text: string;
     date: Date;
 }
+
+const quickLinks = [
+    { title: "Manage Users", href: "/admin/users", icon: Users, description: "View and edit users.", color: 'text-sky-400' },
+    { title: "Create Workout", href: "/admin/workouts", icon: Dumbbell, description: "Add a new workout.", color: 'text-red-500' },
+    { title: "Plan Meals", href: "/admin/meal-planner", icon: NotebookPen, description: "Assign meals to clients.", color: 'text-teal-400' },
+    { title: "View Orders", href: "/admin/orders", icon: Package, description: "Fulfill customer orders.", color: 'text-orange-400' },
+];
 
 export default function AdminDashboardPage() {
     const { toast } = useToast();
@@ -115,6 +122,24 @@ export default function AdminDashboardPage() {
               </CardContent>
           </Card>
       </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {quickLinks.map(link => (
+                <Card key={link.title} className="hover:bg-accent/50 transition-colors">
+                        <CardHeader className="flex-row items-center gap-4 space-y-0">
+                        <div className="p-3 rounded-full bg-primary/10">
+                            <link.icon className={`h-6 w-6 ${link.color}`} />
+                        </div>
+                        <CardTitle>{link.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground text-sm mb-4">{link.description}</p>
+                        <Button asChild variant="secondary" className="w-full">
+                            <Link href={link.href}>Go <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2 space-y-6">
             <Card>
