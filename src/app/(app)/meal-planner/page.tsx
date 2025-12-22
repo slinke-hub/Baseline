@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 const categories: MealCategory[] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Pre-game', 'Post-game'];
 
