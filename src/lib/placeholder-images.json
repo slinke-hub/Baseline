@@ -101,36 +101,6 @@
       "description": "Greek yogurt with nuts.",
       "imageUrl": "https://images.unsplash.com/photo-1593198232414-72431a1cc506?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxncmVlayUyMHlvZ3VydHxlbnwwfHx8fDE3NjQ4NjQyODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "greek yogurt"
-    },
-    {
-      "id": "merch-tee",
-      "description": "A branded t-shirt on a hanger.",
-      "imageUrl": "https://images.unsplash.com/photo-1657364890927-5dd04b231a6d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0LXNoaXJ0JTIwbW9ja3VwfGVufDB8fHx8MTc2NTkxOTEyM3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "t-shirt mockup"
-    },
-    {
-      "id": "merch-hoodie",
-      "description": "A branded hoodie on a hanger.",
-      "imageUrl": "https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxob29kaWUlMjBtb2NrdXB8ZW58MHx8fHwxNzY1OTE5MTIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "hoodie mockup"
-    },
-    {
-      "id": "merch-jersey",
-      "description": "A branded basketball jersey.",
-      "imageUrl": "https://images.unsplash.com/photo-1548846081-783981a9cdd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxqZXJzZXklMjBtb2NrdXB8ZW58MHx8fHwxNzY1OTE5MTIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "jersey mockup"
-    },
-    {
-      "id": "merch-bottle",
-      "description": "A branded water bottle.",
-      "imageUrl": "https://storage.googleapis.com/aai-studio-bucket-staging/user-assets/images/user-433068/e85b99a5-711e-450f-aa92-38d5f3083ac6.jpeg",
-      "imageHint": "water bottle"
-    },
-    {
-      "id": "merch-hat",
-      "description": "A branded hat.",
-      "imageUrl": "https://images.unsplash.com/photo-1588850561407-ed27b329d78c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxoYXQlMjBtb2NrdXB8ZW58MHx8fHwxNzY1OTkyOTU2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "hat mockup"
     }
   ]
 }

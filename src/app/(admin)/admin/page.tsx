@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2, ArrowRight, Package, NotebookPen } from 'lucide-react';
+import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2, ArrowRight, NotebookPen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,7 +28,6 @@ const quickLinks = [
     { title: "Manage Users", href: "/admin/users", icon: Users, description: "View and edit users.", color: 'text-sky-400' },
     { title: "Create Workout", href: "/admin/workouts", icon: Dumbbell, description: "Add a new workout.", color: 'text-red-500' },
     { title: "Plan Meals", href: "/admin/meal-planner", icon: NotebookPen, description: "Assign meals to clients.", color: 'text-teal-400' },
-    { title: "View Orders", href: "/admin/orders", icon: Package, description: "Fulfill customer orders.", color: 'text-orange-400' },
 ];
 
 export default function AdminDashboardPage() {
@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
               </CardContent>
           </Card>
       </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {quickLinks.map(link => (
                 <Card key={link.title} className="hover:bg-accent/50 transition-colors">
                         <CardHeader className="flex-row items-center gap-4 space-y-0">

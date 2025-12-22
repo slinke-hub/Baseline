@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame, ShoppingCart } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth as useAppAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
@@ -36,7 +36,6 @@ export const mainNavItems = [
   { href: '/locations', icon: MapPin, label: 'Courts', color: 'text-rose-400' },
   { href: '/progress', icon: BarChart, label: 'Progress', color: 'text-violet-400' },
   { href: '/bmi-calculator', icon: Calculator, label: 'BMI Calculator', color: 'text-lime-400' },
-  { href: '/store', icon: ShoppingCart, label: 'Store', color: 'text-pink-400' },
   { href: '/profile', icon: User, label: 'Profile', color: 'text-indigo-400' },
   { href: '/settings', icon: Settings, label: 'Settings', color: 'text-gray-400' },
 ];

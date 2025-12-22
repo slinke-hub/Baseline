@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -11,15 +11,14 @@ const navItems = [
   { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals' },
-  { href: '/admin/orders', icon: Package, label: 'Orders' },
 ];
 
 export function AdminBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-sm">
-      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 items-center justify-around px-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-sm md:hidden">
+      <div className="mx-auto grid h-16 max-w-lg grid-cols-4 items-center justify-around px-4">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (

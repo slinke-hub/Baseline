@@ -19,7 +19,7 @@ import { useState } from 'react';
 export function MoreMenuSheet() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const excludedItems = ['/profile', '/settings', '/home', '/workouts', '/ball-is-life', '/store'];
+  const excludedItems = ['/profile', '/settings', '/home', '/workouts', '/ball-is-life', '/friends'];
   
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

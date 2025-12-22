@@ -19,8 +19,6 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      // Check for custom claim OR role document for flexibility.
-      // Custom claims are more efficient for rules.
       return isSignedIn() && (request.auth.token.admin == true || getRole() == 'admin');
     }
     

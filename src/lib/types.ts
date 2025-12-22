@@ -97,28 +97,6 @@ export interface BallIsLifePost {
     createdAt: Timestamp;
 }
 
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  photoUrl: string;
-  priceXp: number;
-  priceCash: number;
-  stock: number;
-}
-
-export interface UserOrder {
-  id: string;
-  userId: string;
-  productId: string;
-  productName: string;
-  photoUrl: string; 
-  paymentMethod: 'xp' | 'cod';
-  amountPaid: number;
-  status: 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
-  createdAt: Timestamp;
-}
-
 export interface Connection {
     status: 'pending' | 'accepted';
     initiator: string; // UID of the user who sent the request

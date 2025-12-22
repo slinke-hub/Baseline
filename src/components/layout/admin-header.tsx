@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, User, NotebookPen, ShoppingCart, Package, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, Dumbbell, UtensilsCrossed, LogOut, Calendar, MessageSquare, MapPin, User, NotebookPen, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
@@ -33,8 +33,6 @@ const adminNavItems = [
   { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
   { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals', color: 'text-teal-400' },
   { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner', color: 'text-green-400' },
-  { href: '/admin/products', icon: ShoppingCart, label: 'Products', color: 'text-pink-400' },
-  { href: '/admin/orders', icon: Package, label: 'Orders', color: 'text-orange-400' },
   { href: '/admin/chat', icon: MessageSquare, label: 'Chat', color: 'text-rose-400' },
   { href: '/admin/locations', icon: MapPin, label: 'Locations', color: 'text-violet-400' },
 ];

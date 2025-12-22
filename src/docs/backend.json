@@ -333,40 +333,6 @@
             "createdAt": { "type": "string", "description": "Timestamp when the post was created.", "format": "date-time" }
         },
         "required": ["id", "creatorId", "creatorName", "selfieUrl", "location", "createdAt"]
-    },
-    "Product": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Product",
-      "type": "object",
-      "description": "Represents a merchandise item in the Baseline store.",
-      "properties": {
-        "id": { "type": "string", "description": "Unique identifier for the product." },
-        "name": { "type": "string", "description": "The name of the product." },
-        "description": { "type": "string", "description": "A detailed description of the product." },
-        "photoUrl": { "type": "string", "format": "uri", "description": "URL of the product's image stored in Firebase Storage." },
-        "priceXp": { "type": "number", "description": "The price of the product in XP points." },
-        "priceCash": { "type": "number", "description": "The cash price of the product." },
-        "stock": { "type": "number", "description": "The number of items currently in stock." }
-      },
-      "required": ["id", "name", "priceXp", "priceCash", "stock"]
-    },
-    "UserOrder": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "UserOrder",
-      "type": "object",
-      "description": "Represents a user's order for a product.",
-      "properties": {
-        "id": { "type": "string", "description": "Unique identifier for the order." },
-        "userId": { "type": "string", "description": "The UID of the user who placed the order." },
-        "productId": { "type": "string", "description": "Reference to the Product." },
-        "productName": { "type": "string", "description": "The name of the product at the time of order." },
-        "photoUrl": { "type": "string", "description": "The photo URL of the product at the time of order." },
-        "paymentMethod": { "type": "string", "enum": ["xp", "cod"], "description": "The payment method used for the order." },
-        "amountPaid": { "type": "number", "description": "The amount paid (in XP or cash)." },
-        "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered", "Canceled"], "description": "The status of the order." },
-        "createdAt": { "type": "string", "description": "Timestamp when the order was placed.", "format": "date-time" }
-      },
-      "required": ["id", "userId", "productId", "paymentMethod", "status", "createdAt"]
     }
   },
   "auth": {
@@ -515,29 +481,6 @@
                     "description": "The unique identifier of the post."
                 }
             ]
-        }
-      },
-      {
-        "path": "/products/{productId}",
-        "definition": {
-          "entityName": "Product",
-          "schema": { "$ref": "#/backend/entities/Product" },
-          "description": "Stores merchandise available in the store. Readable by all, writable only by admins.",
-          "params": [
-            { "name": "productId", "description": "The unique identifier of the product." }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/orders/{orderId}",
-        "definition": {
-          "entityName": "UserOrder",
-          "schema": { "$ref": "#/backend/entities/UserOrder" },
-          "description": "Stores a user's order history. Writable only by the user, readable by admins/sellers.",
-          "params": [
-            { "name": "userId", "description": "The unique identifier of the user." },
-            { "name": "orderId", "description": "The unique identifier of the order." }
-          ]
         }
       }
     ],
