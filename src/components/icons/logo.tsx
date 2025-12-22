@@ -1,4 +1,3 @@
-
 'use client';
 
 import { cn } from '@/lib/utils';
@@ -6,8 +5,8 @@ import Image from 'next/image';
 
 export const Logo = ({
   className,
-  width = 200,
-  height = 59,
+  width = 600,
+  height = 60,
 }: {
   className?: string;
   width?: number;
