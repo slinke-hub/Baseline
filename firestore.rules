@@ -35,78 +35,68 @@ service cloud.firestore {
     function isParticipant(chatId) {
       return isSignedIn() && request.auth.uid in string(chatId).split('_');
     }
-    
-    // Admins have blanket read/get/write access. `list` is handled separately.
-    match /{path=**} {
-      allow get, write: if isAdmin();
-    }
-    
-    // Explicitly allow admins to list anything.
-    match /{path=**} {
-        allow list: if isAdmin();
-    }
 
     match /users/{userId} {
-      allow get, list: if isSignedIn(); 
+      allow get, list: if isSignedIn() || isAdmin(); 
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isCoach();
+      allow update: if isOwner(userId) || isCoach() || isAdmin();
       allow delete: if isAdmin();
 
       match /connections/{friendId} {
-        allow read, delete: if isOwner(userId);
-        allow write: if isOwner(userId) || isOwner(friendId);
+        allow read, delete: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) || isOwner(friendId) || isAdmin();
       }
       
       match /workoutProgress/{workoutProgressId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
       
       match /schedule/{scheduleId} {
-        allow read, write: if isOwner(userId) || isCoach();
+        allow read, write: if isOwner(userId) || isCoach() || isAdmin();
       }
 
       match /orders/{orderId} {
-        allow read: if isOwner(userId) || isSeller();
+        allow read: if isOwner(userId) || isSeller() || isAdmin();
         allow create: if isOwner(userId);
-        allow update: if isSeller();
+        allow update: if isSeller() || isAdmin();
         allow delete: if false; 
       }
     }
 
     match /chats/{chatId}/messages/{messageId} {
-      allow read, write: if isParticipant(chatId);
+      allow read, write: if isParticipant(chatId) || isAdmin();
     }
     
     match /mealPlans/{mealPlanId} {
-      allow read, write: if isCoach();
+      allow read, write: if isCoach() || isAdmin();
     }
 
     match /workouts/{workoutId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isCoach();
+      allow get, list: if isSignedIn() || isAdmin();
+      allow create, update, delete: if isCoach() || isAdmin();
     }
 
     match /meals/{mealId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isCoach();
+      allow get, list: if isSignedIn() || isAdmin();
+      allow create, update, delete: if isCoach() || isAdmin();
     }
 
     match /locations/{locationId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if isSignedIn() || isAdmin();
       allow create: if isSignedIn();
       allow update: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
       allow delete: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
     }
     
     match /ballIsLife/{postId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if isSignedIn() || isAdmin();
       allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid || isAdmin();
     }
 
     match /products/{productId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isSeller();
+      allow get, list: if isSignedIn() || isAdmin();
+      allow create, update, delete: if isSeller() || isAdmin();
     }
   }
 }
