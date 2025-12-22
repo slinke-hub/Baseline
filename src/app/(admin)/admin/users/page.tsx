@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star, User, UserCheck, Loader2, CheckCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -77,27 +77,75 @@ function FriendRequests() {
             const seenRequests = new Set<string>();
 
             pendingConnections.forEach(connection => {
-                const friendId = connection.id; 
                 const initiatorId = connection.initiator;
                 
-                // Determine the other user's ID
-                const otherUserId = friendId === initiatorId ? null : friendId;
+                // The parent doc of a connection is the user.
+                // We need to figure out who the other user is.
+                // The connection doc ID is the friend's UID.
+                // But the structure of the data returned from a collectionGroup query
+                // doesn't give us the full path easily without parsing.
+                // A better approach would be to have both UIDs in the connection doc.
+                // But working with the current structure:
+                // We can find the parent user by looking at the path, but use-collection doesn't expose it.
+                // Let's find another way.
+                // We know the initiator, and we have a list of all users.
+                // The collectionGroup query is on `connections`, so the path is `users/{userId}/connections/{friendId}`.
+                // The `id` on the connection from useCollection is `friendId`. This is incorrect for collectionGroup.
+                // The doc itself will have the ID. Let's assume the doc from useCollection is the raw doc.
 
-                const fromUser = userMap.get(initiatorId);
-                const toUser = otherUserId ? userMap.get(otherUserId) : null;
+                // This logic is flawed because the parent path is not available.
+                // A collectionGroup query returns docs from any collection with that ID.
+                // Let's rethink. If we have a pending connection, we have the initiator.
+                // The document itself will live under a user.
+                // `useCollection` doesn't give us the ref. Let's adjust.
                 
-                if (fromUser && toUser) {
-                    const sortedIds = [fromUser.uid, toUser.uid].sort();
-                    const requestId = sortedIds.join('_');
-                    if (!seenRequests.has(requestId)) {
-                        allRequests.push({ id: requestId, fromUser, toUser });
-                        seenRequests.add(requestId);
-                    }
-                }
+                // Let's assume that the 'id' of the connection object returned is the friendId (the document key)
+                // and we need to find which user it belongs to.
+                // This is not how collectionGroup queries work in the client. The snapshot contains the full doc path.
+                // Let's assume the hook handles it and we just need to stitch the data.
+                
+                // The problem is that a 'connection' doc itself doesn't tell us BOTH users.
+                // It only has an 'initiator'. The other user is the parent document's ID.
+                // The `useCollection` hook abstracts this away.
+                // To solve this, we need to manually query.
             });
-            setRequests(allRequests);
+
         }
     }, [pendingConnections, allUsers]);
+
+    // Let's re-implement the data fetching part to be correct.
+    useEffect(() => {
+        if (!firestore || !allUsers) return;
+
+        const q = query(collectionGroup(firestore, 'connections'), where('status', '==', 'pending'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const userMap = new Map(allUsers.map(u => [u.uid, u]));
+            const allRequests: PendingRequest[] = [];
+            snapshot.forEach(docSnap => {
+                const connection = docSnap.data() as Connection;
+                const pathParts = docSnap.ref.path.split('/');
+                const userId = pathParts[1];
+                const friendId = pathParts[3];
+
+                const userA = userMap.get(userId);
+                const userB = userMap.get(friendId);
+                
+                if (userA && userB) {
+                     // The initiator is who sent it. The other person is the receiver.
+                    const fromUser = connection.initiator === userA.uid ? userA : userB;
+                    const toUser = connection.initiator === userA.uid ? userB : userA;
+                    allRequests.push({ id: `${userA.uid}_${userB.uid}`, fromUser, toUser });
+                }
+            });
+            // Deduplicate requests since they exist for both users
+            const uniqueRequests = Array.from(new Map(allRequests.map(item => [item.id, item])).values());
+            setRequests(uniqueRequests);
+        });
+
+        return () => unsubscribe();
+
+    }, [firestore, allUsers]);
+
 
     const handleAcceptRequest = async (fromUserId: string, toUserId: string) => {
         try {
