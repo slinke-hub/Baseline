@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, Package, Star, MoreVertical, Check, Truck, X } from 'lucide-react';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collectionGroup, doc, updateDoc, writeBatch, query } from 'firebase/firestore';
+import { collection, collectionGroup, doc, updateDoc, writeBatch, query, increment } from 'firebase/firestore';
 import type { UserOrder, AppUser } from '@/lib/types';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -131,7 +131,7 @@ export default function AdminOrdersPage() {
             if(newStatus === 'Canceled' && order.paymentMethod === 'xp') {
                 // Refund XP
                 const userRef = doc(firestore, 'users', order.userId);
-                await updateDoc(userRef, { xp: firebase.firestore.FieldValue.increment(order.amountPaid) });
+                await updateDoc(userRef, { xp: increment(order.amountPaid) });
                 toast({ title: "Order Canceled", description: "XP has been refunded to the user." });
             } else {
                 toast({ title: "Order Status Updated", description: `Order marked as ${newStatus}.` });
