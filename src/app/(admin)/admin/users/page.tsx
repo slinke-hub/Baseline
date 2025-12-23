@@ -260,7 +260,7 @@ export default function AdminUsersPage() {
         }
     }
 
-    const handleEditUser = async (event: React.FormEvent<HTMLFormElement>, firestore: Firestore) => {
+    const handleEditUser = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!selectedUser) return;
         const formData = new FormData(event.currentTarget);
@@ -429,7 +429,7 @@ export default function AdminUsersPage() {
                         </CardContent>
                         <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
                           <DialogContent className="sm:max-w-[425px]">
-                            <form onSubmit={(e) => handleEditUser(e, firestore)}>
+                            <form onSubmit={handleEditUser}>
                               <DialogHeader>
                                 <DialogTitle>Edit User</DialogTitle>
                                 <DialogDescription>
@@ -511,5 +511,4 @@ export default function AdminUsersPage() {
                 </AlertDialogContent>
             </AlertDialog>
         </>
-    )
-}
+     
