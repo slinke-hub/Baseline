@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Star } from 'lucide-react';
+import { Loader2, ArrowLeft, Star, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -157,7 +157,17 @@ export function CheckoutPageContent() {
                         <div>
                             <h3 className="font-semibold mb-2">Shipping Address</h3>
                             <div className="p-4 border rounded-md bg-secondary text-muted-foreground">
-                                {appUser?.address ? <p>{appUser.address}</p> : <p>No address on file. <Link href="/profile/edit" className="text-primary underline">Add one now</Link>.</p>}
+                                {appUser?.address ? <p>{appUser.address}</p> : (
+                                    <div className="flex flex-col items-center justify-center text-center gap-2">
+                                        <p>No address on file.</p>
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href="/profile/edit">
+                                                <Pencil className="mr-2 h-4 w-4" />
+                                                Add Address
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                          <div>
