@@ -53,11 +53,18 @@ service cloud.firestore {
       match /schedule/{scheduleId} {
         allow read, write: if isOwner(userId) || isCoach() || isAdmin();
       }
+
+      match /orders/{orderId} {
+        allow read, write: if isOwner(userId);
+      }
     }
     
-    // Allow admins to perform collection group queries
     match /{path=**}/connections/{connectionId} {
         allow list: if isAdmin();
+    }
+    
+    match /{path=**}/orders/{orderId} {
+      allow list: if isSeller() || isAdmin();
     }
 
     match /chats/{chatId}/messages/{messageId} {
@@ -89,6 +96,11 @@ service cloud.firestore {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.creatorId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.creatorId == request.auth.uid || isAdmin();
+    }
+
+    match /products/{productId} {
+        allow get, list: if isSignedIn();
+        allow create, update, delete: if isSeller() || isAdmin();
     }
   }
 }
