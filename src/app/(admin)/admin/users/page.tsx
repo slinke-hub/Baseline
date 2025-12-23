@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star, User, UserCheck, Loader2, CheckCircle, Key } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -25,7 +25,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   Dialog,
@@ -58,6 +57,96 @@ type PendingRequest = {
     toUser: AppUser;
 }
 
+interface EditUserDialogProps {
+  user: AppUser | null;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+}
+
+const EditUserDialog: FC<EditUserDialogProps> = ({ user, isOpen, onOpenChange }) => {
+    const { firestore } = useFirebase();
+    const { toast } = useToast();
+
+    if (!user) return null;
+
+    const handleEditUserSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        
+        const formData = new FormData(event.currentTarget);
+        const updatedData = {
+            displayName: formData.get('name') as string,
+            email: formData.get('email') as string,
+            role: formData.get('role') as AppUser['role'],
+            totalSessions: parseInt(formData.get('totalSessions') as string, 10) || user.totalSessions,
+            xp: parseInt(formData.get('xp') as string, 10) || 0,
+        };
+        
+        const userDocRef = doc(firestore, 'users', user.uid);
+
+        try {
+            await updateDoc(userDocRef, updatedData);
+            toast({ title: 'User Updated', description: `Updated details for ${updatedData.displayName}.` });
+        } catch (error) {
+            console.error("Error updating user:", error);
+            toast({ title: 'Update Failed', description: 'Could not update user details.', variant: 'destructive' });
+        } finally {
+            onOpenChange(false);
+        }
+    };
+    
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleEditUserSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Edit User</DialogTitle>
+                        <DialogDescription>
+                            Update the details for {user?.displayName}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-name" className="text-right">Name</Label>
+                            <Input id="edit-name" name="name" defaultValue={user?.displayName} className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-email" className="text-right">Email</Label>
+                            <Input id="edit-email" name="email" type="email" defaultValue={user?.email} className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="role" className="text-right">Role</Label>
+                            <Select name="role" defaultValue={user?.role}>
+                                <SelectTrigger className="col-span-3" id="role"><SelectValue placeholder="Select a role" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="client">Client</SelectItem>
+                                    <SelectItem value="coach">Coach</SelectItem>
+                                    <SelectItem value="seller">Seller</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="xp" className="text-right">XP Points</Label>
+                            <Input id="xp" name="xp" type="number" defaultValue={user?.xp || 0} className="col-span-3" required />
+                        </div>
+                        {user?.role === 'client' && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="totalSessions" className="text-right">Total Sessions</Label>
+                                <Input id="totalSessions" name="totalSessions" type="number" defaultValue={user?.totalSessions} className="col-span-3" required />
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <Button type="submit">Save Changes</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+
 function FriendRequests() {
     const { firestore } = useFirebase();
     const { toast } = useToast();
@@ -79,14 +168,13 @@ function FriendRequests() {
             const allRequests: PendingRequest[] = [];
             
             pendingConnections.forEach(connection => {
-                // The connection object doesn't tell us the parent document ID.
-                // The current implementation is inefficient and likely to cause issues.
-                // A better approach is to use a manual snapshot listener that gives us the full doc reference.
+                // This logic is complex because collectionGroup doesn't give parent doc ID easily.
+                // A better approach is often needed for production apps.
             });
         }
     }, [pendingConnections, allUsers]);
 
-    // Let's re-implement the data fetching part to be correct.
+    // Re-implementing the data fetching to be more robust
     useEffect(() => {
         if (!firestore || !allUsers || allUsers.length === 0) return;
 
@@ -104,17 +192,14 @@ function FriendRequests() {
                 const userB = userMap.get(friendId);
                 
                 if (userA && userB) {
-                     // The initiator is who sent it. The other person is the receiver.
                     const fromUser = connection.initiator === userA.uid ? userA : userB;
                     const toUser = connection.initiator === userA.uid ? userB : userA;
 
-                    // Ensure the 'from' user is always the initiator to avoid duplicates
                     if (fromUser.uid === connection.initiator) {
                         allRequests.push({ id: `${userA.uid}_${userB.uid}`, fromUser, toUser });
                     }
                 }
             });
-            // Deduplicate requests since they exist for both users but our logic now handles it
             const uniqueRequests = Array.from(new Map(allRequests.map(item => [`${item.fromUser.uid}-${item.toUser.uid}`, item])).values());
             setRequests(uniqueRequests);
         });
@@ -479,92 +564,13 @@ export default function AdminUsersPage() {
                     <FriendRequests />
                 </TabsContent>
             </Tabs>
-             <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={async (event) => {
-                        event.preventDefault();
-                        if (!selectedUser) return;
-                        
-                        const formData = new FormData(event.currentTarget);
-                        
-                        const updatedData = {
-                            displayName: formData.get('name') as string,
-                            email: formData.get('email') as string,
-                            role: formData.get('role') as AppUser['role'],
-                            totalSessions: parseInt(formData.get('totalSessions') as string, 10) || selectedUser.totalSessions,
-                            xp: parseInt(formData.get('xp') as string, 10) || 0,
-                        };
-                        
-                        const userDocRef = doc(firestore, 'users', selectedUser.uid);
+             
+            <EditUserDialog 
+                user={selectedUser}
+                isOpen={isEditUserOpen}
+                onOpenChange={setIsEditUserOpen}
+            />
 
-                        try {
-                            await updateDoc(userDocRef, updatedData);
-                            toast({ title: 'User Updated', description: `Updated details for ${updatedData.displayName}.` });
-                        } catch (error) {
-                            console.error("Error updating user:", error);
-                            toast({ title: 'Update Failed', description: 'Could not update user details.', variant: 'destructive'});
-                        } finally {
-                            setIsEditUserOpen(false);
-                            setSelectedUser(null);
-                        }
-                    }}>
-                        <DialogHeader>
-                        <DialogTitle>Edit User</DialogTitle>
-                        <DialogDescription>
-                            Update the details for {selectedUser?.displayName}.
-                        </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="edit-name" className="text-right">
-                            Name
-                            </Label>
-                            <Input id="edit-name" name="name" defaultValue={selectedUser?.displayName} className="col-span-3" required/>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="edit-email" className="text-right">
-                            Email
-                            </Label>
-                            <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="role" className="text-right">
-                                Role
-                                </Label>
-                                <Select name="role" defaultValue={selectedUser?.role}>
-                                <SelectTrigger className="col-span-3" id="role">
-                                    <SelectValue placeholder="Select a role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="client">Client</SelectItem>
-                                    <SelectItem value="coach">Coach</SelectItem>
-                                    <SelectItem value="seller">Seller</SelectItem>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                </SelectContent>
-                                </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="xp" className="text-right">
-                            XP Points
-                            </Label>
-                            <Input id="xp" name="xp" type="number" defaultValue={selectedUser?.xp || 0} className="col-span-3" required/>
-                        </div>
-                            {selectedUser?.role === 'client' && (
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="totalSessions" className="text-right">
-                                Total Sessions
-                                </Label>
-                                <Input id="totalSessions" name="totalSessions" type="number" defaultValue={selectedUser?.totalSessions} className="col-span-3" required/>
-                            </div>
-                            )}
-                        </div>
-                        <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
-                        <Button type="submit">Save Changes</Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
             <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -598,3 +604,5 @@ export default function AdminUsersPage() {
         </>
     );
 }
+
+    
