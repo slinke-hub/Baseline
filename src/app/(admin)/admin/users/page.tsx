@@ -39,7 +39,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { AppUser, Connection } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc } from 'firebase/firestore';
+import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc, Firestore } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -260,7 +260,7 @@ export default function AdminUsersPage() {
         }
     }
 
-    const handleEditUser = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleEditUser = async (event: React.FormEvent<HTMLFormElement>, firestore: Firestore) => {
         event.preventDefault();
         if (!selectedUser) return;
         const formData = new FormData(event.currentTarget);
@@ -429,7 +429,7 @@ export default function AdminUsersPage() {
                         </CardContent>
                         <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
                           <DialogContent className="sm:max-w-[425px]">
-                            <form onSubmit={handleEditUser}>
+                            <form onSubmit={(e) => handleEditUser(e, firestore)}>
                               <DialogHeader>
                                 <DialogTitle>Edit User</DialogTitle>
                                 <DialogDescription>
