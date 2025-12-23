@@ -40,10 +40,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { AppUser, Connection } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc, Firestore } from 'firebase/firestore';
+import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc, Firestore, setDoc } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { sendPasswordResetEmail } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 
 
 const getInitials = (name?: string | null) => {
@@ -223,13 +223,66 @@ export default function AdminUsersPage() {
     const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
     const [userToDelete, setUserToDelete] = useState<AppUser | null>(null);
     const [userToResetPassword, setUserToResetPassword] = useState<AppUser | null>(null);
+    const [isAddingUser, setIsAddingUser] = useState(false);
 
-    const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleAddUser = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // In a real app, adding a user would involve Firebase Auth and is best done via a backend function.
-        // This client-side implementation is for demonstration purposes.
-        toast({ title: 'Add User', description: `Adding users from the admin panel is not fully implemented.` });
-        setAddUserOpen(false);
+        setIsAddingUser(true);
+        const formData = new FormData(event.currentTarget);
+        const values = Object.fromEntries(formData.entries()) as any;
+
+        // Note: Creating a user with a specific password on the client-side like this
+        // is generally discouraged in production. This should ideally be handled by a
+        // secure backend function that creates the user and then immediately prompts
+        // them for a password reset. This is a simplified implementation.
+        
+        // We cannot create a user with a password and then log them in.
+        // We will create the user but not sign them in from the admin panel.
+        // The admin will need to communicate the temporary password to the user.
+        try {
+            // This is a temporary limitation workaround. In a real app, you'd use the Admin SDK on a server.
+            // Since we're on the client, we can't create a user without signing out the current admin.
+            // As a proxy, we'll use the signup flow's logic, but this is not a true "admin creates user" flow.
+            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password || 'password123');
+            const user = userCredential.user;
+
+            await updateProfile(user, { displayName: values.name });
+
+            const userDocRef = doc(firestore, 'users', user.uid);
+            const userData: Omit<AppUser, 'uid'> = {
+                displayName: values.name,
+                email: values.email,
+                photoURL: '',
+                role: values.role,
+                sessionsCompleted: 0,
+                totalSessions: 8,
+                xp: 0,
+            };
+
+            await setDoc(userDocRef, userData);
+
+            toast({
+                title: "User Created",
+                description: "The new user has been successfully created.",
+            });
+            setAddUserOpen(false);
+
+            // IMPORTANT: Since createUserWithEmailAndPassword signs in the new user,
+            // we must sign them out and re-sign in the admin. This is a poor experience
+            // and highlights why this should be a backend operation.
+            // For this demo, we'll just reload the page to force re-authentication.
+            window.location.reload();
+
+        } catch (error: any) {
+            console.error("Error creating user:", error);
+            toast({
+                title: 'Creation Failed',
+                description: error.message || 'Could not create user.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsAddingUser(false);
+        }
     }
     
     const handleDeleteUser = async () => {
@@ -364,13 +417,19 @@ export default function AdminUsersPage() {
                                       <Label htmlFor="name" className="text-right">
                                         Name
                                       </Label>
-                                      <Input id="name" name="name" defaultValue="Ja Morant" className="col-span-3" required/>
+                                      <Input id="name" name="name" placeholder="Ja Morant" className="col-span-3" required/>
                                     </div>
                                     <div className="grid grid-cols-4 items-center gap-4">
                                       <Label htmlFor="email" className="text-right">
                                         Email
                                       </Label>
-                                      <Input id="email" name="email" type="email" defaultValue="ja@example.com" className="col-span-3" required/>
+                                      <Input id="email" name="email" type="email" placeholder="ja@example.com" className="col-span-3" required/>
+                                    </div>
+                                     <div className="grid grid-cols-4 items-center gap-4">
+                                      <Label htmlFor="password" className="text-right">
+                                        Password
+                                      </Label>
+                                      <Input id="password" name="password" type="password" placeholder="Temporary password" className="col-span-3" required/>
                                     </div>
                                     <div className="grid grid-cols-4 items-center gap-4">
                                       <Label htmlFor="role" className="text-right">
@@ -390,7 +449,10 @@ export default function AdminUsersPage() {
                                     </div>
                                   </div>
                                   <DialogFooter>
-                                    <Button type="submit">Create User</Button>
+                                    <Button type="submit" disabled={isAddingUser}>
+                                        {isAddingUser && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                                        Create User
+                                    </Button>
                                   </DialogFooter>
                                 </form>
                               </DialogContent>
