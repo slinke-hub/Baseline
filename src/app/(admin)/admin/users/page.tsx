@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star, User, UserCheck, Loader2, CheckCircle } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, MoreVertical, Eye, Star, User, UserCheck, Loader2, CheckCircle, Key } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import Link from 'next/link';
 import {
@@ -42,6 +43,7 @@ import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc, Firestore } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 const getInitials = (name?: string | null) => {
@@ -77,7 +79,6 @@ function FriendRequests() {
             
             pendingConnections.forEach(connection => {
                 // The connection object doesn't tell us the parent document ID.
-                // We need to fetch it separately, but useCollection doesn't expose the doc ref.
                 // The current implementation is inefficient and likely to cause issues.
                 // A better approach is to use a manual snapshot listener that gives us the full doc reference.
             });
@@ -212,7 +213,7 @@ function FriendRequests() {
 
 export default function AdminUsersPage() {
     const { toast } = useToast();
-    const { firestore } = useFirebase();
+    const { firestore, auth } = useFirebase();
 
     const usersQuery = useMemoFirebase(() => query(collection(firestore, 'users')), [firestore]);
     const { data: users, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
@@ -221,6 +222,7 @@ export default function AdminUsersPage() {
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
     const [userToDelete, setUserToDelete] = useState<AppUser | null>(null);
+    const [userToResetPassword, setUserToResetPassword] = useState<AppUser | null>(null);
 
     const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -263,6 +265,8 @@ export default function AdminUsersPage() {
     const handleEditUser = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!selectedUser) return;
+        
+        const { firestore: fs } = useFirebase();
         const formData = new FormData(event.currentTarget);
         
         const updatedData = {
@@ -273,7 +277,7 @@ export default function AdminUsersPage() {
             xp: parseInt(formData.get('xp') as string, 10) || 0,
         };
         
-        const userDocRef = doc(firestore, 'users', selectedUser.uid);
+        const userDocRef = doc(fs, 'users', selectedUser.uid);
 
         try {
             await updateDoc(userDocRef, updatedData);
@@ -286,6 +290,27 @@ export default function AdminUsersPage() {
             setSelectedUser(null);
         }
     }
+
+    const handleResetPassword = async () => {
+        if (!userToResetPassword) return;
+
+        try {
+            await sendPasswordResetEmail(auth, userToResetPassword.email);
+            toast({
+                title: 'Password Reset Sent',
+                description: `A password reset link has been sent to ${userToResetPassword.email}.`
+            });
+        } catch (error) {
+            console.error("Error sending password reset email:", error);
+            toast({
+                title: 'Error',
+                description: 'Could not send password reset email. Please try again.',
+                variant: 'destructive',
+            });
+        } finally {
+            setUserToResetPassword(null);
+        }
+    };
 
     const openEditDialog = (user: AppUser) => {
       setSelectedUser(user);
@@ -412,6 +437,10 @@ export default function AdminUsersPage() {
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem onClick={() => openEditDialog(user)}><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem onClick={() => setUserToResetPassword(user)}>
+                                                                <Key className="mr-2 h-4 w-4" />Reset Password
+                                                            </DropdownMenuItem>
                                                             <DropdownMenuItem 
                                                                 className="text-destructive"
                                                                 onClick={() => setUserToDelete(user)}
@@ -506,6 +535,20 @@ export default function AdminUsersPage() {
                         <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
                             Continue
                         </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={!!userToResetPassword} onOpenChange={() => setUserToResetPassword(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Reset Password for {userToResetPassword?.displayName}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will send a password reset link to {userToResetPassword?.email}. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleResetPassword}>Send Reset Link</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
