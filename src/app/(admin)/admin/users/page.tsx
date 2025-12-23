@@ -298,34 +298,6 @@ export default function AdminUsersPage() {
         }
     }
 
-    const handleEditUser = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!selectedUser) return;
-        
-        const formData = new FormData(event.currentTarget);
-        
-        const updatedData = {
-            displayName: formData.get('name') as string,
-            email: formData.get('email') as string,
-            role: formData.get('role') as AppUser['role'],
-            totalSessions: parseInt(formData.get('totalSessions') as string, 10) || selectedUser.totalSessions,
-            xp: parseInt(formData.get('xp') as string, 10) || 0,
-        };
-        
-        const userDocRef = doc(firestore, 'users', selectedUser.uid);
-
-        try {
-            await updateDoc(userDocRef, updatedData);
-            toast({ title: 'User Updated', description: `Updated details for ${updatedData.displayName}.` });
-        } catch (error) {
-            console.error("Error updating user:", error);
-            toast({ title: 'Update Failed', description: 'Could not update user details.', variant: 'destructive'});
-        } finally {
-            setIsEditUserOpen(false);
-            setSelectedUser(null);
-        }
-    }
-
     const handleResetPassword = async () => {
         if (!userToResetPassword) return;
 
@@ -508,7 +480,33 @@ export default function AdminUsersPage() {
             </Tabs>
              <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
                 <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={handleEditUser}>
+                    <form onSubmit={async (event) => {
+                        event.preventDefault();
+                        if (!selectedUser) return;
+                        
+                        const formData = new FormData(event.currentTarget);
+                        
+                        const updatedData = {
+                            displayName: formData.get('name') as string,
+                            email: formData.get('email') as string,
+                            role: formData.get('role') as AppUser['role'],
+                            totalSessions: parseInt(formData.get('totalSessions') as string, 10) || selectedUser.totalSessions,
+                            xp: parseInt(formData.get('xp') as string, 10) || 0,
+                        };
+                        
+                        const userDocRef = doc(firestore, 'users', selectedUser.uid);
+
+                        try {
+                            await updateDoc(userDocRef, updatedData);
+                            toast({ title: 'User Updated', description: `Updated details for ${updatedData.displayName}.` });
+                        } catch (error) {
+                            console.error("Error updating user:", error);
+                            toast({ title: 'Update Failed', description: 'Could not update user details.', variant: 'destructive'});
+                        } finally {
+                            setIsEditUserOpen(false);
+                            setSelectedUser(null);
+                        }
+                    }}>
                         <DialogHeader>
                         <DialogTitle>Edit User</DialogTitle>
                         <DialogDescription>
@@ -598,10 +596,5 @@ export default function AdminUsersPage() {
             </AlertDialog>
         </>
     );
-}
-
-    
-
-    
 
     
