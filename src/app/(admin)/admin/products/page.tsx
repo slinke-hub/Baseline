@@ -43,14 +43,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { generateImage } from '@/ai/flows/generate-image-flow';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 
-const MOCK_PRODUCTS: Omit<Product, 'id' | 'creatorId' | 'photoUrl'>[] = [
-    { name: "Official Game Basketball", description: "The official size 7 basketball for indoor play.", priceXp: 2500, priceCash: 150, stock: 50 },
-    { name: "Reversible Practice Jersey", description: "Lightweight, breathable mesh jersey for practice.", priceXp: 1500, priceCash: 75, stock: 100 },
-    { name: "Pro-Grip Arm Sleeve", description: "Compression sleeve with arm pad for protection.", priceXp: 800, priceCash: 45, stock: 200 },
-    { name: "Baseline Crew Socks", description: "Cushioned, moisture-wicking socks (3-pack).", priceXp: 600, priceCash: 35, stock: 150 },
-    { name: "Gym Duffle Bag", description: "Spacious bag with separate shoe compartment.", priceXp: 3000, priceCash: 200, stock: 30 },
-];
-
 export default function AdminProductsPage() {
     const { toast } = useToast();
     const { firestore, firebaseApp } = useFirebase();
@@ -62,38 +54,6 @@ export default function AdminProductsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
-
-    useEffect(() => {
-        if (!isLoadingProducts && products && products.length === 0 && appUser) {
-            seedProducts();
-        }
-    }, [isLoadingProducts, products, appUser]);
-
-    const seedProducts = async () => {
-        if (!appUser) return;
-        toast({ title: "Seeding Products...", description: "No products found. Adding mock products to the store." });
-        for (const mock of MOCK_PRODUCTS) {
-            try {
-                const prompt = `A professional e-commerce product photo for a "${mock.name}", with a clean, white background. The style should be modern and appealing to basketball players.`;
-                const { media: imageDataUri } = await generateImage(prompt);
-                
-                const storage = getStorage(firebaseApp);
-                const storageRef = ref(storage, `product-photos/${Date.now()}_${mock.name.replace(/\s+/g, '-')}.png`);
-                const snapshot = await uploadString(storageRef, imageDataUri, 'data_url');
-                const photoUrl = await getDownloadURL(snapshot.ref);
-
-                const productData = {
-                    ...mock,
-                    creatorId: appUser.uid,
-                    photoUrl,
-                };
-                await addDoc(collection(firestore, 'products'), productData);
-            } catch (e) {
-                console.error("Failed to seed product:", mock.name, e);
-            }
-        }
-        toast({ title: "Seeding Complete!", description: "Mock products added." });
-    };
 
     const isEditing = !!selectedProduct;
 
@@ -200,6 +160,11 @@ export default function AdminProductsPage() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem onClick={() => openForm(product)}><Edit className="mr-2 h-4 w-4"/>Edit</DropdownMenuItem>
                                                 <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <div className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
+                                                            <Trash2 className="mr-2 h-4 w-4" />Delete
+                                                        </div>
+                                                    </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you sure you want to delete {product.name}?</AlertDialogTitle>
