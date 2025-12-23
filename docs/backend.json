@@ -59,7 +59,7 @@
         }
       },
       "required": [
-        "uid", "role", "totalSessions"
+        "uid", "role"
       ]
     },
     "Connection": {
