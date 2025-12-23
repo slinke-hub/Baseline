@@ -32,7 +32,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -230,19 +229,8 @@ export default function AdminUsersPage() {
         setIsAddingUser(true);
         const formData = new FormData(event.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
-
-        // Note: Creating a user with a specific password on the client-side like this
-        // is generally discouraged in production. This should ideally be handled by a
-        // secure backend function that creates the user and then immediately prompts
-        // them for a password reset. This is a simplified implementation.
         
-        // We cannot create a user with a password and then log them in.
-        // We will create the user but not sign them in from the admin panel.
-        // The admin will need to communicate the temporary password to the user.
         try {
-            // This is a temporary limitation workaround. In a real app, you'd use the Admin SDK on a server.
-            // Since we're on the client, we can't create a user without signing out the current admin.
-            // As a proxy, we'll use the signup flow's logic, but this is not a true "admin creates user" flow.
             const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password || 'password123');
             const user = userCredential.user;
 
@@ -267,10 +255,6 @@ export default function AdminUsersPage() {
             });
             setAddUserOpen(false);
 
-            // IMPORTANT: Since createUserWithEmailAndPassword signs in the new user,
-            // we must sign them out and re-sign in the admin. This is a poor experience
-            // and highlights why this should be a backend operation.
-            // For this demo, we'll just reload the page to force re-authentication.
             window.location.reload();
 
         } catch (error: any) {
@@ -288,8 +272,6 @@ export default function AdminUsersPage() {
     const handleDeleteUser = async () => {
         if (!userToDelete) return;
 
-        // Note: This only deletes the Firestore record. For a full deletion,
-        // you would need a Firebase Function to delete the user from Firebase Authentication.
         const userDocRef = doc(firestore, 'users', userToDelete.uid);
 
         try {
@@ -319,7 +301,6 @@ export default function AdminUsersPage() {
         event.preventDefault();
         if (!selectedUser) return;
         
-        const { firestore: fs } = useFirebase();
         const formData = new FormData(event.currentTarget);
         
         const updatedData = {
@@ -330,7 +311,7 @@ export default function AdminUsersPage() {
             xp: parseInt(formData.get('xp') as string, 10) || 0,
         };
         
-        const userDocRef = doc(fs, 'users', selectedUser.uid);
+        const userDocRef = doc(firestore, 'users', selectedUser.uid);
 
         try {
             await updateDoc(userDocRef, updatedData);
@@ -617,5 +598,7 @@ export default function AdminUsersPage() {
         </>
     );
 }
+
+    
 
     
