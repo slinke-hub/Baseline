@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { MoreMenuSheet } from './more-menu-sheet';
 import { mainNavItems } from './desktop-sidebar';
 
-const navItems = mainNavItems.filter(item => ['/home', '/workouts', '/ball-is-life', '/friends'].includes(item.href));
+const navItems = mainNavItems.filter(item => ['/home', '/workouts', '/store', '/friends'].includes(item.href));
 
 export function BottomNav() {
   const pathname = usePathname();

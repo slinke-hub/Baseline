@@ -12,6 +12,8 @@ import {
   MessageSquare,
   MapPin,
   NotebookPen,
+  ShoppingCart,
+  Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '../icons/logo';
@@ -25,6 +27,8 @@ const adminNavItems = [
   { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner', color: 'text-green-400' },
   { href: '/admin/chat', icon: MessageSquare, label: 'Chat', color: 'text-rose-400' },
   { href: '/admin/locations', icon: MapPin, label: 'Locations', color: 'text-violet-400' },
+  { href: '/admin/products', icon: ShoppingCart, label: 'Products', color: 'text-purple-400' },
+  { href: '/admin/orders', icon: Package, label: 'Orders', color: 'text-orange-400' },
 ];
 
 export function AdminSidebar() {

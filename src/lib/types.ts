@@ -110,3 +110,26 @@ export interface ChatMessage {
     createdAt: Timestamp;
     isSystem?: boolean;
 }
+
+export interface Product {
+    id: string;
+    name: string;
+    description: string;
+    photoUrl: string;
+    priceXp: number;
+    priceCash: number; // Stored in SAR
+    stock: number;
+    creatorId: string;
+}
+
+export interface UserOrder {
+    id: string;
+    userId: string;
+    productId: string;
+    productName: string;
+    photoUrl: string;
+    paymentMethod: 'xp' | 'cod';
+    amountPaid: number;
+    status: 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
+    createdAt: Timestamp;
+}

@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame } from 'lucide-react';
+import { Home, Dumbbell, UtensilsCrossed, User, Settings, LogOut, BarChart, Calculator, Calendar, MessageSquare, ClipboardList, MapPin, Users as FriendsIcon, Star, Flame, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth as useAppAuth } from '@/hooks/use-auth';
 import { signOut } from 'firebase/auth';
@@ -30,6 +30,7 @@ export const mainNavItems = [
   { href: '/ball-is-life', icon: Flame, label: 'Ball is Life', color: 'text-orange-500' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
   { href: '/meal-planner', icon: UtensilsCrossed, label: 'Meal Planner', color: 'text-teal-400' },
+  { href: '/store', icon: ShoppingCart, label: 'Store', color: 'text-purple-400' },
   { href: '/my-sessions', icon: ClipboardList, label: 'My Sessions', color: 'text-cyan-400' },
   { href: '/schedule', icon: Calendar, label: 'Schedule', color: 'text-blue-400' },
   { href: '/chat', icon: MessageSquare, label: 'Chat', color: 'text-green-400' },
