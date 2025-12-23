@@ -427,73 +427,72 @@ export default function AdminUsersPage() {
                                 </Table>
                             </div>}
                         </CardContent>
-                        <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <form onSubmit={handleEditUser}>
-                              <DialogHeader>
-                                <DialogTitle>Edit User</DialogTitle>
-                                <DialogDescription>
-                                  Update the details for {selectedUser?.displayName}.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="edit-name" className="text-right">
-                                    Name
-                                  </Label>
-                                  <Input id="edit-name" name="name" defaultValue={selectedUser?.displayName} className="col-span-3" required/>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="edit-email" className="text-right">
-                                    Email
-                                  </Label>
-                                  <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label htmlFor="role" className="text-right">
-                                        Role
-                                      </Label>
-                                       <Select name="role" defaultValue={selectedUser?.role}>
-                                        <SelectTrigger className="col-span-3" id="role">
-                                          <SelectValue placeholder="Select a role" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="client">Client</SelectItem>
-                                          <SelectItem value="coach">Coach</SelectItem>
-                                          <SelectItem value="seller">Seller</SelectItem>
-                                          <SelectItem value="admin">Admin</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="xp" className="text-right">
-                                    XP Points
-                                  </Label>
-                                  <Input id="xp" name="xp" type="number" defaultValue={selectedUser?.xp || 0} className="col-span-3" required/>
-                                </div>
-                                 {selectedUser?.role === 'client' && (
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label htmlFor="totalSessions" className="text-right">
-                                        Total Sessions
-                                      </Label>
-                                      <Input id="totalSessions" name="totalSessions" type="number" defaultValue={selectedUser?.totalSessions} className="col-span-3" required/>
-                                    </div>
-                                 )}
-                              </div>
-                              <DialogFooter>
-                                <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
-                                <Button type="submit">Save Changes</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
                     </Card>
                 </TabsContent>
                 <TabsContent value="requests">
                     <FriendRequests />
                 </TabsContent>
             </Tabs>
-
+             <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <form onSubmit={handleEditUser}>
+                        <DialogHeader>
+                        <DialogTitle>Edit User</DialogTitle>
+                        <DialogDescription>
+                            Update the details for {selectedUser?.displayName}.
+                        </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-name" className="text-right">
+                            Name
+                            </Label>
+                            <Input id="edit-name" name="name" defaultValue={selectedUser?.displayName} className="col-span-3" required/>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="edit-email" className="text-right">
+                            Email
+                            </Label>
+                            <Input id="edit-email" name="email" type="email" defaultValue={selectedUser?.email} className="col-span-3" required/>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="role" className="text-right">
+                                Role
+                                </Label>
+                                <Select name="role" defaultValue={selectedUser?.role}>
+                                <SelectTrigger className="col-span-3" id="role">
+                                    <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="client">Client</SelectItem>
+                                    <SelectItem value="coach">Coach</SelectItem>
+                                    <SelectItem value="seller">Seller</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                                </Select>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="xp" className="text-right">
+                            XP Points
+                            </Label>
+                            <Input id="xp" name="xp" type="number" defaultValue={selectedUser?.xp || 0} className="col-span-3" required/>
+                        </div>
+                            {selectedUser?.role === 'client' && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="totalSessions" className="text-right">
+                                Total Sessions
+                                </Label>
+                                <Input id="totalSessions" name="totalSessions" type="number" defaultValue={selectedUser?.totalSessions} className="col-span-3" required/>
+                            </div>
+                            )}
+                        </div>
+                        <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => setIsEditUserOpen(false)}>Cancel</Button>
+                        <Button type="submit">Save Changes</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
             <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -511,4 +510,7 @@ export default function AdminUsersPage() {
                 </AlertDialogContent>
             </AlertDialog>
         </>
-     
+    );
+}
+
+    
