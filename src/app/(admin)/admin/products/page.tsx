@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Trash2, Edit, MoreVertical, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, MoreVertical, Loader2, MessageSquare } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -44,6 +43,7 @@ import { collection, doc, addDoc, updateDoc, deleteDoc } from 'firebase/firestor
 import { useAuth } from '@/hooks/use-auth';
 import { generateImage } from '@/ai/flows/generate-image-flow';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { useRouter } from 'next/navigation';
 
 const prefilledProducts: Omit<Product, 'id' | 'photoUrl' | 'creatorId'>[] = [
     {
@@ -69,8 +69,11 @@ const prefilledProducts: Omit<Product, 'id' | 'photoUrl' | 'creatorId'>[] = [
     },
 ];
 
+const ADMIN_UID = '96tEClb7y8aUnYxTds2v4pW0b2C2'; // This should be managed in a better way in a real app
+
 export default function AdminProductsPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const { firestore, firebaseApp } = useFirebase();
     const { appUser } = useAuth();
     
@@ -81,6 +84,7 @@ export default function AdminProductsPage() {
     const [selectedProduct, setSelectedProduct] = useState<Product | Partial<Product> | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
+    const isSeller = appUser?.role === 'seller';
     const isEditing = !!(selectedProduct && 'id' in selectedProduct);
     
     const availablePrefills = prefilledProducts.filter(prefill => !products?.some(p => p.name === prefill.name));
@@ -97,7 +101,7 @@ export default function AdminProductsPage() {
 
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!appUser) return;
+        if (!appUser || isSeller) return;
         setIsGenerating(true);
 
         const formData = new FormData(event.currentTarget);
@@ -156,29 +160,44 @@ export default function AdminProductsPage() {
         setSelectedProduct(null);
     }
 
+    const handleRequestChange = () => {
+        if (!appUser) return;
+        const chatId = appUser.uid < ADMIN_UID ? `${appUser.uid}_${ADMIN_UID}` : `${ADMIN_UID}_${appUser.uid}`;
+        // This is a simplified navigation. In a real app, you might want to pre-fill the chat.
+        router.push(`/admin/chat?userId=${ADMIN_UID}&message=I would like to request a product change:`);
+    }
+
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle>Product Management</CardTitle>
-                    <CardDescription>Add, edit, or delete store products.</CardDescription>
+                    <CardDescription>
+                        {isSeller ? "View products. Request changes from an admin." : "Add, edit, or delete store products."}
+                    </CardDescription>
                 </div>
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => openForm(null)}>
-                            Create Custom Product
-                        </DropdownMenuItem>
-                        {availablePrefills.length > 0 && <DropdownMenuSeparator />}
-                        {availablePrefills.map(prefill => (
-                            <DropdownMenuItem key={prefill.name} onClick={() => openForm(prefill)}>
-                                Add {prefill.name}
+                 {isSeller ? (
+                    <Button onClick={handleRequestChange}>
+                        <MessageSquare className="mr-2 h-4 w-4" /> Request Change
+                    </Button>
+                 ) : (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => openForm(null)}>
+                                Create Custom Product
                             </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            {availablePrefills.length > 0 && <DropdownMenuSeparator />}
+                            {availablePrefills.map(prefill => (
+                                <DropdownMenuItem key={prefill.name} onClick={() => openForm(prefill)}>
+                                    Add {prefill.name}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
             </CardHeader>
             <CardContent>
                 {isLoadingProducts ? (
@@ -217,7 +236,7 @@ export default function AdminProductsPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
-                                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" disabled={isSeller}><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem onClick={() => openForm(product)}><Edit className="mr-2 h-4 w-4"/>Edit</DropdownMenuItem>
                                                 <AlertDialog>

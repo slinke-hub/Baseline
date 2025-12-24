@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { ShieldAlert } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -13,11 +13,13 @@ import { Footer } from '@/components/layout/footer';
 import { BasketballLoader } from '@/components/basketball-loader';
 import { cn } from '@/lib/utils';
 
+const allowedRoles: AppUser['role'][] = ['admin', 'coach', 'seller'];
+const sellerAllowedPaths = ['/admin/orders', '/admin/chat', '/admin', '/admin/profile'];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { appUser, loading } = useAuth();
   const router = useRouter();
-
-  const allowedRoles = ['admin', 'coach', 'seller'];
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && (!appUser || !allowedRoles.includes(appUser.role))) {
@@ -33,7 +35,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!allowedRoles.includes(appUser.role)) {
+  const isAllowed = () => {
+    if (!appUser) return false;
+    if (appUser.role === 'admin' || appUser.role === 'coach') {
+        return true;
+    }
+    if (appUser.role === 'seller') {
+        return sellerAllowedPaths.some(path => pathname.startsWith(path));
+    }
+    return false;
+  }
+
+  if (!isAllowed()) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background p-4">
             <div className="flex flex-col items-center text-center gap-4">

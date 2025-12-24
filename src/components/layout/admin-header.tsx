@@ -26,17 +26,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../icons/logo';
 
-const adminNavItems = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', color: 'text-sky-400' },
-  { href: '/admin/users', icon: Users, label: 'Users', color: 'text-amber-400' },
-  { href: '/admin/schedule', icon: Calendar, label: 'Schedules', color: 'text-blue-400' },
-  { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts', color: 'text-red-500' },
-  { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals', color: 'text-teal-400' },
-  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner', color: 'text-green-400' },
-  { href: '/admin/chat', icon: MessageSquare, label: 'Chat', color: 'text-rose-400' },
-  { href: '/admin/locations', icon: MapPin, label: 'Locations', color: 'text-violet-400' },
-  { href: '/admin/products', icon: ShoppingCart, label: 'Products', color: 'text-purple-400' },
-  { href: '/admin/orders', icon: Package, label: 'Orders', color: 'text-orange-400' },
+const allNavItems = [
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'coach'] },
+  { href: '/admin/users', icon: Users, label: 'Users', roles: ['admin', 'coach'] },
+  { href: '/admin/schedule', icon: Calendar, label: 'Schedules', roles: ['admin', 'coach'] },
+  { href: '/admin/workouts', icon: Dumbbell, label: 'Workouts', roles: ['admin', 'coach'] },
+  { href: '/admin/meals', icon: UtensilsCrossed, label: 'Meals', roles: ['admin', 'coach'] },
+  { href: '/admin/meal-planner', icon: NotebookPen, label: 'Meal Planner', roles: ['admin', 'coach'] },
+  { href: '/admin/locations', icon: MapPin, label: 'Locations', roles: ['admin', 'coach'] },
+  { href: '/admin/products', icon: ShoppingCart, label: 'Products', roles: ['admin', 'seller'] },
+  { href: '/admin/orders', icon: Package, label: 'Orders', roles: ['admin', 'seller'] },
+  { href: '/admin/chat', icon: MessageSquare, label: 'Chat', roles: ['admin', 'coach', 'seller'] },
 ];
 
 
@@ -45,6 +45,8 @@ export function AdminHeader() {
   const { auth } = useFirebase();
   const router = useRouter();
   const { appUser } = useAuth();
+  
+  const navItems = allNavItems.filter(item => appUser && item.roles.includes(appUser.role));
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -73,7 +75,7 @@ export function AdminHeader() {
               </nav>
               <ScrollArea className="flex-1">
                   <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-                      {adminNavItems.map((item) => {
+                      {navItems.map((item) => {
                           const isActive = pathname.startsWith(item.href);
                           return (
                           <Link
@@ -84,7 +86,7 @@ export function AdminHeader() {
                                    pathname.startsWith(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                               )}
                           >
-                              <item.icon className={cn('h-5 w-5', isActive ? '' : item.color)} />
+                              <item.icon className="h-5 w-5" />
                               {item.label}
                           </Link>
                       )})}

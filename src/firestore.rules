@@ -19,7 +19,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && (request.auth.token.admin == true || getRole() == 'admin');
+      return isSignedIn() && getRole() == 'admin';
     }
     
     function isCoach() {
@@ -36,7 +36,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow create: if isOwner(userId) && request.resource.data.role == 'client' || request.resource.data.role == 'admin';
+      allow create: if isOwner(userId) && (request.resource.data.role == 'client' || request.resource.data.role == 'admin' || request.resource.data.role == 'seller');
       allow update: if isOwner(userId) || isCoach() || isAdmin();
       allow delete: if isAdmin();
       allow list: if isAdmin();
@@ -55,7 +55,9 @@ service cloud.firestore {
       }
 
       match /orders/{orderId} {
-        allow read, write: if isOwner(userId);
+        allow read: if isOwner(userId) || isSeller() || isAdmin();
+        allow create, write: if isOwner(userId);
+        allow update: if isSeller() || isAdmin();
       }
     }
     
@@ -100,9 +102,7 @@ service cloud.firestore {
 
     match /products/{productId} {
         allow get, list: if isSignedIn();
-        allow create, update, delete: if isSeller() || isAdmin();
+        allow create, update, delete: if isAdmin();
     }
   }
 }
-
-    
