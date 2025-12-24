@@ -1,0 +1,37 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Allow read access to all files by default
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // Secure profile photos: only the owner can write
+    match /profile-photos/{userId} {
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Secure court photos: authenticated users can add photos
+    match /court-photos/{userId}/{allPaths=**} {
+        allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Secure ball-is-life photos: authenticated users can add photos
+    match /ball-is-life/{userId}/{allPaths=**} {
+        allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Secure product photos: only allow sellers or admins to upload
+    match /product-photos/{allPaths=**} {
+        allow write: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller');
+    }
+
+    // Secure workout photos: only allow coaches or admins to upload
+    match /workout-photos/{allPaths=**} {
+        allow write: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach');
+    }
+  }
+}
