@@ -67,11 +67,11 @@ const EditUserDialog: FC<EditUserDialogProps> = ({ user, isOpen, onOpenChange })
     const { firestore } = useFirebase();
     const { toast } = useToast();
 
-    if (!user) return null;
-
     const handleEditUserSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         
+        if (!user) return;
+
         const formData = new FormData(event.currentTarget);
         const updatedData = {
             displayName: formData.get('name') as string,
@@ -92,6 +92,8 @@ const EditUserDialog: FC<EditUserDialogProps> = ({ user, isOpen, onOpenChange })
             onOpenChange(false);
         }
     };
+    
+    if (!user) return null;
     
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -611,5 +613,3 @@ export default function AdminUsersPage() {
         </>
     );
 }
-
-    
