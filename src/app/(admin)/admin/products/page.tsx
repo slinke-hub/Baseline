@@ -44,6 +44,30 @@ import { useAuth } from '@/hooks/use-auth';
 import { generateImage } from '@/ai/flows/generate-image-flow';
 import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 
+const prefilledProducts: Omit<Product, 'id' | 'photoUrl' | 'creatorId'>[] = [
+    {
+        name: "Baseline Performance Hoodie",
+        description: "Stay warm and ready for action with our premium performance hoodie, featuring the official Baseline logo. Perfect for warm-ups and cool-downs.",
+        priceXp: 5000,
+        priceCash: 180,
+        stock: 50,
+    },
+    {
+        name: "Baseline Tech T-Shirt",
+        description: "A lightweight, breathable tech shirt with the Baseline logo. Engineered for comfort and performance during intense training sessions.",
+        priceXp: 2500,
+        priceCash: 90,
+        stock: 100,
+    },
+    {
+        name: "Baseline Snapback Hat",
+        description: "Represent the brand on and off the court with this classic snapback hat, featuring a high-quality embroidered Baseline logo.",
+        priceXp: 1800,
+        priceCash: 70,
+        stock: 75,
+    },
+];
+
 export default function AdminProductsPage() {
     const { toast } = useToast();
     const { firestore, firebaseApp } = useFirebase();
@@ -53,10 +77,13 @@ export default function AdminProductsPage() {
     const { data: products, isLoading: isLoadingProducts } = useCollection<Product>(productsQuery);
 
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | Partial<Product> | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const isEditing = !!selectedProduct;
+    const isEditing = !!(selectedProduct && 'id' in selectedProduct);
+    
+    const availablePrefills = prefilledProducts.filter(prefill => !products?.some(p => p.name === prefill.name));
+
 
     const handleDelete = async (productId: string) => {
         try {
@@ -75,11 +102,10 @@ export default function AdminProductsPage() {
         const formData = new FormData(event.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
         
-        // Coerce to number, ensure empty strings become undefined
         const discountedPriceXp = values.discountedPriceXp ? parseInt(values.discountedPriceXp) : undefined;
         const discountedPriceCash = values.discountedPriceCash ? parseInt(values.discountedPriceCash) : undefined;
 
-        const processedValues = {
+        const processedValues: Omit<Product, 'id' | 'photoUrl'> = {
             name: values.name,
             description: values.description,
             priceXp: parseInt(values.priceXp),
@@ -91,11 +117,11 @@ export default function AdminProductsPage() {
         };
 
         try {
-            if (isEditing && selectedProduct) {
+            if (isEditing && selectedProduct && 'id' in selectedProduct) {
                 await updateDoc(doc(firestore, 'products', selectedProduct.id), processedValues);
                 toast({ title: "Product Updated" });
             } else {
-                const prompt = `A professional e-commerce product photo for a "${values.name}", with a clean, white background. The style should be modern and appealing to basketball players.`;
+                const prompt = `A professional e-commerce product photo for a "${values.name}" with the "Baseline" brand logo on it, on a clean, white studio background. The style should be modern and appealing to basketball players.`;
                 const { media: imageDataUri } = await generateImage(prompt);
                 
                 const storage = getStorage(firebaseApp);
@@ -119,7 +145,7 @@ export default function AdminProductsPage() {
         }
     }
     
-    const openForm = (product?: Product) => {
+    const openForm = (product?: Product | Partial<Product> | null) => {
         setSelectedProduct(product || null);
         setIsFormOpen(true);
     }
@@ -136,7 +162,22 @@ export default function AdminProductsPage() {
                     <CardTitle>Product Management</CardTitle>
                     <CardDescription>Add, edit, or delete store products.</CardDescription>
                 </div>
-                <Button onClick={() => openForm()}><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => openForm(null)}>
+                            Create Custom Product
+                        </DropdownMenuItem>
+                        {availablePrefills.length > 0 && <DropdownMenuSeparator />}
+                        {availablePrefills.map(prefill => (
+                            <DropdownMenuItem key={prefill.name} onClick={() => openForm(prefill)}>
+                                Add {prefill.name}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </CardHeader>
             <CardContent>
                 {isLoadingProducts ? (
@@ -249,3 +290,5 @@ export default function AdminProductsPage() {
         </Card>
     )
 }
+
+    
