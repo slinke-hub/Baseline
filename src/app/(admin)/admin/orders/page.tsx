@@ -102,6 +102,10 @@ export default function AdminOrdersPage() {
     const { appUser } = useAuth();
     
     // Check if the user is a seller and not an admin
+    const isAdmin = () => {
+        return appUser?.role === 'admin';
+    }
+
     if(appUser && appUser.role === 'seller' && !isAdmin()) {
         // Here you would check a feature flag from a config
         const canSellerAccessOrders = true; // Mocked value
@@ -143,10 +147,6 @@ export default function AdminOrdersPage() {
     }
     
     const isLoading = isLoadingOrders || isLoadingUsers;
-
-    const isAdmin = () => {
-        return appUser?.role === 'admin';
-    }
 
     return (
         <div className="space-y-6">

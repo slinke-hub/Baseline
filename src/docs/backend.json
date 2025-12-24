@@ -59,7 +59,7 @@
         }
       },
       "required": [
-        "uid", "role", "totalSessions"
+        "uid", "role"
       ]
     },
     "Connection": {
@@ -427,6 +427,18 @@
         }
       },
       {
+          "path": "/users/{userId}/orders/{orderId}",
+          "definition": {
+              "entityName": "UserOrder",
+              "schema": { "$ref": "#/backend/entities/UserOrder" },
+              "description": "Stores a user's individual merchandise orders. Users can only read/write their own orders.",
+              "params": [
+                  { "name": "userId", "description": "The user's UID." },
+                  { "name": "orderId", "description": "The unique ID of the order." }
+              ]
+          }
+      },
+      {
         "path": "/mealPlans/{mealPlanId}",
         "definition": {
           "entityName": "UserMealPlan",
@@ -526,18 +538,6 @@
             "description": "Stores all merchandise products. Readable by all, writable only by admins and sellers.",
             "params": [{ "name": "productId", "description": "The unique identifier of the product." }]
         }
-      },
-      {
-          "path": "/users/{userId}/orders/{orderId}",
-          "definition": {
-              "entityName": "UserOrder",
-              "schema": { "$ref": "#/backend/entities/UserOrder" },
-              "description": "Stores a user's individual merchandise orders. Users can only read/write their own orders.",
-              "params": [
-                  { "name": "userId", "description": "The user's UID." },
-                  { "name": "orderId", "description": "The unique ID of the order." }
-              ]
-          }
       }
     ],
     "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans, orders) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, locations, and products is maintained in top-level collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin/seller role for content management."
