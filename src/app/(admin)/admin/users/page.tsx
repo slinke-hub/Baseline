@@ -38,7 +38,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { AppUser, Connection } from '@/lib/types';
+import type { AppUser, Connection, ScheduleEvent } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, collectionGroup, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch, updateDoc, Firestore, setDoc } from 'firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -77,7 +77,6 @@ const EditUserDialog: FC<EditUserDialogProps> = ({ user, isOpen, onOpenChange })
             displayName: formData.get('name') as string,
             email: formData.get('email') as string,
             role: formData.get('role') as AppUser['role'],
-            totalSessions: parseInt(formData.get('totalSessions') as string, 10) || user.totalSessions,
             xp: parseInt(formData.get('xp') as string, 10) || 0,
         };
         
@@ -129,12 +128,6 @@ const EditUserDialog: FC<EditUserDialogProps> = ({ user, isOpen, onOpenChange })
                             <Label htmlFor="xp" className="text-right">XP Points</Label>
                             <Input id="xp" name="xp" type="number" defaultValue={user?.xp || 0} className="col-span-3" required />
                         </div>
-                        {user?.role === 'client' && (
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="totalSessions" className="text-right">Total Sessions</Label>
-                                <Input id="totalSessions" name="totalSessions" type="number" defaultValue={user?.totalSessions} className="col-span-3" required />
-                            </div>
-                        )}
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
@@ -297,6 +290,24 @@ function FriendRequests() {
     );
 }
 
+function UserSchedules({ user }: { user: AppUser }) {
+    const scheduleQuery = useMemoFirebase(() => {
+        if (!user?.uid) return null;
+        return query(collection(user.firestore, 'users', user.uid, 'schedule'));
+    }, [user]);
+
+    const { data: schedule, isLoading } = useCollection<ScheduleEvent>(scheduleQuery);
+    
+    const completedEvents = schedule?.filter(e => e.date < new Date()).length || 0;
+    const upcomingEvents = schedule?.filter(e => e.date >= new Date()).length || 0;
+
+    if (isLoading) return <span>Loading...</span>
+    
+    return (
+        <span>{completedEvents} / {upcomingEvents + completedEvents}</span>
+    )
+}
+
 export default function AdminUsersPage() {
     const { toast } = useToast();
     const { firestore, auth } = useFirebase();
@@ -329,8 +340,6 @@ export default function AdminUsersPage() {
                 email: values.email,
                 photoURL: '',
                 role: values.role,
-                sessionsCompleted: 0,
-                totalSessions: 8,
                 xp: 0,
             };
 
@@ -508,7 +517,6 @@ export default function AdminUsersPage() {
                                             <TableHead>Email</TableHead>
                                             <TableHead>Role</TableHead>
                                             <TableHead>XP</TableHead>
-                                            <TableHead>Monthly Sessions</TableHead>
                                             <TableHead className="text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -524,7 +532,6 @@ export default function AdminUsersPage() {
                                                         {user.xp?.toLocaleString() || 0}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>{user.role === 'client' ? `${user.sessionsCompleted} / ${user.totalSessions}` : 'N/A'}</TableCell>
                                                 <TableCell className="text-right">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>

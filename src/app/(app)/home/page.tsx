@@ -5,8 +5,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Dumbbell, UtensilsCrossed, Calendar, ArrowRight, Loader2 } from 'lucide-react';
+import { Dumbbell, UtensilsCrossed, Calendar, ArrowRight, Loader2, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, Timestamp, limit } from 'firebase/firestore';
@@ -102,13 +101,10 @@ function TodaysPlan() {
 export default function HomePage() {
   const { appUser } = useAuth();
 
-  const sessionsCompleted = appUser?.sessionsCompleted || 0;
-  const totalSessions = appUser?.totalSessions || 8;
-  const progressPercentage = totalSessions > 0 ? (sessionsCompleted / totalSessions) * 100 : 0;
-
   const quickLinks = [
     { title: "Find a Workout", href: "/workouts", icon: Dumbbell, description: "Level up your skills." },
     { title: "Plan Your Meals", href: "/meal-planner", icon: UtensilsCrossed, description: "Fuel your performance." },
+    { title: "Track Schedule", href: "/schedule", icon: ClipboardList, description: "Manage your weekly events." },
   ];
 
   const heroImage = placeholderData.placeholderImages.find(p => p.id === 'todays-workout');
@@ -137,21 +133,6 @@ export default function HomePage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Monthly Session Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Progress value={progressPercentage} className="h-3" />
-                    <p className="text-sm text-muted-foreground mt-2">{sessionsCompleted} of {totalSessions} sessions completed this month.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button asChild>
-                        <Link href="/my-sessions">Mark Attendance <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-
             <div className="grid sm:grid-cols-2 gap-6">
                 {quickLinks.map(link => (
                     <Card key={link.title} className="hover:bg-accent/50 transition-colors">
@@ -179,3 +160,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    

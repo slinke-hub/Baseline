@@ -31,7 +31,6 @@ const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
-  totalSessions: z.coerce.number().min(1, 'You must select at least 1 session.').max(30, 'Please contact us for plans with more than 30 sessions.'),
   address: z.string().optional(),
 });
 
@@ -47,7 +46,6 @@ export function SignupForm() {
       displayName: '',
       email: '',
       password: '',
-      totalSessions: 8,
       address: '',
     },
   });
@@ -71,8 +69,6 @@ export function SignupForm() {
         email: values.email,
         photoURL: user.photoURL || '',
         role: role,
-        sessionsCompleted: 0,
-        totalSessions: values.totalSessions,
         xp: 0,
         address: values.address
       };
@@ -168,22 +164,9 @@ export function SignupForm() {
               name="address"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Shipping Address</FormLabel>
+                  <FormLabel>Shipping Address (Optional)</FormLabel>
                   <FormControl>
                       <Textarea placeholder="123 Main St, Anytown, USA" {...field} />
-                  </FormControl>
-                   <FormMessage />
-                  </FormItem>
-              )}
-              />
-              <FormField
-              control={form.control}
-              name="totalSessions"
-              render={({ field }) => (
-                  <FormItem>
-                  <FormLabel>Monthly Sessions</FormLabel>
-                  <FormControl>
-                      <Input type="number" {...field} />
                   </FormControl>
                    <FormMessage />
                   </FormItem>
@@ -205,3 +188,5 @@ export function SignupForm() {
     </Card>
   );
 }
+
+    

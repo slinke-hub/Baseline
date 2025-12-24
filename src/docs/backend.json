@@ -41,14 +41,6 @@
           "description": "URL of the user's profile photo stored in Firebase Storage.",
           "format": "uri"
         },
-        "sessionsCompleted": {
-            "type": "number",
-            "description": "Number of sessions the client has completed this month."
-        },
-        "totalSessions": {
-            "type": "number",
-            "description": "Total number of sessions allocated to the client for the month."
-        },
         "xp": {
             "type": "number",
             "description": "Experience points earned by the user."
@@ -370,6 +362,22 @@
             "createdAt": { "type": "string", "format": "date-time" }
         },
         "required": ["userId", "productId", "productName", "paymentMethod", "amountPaid", "status", "createdAt"]
+    },
+     "ScheduleEvent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ScheduleEvent",
+      "type": "object",
+      "description": "Represents a single event in a user's schedule.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string", "description": "The UID of the user this event belongs to." },
+        "date": { "type": "string", "format": "date-time", "description": "The date of the event." },
+        "type": { "type": "string", "enum": ["workout", "rest", "game", "meal", "practice", "reminder"], "description": "The type of event." },
+        "title": { "type": "string", "description": "The title of the event." },
+        "workoutId": { "type": "string", "description": "Optional reference to a Workout ID if type is 'workout'." },
+        "mealId": { "type": "string", "description": "Optional reference to a Meal ID if type is 'meal'." }
+      },
+      "required": ["userId", "date", "type", "title"]
     }
   },
   "auth": {
@@ -425,6 +433,18 @@
               "name": "workoutProgressId",
               "description": "The unique identifier of the workout progress entry."
             }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/schedule/{scheduleId}",
+        "definition": {
+          "entityName": "ScheduleEvent",
+          "schema": { "$ref": "#/backend/entities/ScheduleEvent" },
+          "description": "Stores a user's schedule events. Writable by the user or their coach.",
+          "params": [
+            { "name": "userId", "description": "The user's UID." },
+            { "name": "scheduleId", "description": "The unique ID of the schedule event." }
           ]
         }
       },
@@ -542,6 +562,8 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability for the Baseline application. User-owned data (workout progress, meal plans, orders) is stored in subcollections under the `/users/{userId}` path to easily control data access with path-based security. A central, public library for workouts, meals, locations, and products is maintained in top-level collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin/seller role for content management."
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence, clarity, and scalability. User-owned data (workout progress, schedule, orders) is stored in subcollections under the `/users/{userId}` path to easily control data access. A central, public library for workouts, meals, locations, and products is maintained in top-level collections. This segregation simplifies security rules: user-specific data is protected by ownership checks, while public content is broadly readable but write-protected, awaiting a proper admin/seller role for content management."
   }
 }
+
+    

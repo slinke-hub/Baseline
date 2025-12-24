@@ -12,10 +12,9 @@ export interface AppUser {
   weight?: number; // in kg
   position?: 'PG' | 'SG' | 'SF' | 'PF' | 'C';
   experienceLevel?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Pro';
-  sessionsCompleted?: number;
-  totalSessions?: number;
   xp?: number;
   address?: string;
+  // totalSessions and sessionsCompleted are removed from here
 }
 
 export type WorkoutCategory = 'Shooting' | 'Ball Handling' | 'Defense' | 'Conditioning' | 'Vertical Jump';
@@ -135,3 +134,5 @@ export interface UserOrder {
     status: 'Pending' | 'Shipped' | 'Delivered' | 'Canceled';
     createdAt: Timestamp;
 }
+
+    
