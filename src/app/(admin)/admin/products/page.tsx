@@ -25,7 +25,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -74,11 +73,19 @@ export default function AdminProductsPage() {
 
         const formData = new FormData(event.currentTarget);
         const values = Object.fromEntries(formData.entries()) as any;
+        
+        // Coerce to number, ensure empty strings become undefined
+        const discountedPriceXp = values.discountedPriceXp ? parseInt(values.discountedPriceXp) : undefined;
+        const discountedPriceCash = values.discountedPriceCash ? parseInt(values.discountedPriceCash) : undefined;
+
         const processedValues = {
-            ...values,
+            name: values.name,
+            description: values.description,
             priceXp: parseInt(values.priceXp),
             priceCash: parseInt(values.priceCash),
             stock: parseInt(values.stock),
+            discountedPriceXp,
+            discountedPriceCash,
             creatorId: appUser.uid,
         };
 
@@ -140,8 +147,8 @@ export default function AdminProductsPage() {
                                 <TableHead className="w-[80px]">Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Stock</TableHead>
-                                <TableHead>XP Price</TableHead>
-                                <TableHead>Cash Price</TableHead>
+                                <TableHead>Price</TableHead>
+                                <TableHead>Discount Price</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -153,8 +160,18 @@ export default function AdminProductsPage() {
                                     </TableCell>
                                     <TableCell className="font-medium">{product.name}</TableCell>
                                     <TableCell>{product.stock}</TableCell>
-                                    <TableCell>{product.priceXp.toLocaleString()} XP</TableCell>
-                                    <TableCell>${product.priceCash.toFixed(2)} SAR</TableCell>
+                                    <TableCell>
+                                        <div>{product.priceXp.toLocaleString()} XP</div>
+                                        <div>${product.priceCash.toFixed(2)} SAR</div>
+                                    </TableCell>
+                                    <TableCell>
+                                         { (product.discountedPriceXp || product.discountedPriceCash) ? (
+                                            <>
+                                                {product.discountedPriceXp && <div>{product.discountedPriceXp.toLocaleString()} XP</div>}
+                                                {product.discountedPriceCash && <div>${product.discountedPriceCash.toFixed(2)} SAR</div>}
+                                            </>
+                                        ) : 'N/A' }
+                                    </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
@@ -206,7 +223,17 @@ export default function AdminProductsPage() {
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 <div className="space-y-2"><Label htmlFor="stock">Stock</Label><Input id="stock" name="stock" type="number" defaultValue={selectedProduct?.stock} required /></div>
                                 <div className="space-y-2"><Label htmlFor="priceXp">XP Price</Label><Input id="priceXp" name="priceXp" type="number" defaultValue={selectedProduct?.priceXp} required /></div>
-                                <div className="space-y-2"><Label htmlFor="priceCash">Cash Price (SAR)</Label><Input id="priceCash" name="priceCash" type="number" defaultValue={selectedProduct?.priceCash} required /></div>
+                                <div className="space-y-2"><Label htmlFor="priceCash">Cash Price (SAR)</Label><Input id="priceCash" name="priceCash" type="number" step="0.01" defaultValue={selectedProduct?.priceCash} required /></div>
+                            </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="discountedPriceXp">Discounted XP Price (Optional)</Label>
+                                    <Input id="discountedPriceXp" name="discountedPriceXp" type="number" defaultValue={selectedProduct?.discountedPriceXp} placeholder="e.g., 800" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="discountedPriceCash">Discounted Cash Price (Optional)</Label>
+                                    <Input id="discountedPriceCash" name="discountedPriceCash" type="number" step="0.01" defaultValue={selectedProduct?.discountedPriceCash} placeholder="e.g., 49.99" />
+                                </div>
                             </div>
                         </div>
                         <DialogFooter>

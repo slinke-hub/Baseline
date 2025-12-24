@@ -346,6 +346,8 @@
             "photoUrl": { "type": "string", "format": "uri" },
             "priceXp": { "type": "number" },
             "priceCash": { "type": "number" },
+            "discountedPriceXp": { "type": "number" },
+            "discountedPriceCash": { "type": "number" },
             "stock": { "type": "number" },
             "creatorId": { "type": "string" }
         },

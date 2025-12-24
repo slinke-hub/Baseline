@@ -118,6 +118,8 @@ export interface Product {
     photoUrl: string;
     priceXp: number;
     priceCash: number; // Stored in SAR
+    discountedPriceXp?: number;
+    discountedPriceCash?: number;
     stock: number;
     creatorId: string;
 }
