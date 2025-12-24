@@ -100,26 +100,6 @@ export default function AdminOrdersPage() {
     const { firestore } = useFirebase();
     const { toast } = useToast();
     const { appUser } = useAuth();
-    
-    // Check if the user is a seller and not an admin
-    const isAdmin = () => {
-        return appUser?.role === 'admin';
-    }
-
-    if(appUser && appUser.role === 'seller' && !isAdmin()) {
-        // Here you would check a feature flag from a config
-        const canSellerAccessOrders = true; // Mocked value
-        if(!canSellerAccessOrders) {
-             return (
-                <div className="flex items-center justify-center h-full">
-                    <Card className="p-8 text-center">
-                        <CardTitle>Access Denied</CardTitle>
-                        <CardDescription>You do not have permission to view this page.</CardDescription>
-                    </Card>
-                </div>
-            )
-        }
-    }
 
     const ordersQuery = useMemoFirebase(() => query(collectionGroup(firestore, 'orders')), [firestore]);
     const { data: orders, isLoading: isLoadingOrders } = useCollection<UserOrder>(ordersQuery);
