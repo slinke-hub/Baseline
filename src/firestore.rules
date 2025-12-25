@@ -55,7 +55,9 @@ service cloud.firestore {
       }
 
       match /orders/{orderId} {
-        allow read, write: if isOwner(userId);
+        allow read, create: if isOwner(userId);
+        allow update: if isOwner(userId) || isSeller() || isAdmin();
+        allow delete: if isAdmin();
       }
     }
     

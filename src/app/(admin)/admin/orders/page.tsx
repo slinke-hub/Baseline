@@ -21,11 +21,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from '@/hooks/use-auth';
 
-function OrderTable({ orders, users, statusFilter, onUpdateStatus }: { 
+function OrderTable({ orders, users, statusFilter, onUpdateStatus, appUser }: { 
     orders: UserOrder[], 
     users: AppUser[],
     statusFilter: UserOrder['status'] | 'All', 
-    onUpdateStatus: (order: UserOrder, newStatus: UserOrder['status']) => void 
+    onUpdateStatus: (order: UserOrder, newStatus: UserOrder['status']) => void,
+    appUser: AppUser | null
 }) {
     const filteredOrders = useMemo(() => {
         if (statusFilter === 'All') return orders;
@@ -80,7 +81,11 @@ function OrderTable({ orders, users, statusFilter, onUpdateStatus }: {
                             </td>
                             <td className="p-2 text-right">
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon" disabled={appUser?.role !== 'admin' && appUser?.role !== 'seller'}>
+                                        <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         {order.status === 'Pending' && <DropdownMenuItem onClick={() => onUpdateStatus(order, 'Shipped')}><Truck className="mr-2 h-4 w-4"/>Mark as Shipped</DropdownMenuItem>}
                                         {order.status === 'Shipped' && <DropdownMenuItem onClick={() => onUpdateStatus(order, 'Delivered')}><Check className="mr-2 h-4 w-4"/>Mark as Delivered</DropdownMenuItem>}
@@ -157,19 +162,19 @@ export default function AdminOrdersPage() {
                                 <TabsTrigger value="Canceled">Canceled</TabsTrigger>
                             </TabsList>
                             <TabsContent value="All" className="mt-4">
-                                <OrderTable orders={orders} users={users} statusFilter="All" onUpdateStatus={handleUpdateStatus} />
+                                <OrderTable orders={orders} users={users} statusFilter="All" onUpdateStatus={handleUpdateStatus} appUser={appUser} />
                             </TabsContent>
                             <TabsContent value="Pending" className="mt-4">
-                                <OrderTable orders={orders} users={users} statusFilter="Pending" onUpdateStatus={handleUpdateStatus} />
+                                <OrderTable orders={orders} users={users} statusFilter="Pending" onUpdateStatus={handleUpdateStatus} appUser={appUser} />
                             </TabsContent>
                              <TabsContent value="Shipped" className="mt-4">
-                                <OrderTable orders={orders} users={users} statusFilter="Shipped" onUpdateStatus={handleUpdateStatus} />
+                                <OrderTable orders={orders} users={users} statusFilter="Shipped" onUpdateStatus={handleUpdateStatus} appUser={appUser} />
                             </TabsContent>
                             <TabsContent value="Delivered" className="mt-4">
-                                <OrderTable orders={orders} users={users} statusFilter="Delivered" onUpdateStatus={handleUpdateStatus} />
+                                <OrderTable orders={orders} users={users} statusFilter="Delivered" onUpdateStatus={handleUpdateStatus} appUser={appUser} />
                             </TabsContent>
                             <TabsContent value="Canceled" className="mt-4">
-                                <OrderTable orders={orders} users={users} statusFilter="Canceled" onUpdateStatus={handleUpdateStatus} />
+                                <OrderTable orders={orders} users={users} statusFilter="Canceled" onUpdateStatus={handleUpdateStatus} appUser={appUser} />
                             </TabsContent>
                         </Tabs>
                     ) : (
