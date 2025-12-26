@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2, ArrowRight, NotebookPen } from 'lucide-react';
+import { Users, Dumbbell, UtensilsCrossed, Megaphone, Gift, Loader2, ArrowRight, NotebookPen, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,8 +13,9 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import type { AppUser, Workout, Meal } from '@/lib/types';
+import { collection, query, where } from 'firebase/firestore';
+import { AppUser, Workout, Meal } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
 type Announcement = {
@@ -35,22 +36,22 @@ export default function AdminDashboardPage() {
     const { showNotification } = useNotifications();
     const { firestore } = useFirebase();
 
-    const usersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
-    const { data: allUsers, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
-
-    const workoutsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workouts') : null, [firestore]);
-    const { data: allWorkouts, isLoading: isLoadingWorkouts } = useCollection<Workout>(workoutsQuery);
-
-    const mealsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'meals') : null, [firestore]);
-    const { data: allMeals, isLoading: isLoadingMeals } = useCollection<Meal>(mealsQuery);
-
     const [newAnnouncement, setNewAnnouncement] = useState('');
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [xpForCourtsEnabled, setXpForCourtsEnabled] = useState(true);
+    const [sellerOrderAccess, setSellerOrderAccess] = useState(true);
+
+    const usersQuery = useMemoFirebase(() => query(collection(firestore, 'users')), [firestore]);
+    const { data: allUsers, isLoading: isLoadingUsers } = useCollection<AppUser>(usersQuery);
+
+    const workoutsQuery = useMemoFirebase(() => query(collection(firestore, 'workouts')), [firestore]);
+    const { data: allWorkouts, isLoading: isLoadingWorkouts } = useCollection<Workout>(workoutsQuery);
+    
+    const mealsQuery = useMemoFirebase(() => query(collection(firestore, 'meals')), [firestore]);
+    const { data: allMeals, isLoading: isLoadingMeals } = useCollection<Meal>(mealsQuery);
 
     useEffect(() => {
-      // In a real app, this initial state would be fetched from Firestore
-      const initialAnnouncements = [
+      const initialAnnouncements: Announcement[] = [
           { id: 1, author: 'Admin', text: 'Reminder: The gym will be closed this Friday for maintenance. All sessions are canceled.', date: new Date() },
           { id: 2, author: 'Admin', text: 'New "Vertical Jump" workouts have been added! Check them out in the workouts section.', date: new Date(new Date().setDate(new Date().getDate() - 1)) },
       ];
@@ -71,20 +72,24 @@ export default function AdminDashboardPage() {
         setNewAnnouncement('');
         toast({ title: "Announcement Posted", description: "Your announcement is now visible to all clients." });
         
-        // This is a simulation. In a real app, a backend service would send this notification.
         showNotification('New Announcement', { body: newAnnouncement });
     }
     
-    const handleFeatureToggle = (enabled: boolean) => {
-        setXpForCourtsEnabled(enabled);
-        // In a real app, this would update the setting in Firestore
-        toast({
-            title: "Feature Updated",
-            description: `XP for new courts has been ${enabled ? 'enabled' : 'disabled'}.`
-        });
+    const handleFeatureToggle = (feature: 'xp' | 'orders', enabled: boolean) => {
+       if (feature === 'xp') {
+           setXpForCourtsEnabled(enabled);
+           toast({
+               title: "Feature Updated",
+               description: `XP for new courts has been ${enabled ? 'enabled' : 'disabled'}.`
+           });
+       } else if (feature === 'orders') {
+            setSellerOrderAccess(enabled);
+            toast({
+                title: "Permissions Updated",
+                description: `Seller access to orders has been ${enabled ? 'enabled' : 'disabled'}.`
+            });
+       }
     }
-
-    const isLoadingStats = isLoadingUsers || isLoadingWorkouts || isLoadingMeals;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -94,30 +99,33 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
-              <CardHeader className="p-1">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Users className="h-4 w-4 text-muted-foreground" /> Total Users</CardTitle>
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent className="p-1">
-                  {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{allUsers?.length || 0}</div>}
+                  {isLoadingUsers ? <Skeleton className="h-7 w-12" /> : <div className="text-2xl font-bold">{allUsers?.length || 0}</div>}
                   <p className="text-xs text-muted-foreground">All registered users</p>
               </CardContent>
           </Card>
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
-              <CardHeader className="p-1">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><Dumbbell className="h-4 w-4 text-muted-foreground" /> Total Workouts</CardTitle>
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Workouts</CardTitle>
+                  <Dumbbell className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent className="p-1">
-                  {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{allWorkouts?.length || 0}</div>}
+                  {isLoadingWorkouts ? <Skeleton className="h-7 w-12" /> : <div className="text-2xl font-bold">{allWorkouts?.length || 0}</div>}
                   <p className="text-xs text-muted-foreground">Manage workout content</p>
               </CardContent>
           </Card>
-          <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-primary/20 hover:shadow-lg flex flex-col justify-center items-center p-1 text-center">
-              <CardHeader className="p-1">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2 justify-center"><UtensilsCrossed className="h-4 w-4 text-muted-foreground" /> Total Meals</CardTitle>
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Meals</CardTitle>
+                  <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent className="p-1">
-                  {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{allMeals?.length || 0}</div>}
+                  {isLoadingMeals ? <Skeleton className="h-7 w-12" /> : <div className="text-2xl font-bold">{allMeals?.length || 0}</div>}
                   <p className="text-xs text-muted-foreground">Manage nutrition plans</p>
               </CardContent>
           </Card>
@@ -187,7 +195,7 @@ export default function AdminDashboardPage() {
                     <CardTitle>Feature Flags</CardTitle>
                     <CardDescription>Enable or disable experimental features.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                     <div className="flex items-center justify-between rounded-lg border p-4">
                         <Label htmlFor="xp-for-courts" className="flex flex-col space-y-1">
                             <span className="flex items-center gap-2 font-semibold"><Gift className="h-4 w-4" />XP for New Courts</span>
@@ -195,7 +203,16 @@ export default function AdminDashboardPage() {
                                 Reward users with 50 XP for submitting a new court location.
                             </span>
                         </Label>
-                        <Switch id="xp-for-courts" checked={xpForCourtsEnabled} onCheckedChange={handleFeatureToggle} />
+                        <Switch id="xp-for-courts" checked={xpForCourtsEnabled} onCheckedChange={(c) => handleFeatureToggle('xp', c)} />
+                    </div>
+                     <div className="flex items-center justify-between rounded-lg border p-4">
+                        <Label htmlFor="seller-orders" className="flex flex-col space-y-1">
+                            <span className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4" />Seller Order Access</span>
+                            <span className="font-normal leading-snug text-muted-foreground">
+                                Allow sellers to view and manage all orders.
+                            </span>
+                        </Label>
+                        <Switch id="seller-orders" checked={sellerOrderAccess} onCheckedChange={(c) => handleFeatureToggle('orders', c)} />
                     </div>
                 </CardContent>
             </Card>
